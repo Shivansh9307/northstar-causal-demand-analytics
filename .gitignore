@@ -1,0 +1,35 @@
+# ---- Data ----------------------------------------------------------------
+# Generated fact tables are large (600MB+ in dev mode) and fully reproducible
+# from src/generation/generate_retail_dataset.py with seed=42. Never committed.
+data/raw/
+data/processed/
+data/external/
+
+# Ground truth is small and IS committed - it is the validation artifact that
+# makes the causal recovery claims checkable by a reviewer.
+!data/ground_truth/
+!data/ground_truth/**
+
+# Committed samples so the repo is explorable without regenerating
+!data/samples/
+!data/samples/**
+
+# ---- Python --------------------------------------------------------------
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
+
+# ---- Notebooks -----------------------------------------------------------
+# Strip outputs before committing; keep the notebooks themselves.
+
+# ---- Power BI ------------------------------------------------------------
+powerbi/**/.pbi/cache.abf
+*.pbix
+
+# ---- OS / editor ---------------------------------------------------------
+.DS_Store
+.vscode/
+.idea/

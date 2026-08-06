@@ -1,0 +1,54 @@
+# PromoPulse — central configuration
+# Per PROJECT_ARCHITECTURE.md §6 Phase 0: seed fixed, FULL_MODE=False for all
+# development. Do not flip full_mode until every phase is proven end-to-end.
+
+seed: 42
+full_mode: false
+
+scale:
+  dev:
+    n_stores: 20
+    n_skus: 150
+    start_date: "2023-01-01"
+    end_date: "2024-12-31"
+  full:
+    n_stores: 60
+    n_skus: 500
+    start_date: "2023-01-01"
+    end_date: "2025-12-31"
+
+paths:
+  raw: "data/raw"
+  processed: "data/processed"
+  external: "data/external"
+  # Ground truth is deliberately OUTSIDE data/raw so no training loader can
+  # glob it in. See PROJECT_ARCHITECTURE.md §5 and §7.
+  ground_truth: "data/ground_truth"
+  samples: "data/samples"
+  reports: "reports"
+  figures: "reports/figures"
+
+generation:
+  chunk_days: 14
+  # Share of store x SKU x day rows that should sit under an active promotion.
+  # The original generator produced 0.19%, far below UK grocery norms (10-30%)
+  # and too thin to support DiD/PSM subgroup inference.
+  promo_density_target: 0.10
+  # Fraction of promo events belonging to multi-store staggered campaigns
+  # (the DiD-identifying variation). The remainder are store-local tactical
+  # promos that preserve realistic assignment noise.
+  campaign_share: 0.60
+  # Days each successive store cohort waits before joining a campaign.
+  cohort_offsets_days: [0, 21, 42]
+  n_cohorts: 3
+
+leakage:
+  # Columns that must never enter a model feature set (§7). The checker in
+  # src/data_quality/ fails the pipeline if any of these appear.
+  forbidden_columns:
+    - potential_demand_units
+    - lost_sales_estimate_units
+    - anomaly_flag
+    - anomaly_type
+  forbidden_sources:
+    - data/ground_truth
