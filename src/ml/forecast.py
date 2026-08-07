@@ -198,6 +198,7 @@ def run_cross_validation(
     target: str = "units_sold",
     max_train_rows: Optional[int] = 800_000,
     seed: int = 42,
+    naive_column: str = "sales_lag_7",
 ) -> pd.DataFrame:
     """
     Expanding-window CV across the model ladder.
@@ -221,7 +222,7 @@ def run_cross_validation(
 
         LOGGER.info("Fold %d: train %d, valid %d", fold_number, len(train), len(valid))
 
-        naive = valid["sales_lag_7"].to_numpy()
+        naive = valid[naive_column].to_numpy()
         rows.append({"fold": fold_number, "model": "Seasonal naive", **evaluate(y_valid, naive)})
 
         ridge = fit_ridge(X_train, y_train, categorical)
@@ -244,6 +245,7 @@ def run_holdout(
     categorical: Sequence[str],
     holdout_index: np.ndarray,
     target: str = "units_sold",
+    naive_column: str = "sales_lag_7",
 ) -> Tuple[pd.DataFrame, GradientBooster, pd.DataFrame, np.ndarray]:
     """
     Final evaluation on the untouched holdout period.
@@ -259,7 +261,7 @@ def run_holdout(
     X_holdout, y_holdout = holdout[list(feature_names)], holdout[target].to_numpy()
 
     rows: List[Dict[str, object]] = []
-    naive = holdout["sales_lag_7"].to_numpy()
+    naive = holdout[naive_column].to_numpy()
     rows.append({"model": "Seasonal naive", **evaluate(y_holdout, naive)})
 
     ridge = fit_ridge(X_train, y_train, categorical)
