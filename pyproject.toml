@@ -9,6 +9,7 @@ dependencies = [
     "numpy>=2.5.1",
     "pandas>=3.0.5",
     "pyyaml>=6.0.2",
+    "statsmodels>=0.14.6",
 ]
 
 [dependency-groups]
