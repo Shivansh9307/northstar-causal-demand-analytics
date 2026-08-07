@@ -1,0 +1,99 @@
+table promo_plan
+
+	measure 'Promotions Selected' =
+			COUNTROWS ( promo_plan )
+
+	measure 'Plan Spend' =
+			SUM ( promo_plan[promotion_cost] )
+		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+
+	measure 'Plan Incremental Profit' =
+			SUM ( promo_plan[incremental_profit] )
+		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+
+	measure 'Scenario Incremental Profit' =
+			VAR Multiplier = SELECTEDVALUE ( 'Uplift Scenario'[Uplift Scenario], 1 )
+			RETURN
+			    SUMX (
+			        promo_plan,
+			        ( promo_plan[baseline_units] + promo_plan[incremental_units] * Multiplier )
+			            * promo_plan[promo_margin]
+			            - promo_plan[baseline_units] * promo_plan[full_margin]
+			            - promo_plan[cannibalisation_loss]
+			    )
+		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+
+	measure 'Scenario vs Plan' =
+			[Scenario Incremental Profit] - [Plan Incremental Profit]
+
+	measure 'Scenario Verdict' =
+			IF (
+			    [Scenario Incremental Profit] < 0,
+			    "Plan loses money at this uplift",
+			    "Plan remains profitable"
+			)
+
+	column store_id
+		dataType: string
+		sourceColumn: store_id
+		formatString: #,0.0000
+
+	column sku_id
+		dataType: string
+		sourceColumn: sku_id
+		formatString: #,0.0000
+
+	column category
+		dataType: string
+		sourceColumn: category
+		formatString: #,0.0000
+
+	column discount_pct
+		dataType: int64
+		sourceColumn: discount_pct
+		formatString: #,0
+
+	column baseline_units
+		dataType: double
+		sourceColumn: baseline_units
+		formatString: #,0.0000
+
+	column incremental_units
+		dataType: double
+		sourceColumn: incremental_units
+		formatString: #,0.0000
+
+	column promo_margin
+		dataType: double
+		sourceColumn: promo_margin
+		formatString: #,0.0000
+
+	column full_margin
+		dataType: double
+		sourceColumn: full_margin
+		formatString: #,0.0000
+
+	column promotion_cost
+		dataType: double
+		sourceColumn: promotion_cost
+		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+
+	column cannibalisation_loss
+		dataType: double
+		sourceColumn: cannibalisation_loss
+		formatString: #,0.0000
+
+	column incremental_profit
+		dataType: double
+		sourceColumn: incremental_profit
+		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+
+	partition promo_plan = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "promo_plan.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"store_id", type text}, {"sku_id", type text}, {"category", type text}, {"discount_pct", Int64.Type}, {"baseline_units", type number}, {"incremental_units", type number}, {"promo_margin", type number}, {"full_margin", type number}, {"promotion_cost", type number}, {"cannibalisation_loss", type number}, {"incremental_profit", type number}})
+				in
+				    Typed

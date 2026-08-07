@@ -1,0 +1,9 @@
+method,family,log_effect,ci_low,ci_high,effect_pct,true_log_effect,true_effect_pct,error_log,error_pp
+promoted rows vs all others,Naive,0.8186,,,126.7368,0.5935,81.0255,0.2252,45.7113
+within-pair promoted vs not,Naive,0.8137,,,125.6192,0.5935,81.0255,0.2202,44.5937
+ever-promoted vs never-promoted pairs,Naive,0.0868,,,9.0629,0.5935,81.0255,-0.5067,-71.9626
+DiD: all untreated controls,Difference-in-differences,0.7951,0.7862,0.804,121.469,0.5935,81.0255,0.2016,40.4435
+DiD: + concurrent-promotion control,Difference-in-differences,0.8012,0.7922,0.8101,122.819,0.5935,81.0255,0.2077,41.7935
+DiD: never-promoted controls,Difference-in-differences,0.8686,0.8256,0.9117,138.3648,0.5935,81.0255,0.2752,57.3393
+DiD: uncannibalised controls,Difference-in-differences,0.6887,0.6798,0.6975,99.1101,0.5935,81.0255,0.0952,18.0846
+DiD: uncannibalised + seasonal effects,Difference-in-differences,0.6752,0.6663,0.6841,96.4411,0.5935,81.0255,0.0817,15.4156

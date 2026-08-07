@@ -1,0 +1,21 @@
+store_id,store_name,city,region,country,store_format,floor_area_sqm,average_daily_footfall,competition_intensity_score,store_income_index,local_deprivation_decile,rollout_cohort
+STR001,Northstar London Suburban Supermarket,London,London,England,Suburban Supermarket,4136,1536,7,111.3,5,2
+STR002,Northstar Birmingham High Street,Birmingham,West Midlands,England,High Street,782,900,6,111.7,4,1
+STR003,Northstar Manchester Suburban Supermarket,Manchester,North West,England,Suburban Supermarket,3922,1181,4,97.2,7,0
+STR004,Northstar Liverpool City Convenience,Liverpool,North West,England,City Convenience,211,1256,6,106.5,2,1
+STR005,Northstar Leeds City Convenience,Leeds,Yorkshire and the Humber,England,City Convenience,338,1164,8,87.6,5,1
+STR006,Northstar Sheffield Suburban Supermarket,Sheffield,Yorkshire and the Humber,England,Suburban Supermarket,2119,1505,9,103.3,4,0
+STR007,Northstar Newcastle Suburban Supermarket,Newcastle,North East,England,Suburban Supermarket,1897,1375,4,92.9,8,0
+STR008,Northstar Bristol Suburban Supermarket,Bristol,South West,England,Suburban Supermarket,1680,1398,7,108.8,7,2
+STR009,Northstar Nottingham Retail Park Superstore,Nottingham,East Midlands,England,Retail Park Superstore,8971,1742,2,86.2,3,0
+STR010,Northstar Leicester High Street,Leicester,East Midlands,England,High Street,991,505,5,90.1,9,1
+STR011,Northstar Northampton City Convenience,Northampton,East Midlands,England,City Convenience,287,967,6,110.0,7,2
+STR012,Northstar Reading Retail Park Superstore,Reading,South East,England,Retail Park Superstore,9672,1716,5,86.4,10,1
+STR013,Northstar Southampton City Convenience,Southampton,South East,England,City Convenience,274,825,6,112.6,10,0
+STR014,Northstar Cardiff Suburban Supermarket,Cardiff,South Wales,Wales,Suburban Supermarket,1819,1404,7,100.3,5,1
+STR015,Northstar Swansea High Street,Swansea,South Wales,Wales,High Street,1143,878,7,121.9,2,2
+STR016,Northstar Edinburgh City Convenience,Edinburgh,Scotland,Scotland,City Convenience,251,1248,3,84.8,10,2
+STR017,Northstar Glasgow High Street,Glasgow,Scotland,Scotland,High Street,466,797,9,87.8,3,1
+STR018,Northstar Aberdeen High Street,Aberdeen,Scotland,Scotland,High Street,995,661,4,92.7,2,2
+STR019,Northstar Dundee City Convenience,Dundee,Scotland,Scotland,City Convenience,332,931,4,89.1,1,0
+STR020,Northstar Cambridge High Street,Cambridge,East of England,England,High Street,776,589,10,90.2,3,0

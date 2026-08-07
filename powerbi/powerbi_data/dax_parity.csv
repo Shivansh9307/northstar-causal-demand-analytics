@@ -1,0 +1,32 @@
+page,measure,expected_value,unit,note
+Executive Summary,Total Revenue,182537804.93,GBP,SUM of revenue_gbp
+Executive Summary,Total Gross Profit,69059188.19,GBP,SUM of gross_profit_gbp
+Executive Summary,Gross Margin %,37.8328,percent,Gross profit over revenue
+Executive Summary,Units Sold,39235280.0,units,SUM of units_sold
+Executive Summary,Promotion Rate %,8.4889,percent,Promoted SKU-days over all SKU-days
+Executive Summary,Stockout Rate %,0.2823,percent,Stockout SKU-days over all SKU-days
+Executive Summary,Promoted Revenue Share %,15.9633,percent,Share of revenue earned on promotion
+Promotion ROI,Naive Promo Lift %,126.7368,percent,Uncorrected promoted-vs-not comparison
+Promotion ROI,Causal Promo Lift %,96.4411,percent,Best difference-in-differences specification
+Promotion ROI,True Promo Lift %,81.0255,percent,Simulated truth - available only because the data is synthetic
+Promotion ROI,Naive Bias pp,45.7113,pp,Naive estimate less the truth
+Promotion ROI,Causal Bias pp,15.4156,pp,Causal estimate less the truth
+Promotion ROI,Bias Removed %,63.7211,percent,Share of naive bias the causal correction removes
+Elasticity Explorer,Dose Response Points,18.0,count,Segment x depth combinations estimated
+Elasticity Explorer,CI Coverage %,83.3333,percent,Share of intervals covering the simulated value
+Elasticity Explorer,Max Recovery Error,0.0266,log points,Largest absolute deviation from the truth
+Elasticity Explorer,Mean Lift at 20% Discount,97.4221,percent,Average estimated uplift at a 20% discount
+Stockout Risk,Cannibalisation 1 Neighbour %,-6.1244,percent,Effect on an untreated SKU when one category neighbour is promoted
+Stockout Risk,Cannibalisation 4+ Neighbours %,-16.3727,percent,Effect at four or more concurrent promotions
+Stockout Risk,Median Service Level %,99.45,percent,Median cost-derived service level across categories
+Stockout Risk,Lowest Service Level Category,52.31,percent,The category the newsvendor ratio pushes lowest
+What-If Simulator,Promotions Selected,10.0,count,Rows in the optimiser's recommended plan
+What-If Simulator,Plan Spend,4409.1902,GBP,Retailer-funded give-away in the plan
+What-If Simulator,Plan Incremental Profit,337.0253,GBP,Deterministic profit the optimiser reports
+What-If Simulator,Plan Profit P10,-761.9826,GBP,10th percentile of the Monte Carlo distribution
+What-If Simulator,Plan Profit P50,-267.7425,GBP,Median simulated outcome
+What-If Simulator,Plan Profit P90,264.7569,GBP,90th percentile
+What-If Simulator,Probability of Loss %,74.2,percent,Share of draws below zero
+What-If Simulator,Candidates Profitable %,0.15,percent,Share of candidate promotions clearing zero after cannibalisation
+What-If Simulator,Scenario Profit at Multiplier 1,337.0255,GBP,Must equal Plan Incremental Profit; guards against double-counting the give-away
+What-If Simulator,Scenario Profit at Multiplier 0.88,-259.5533,GBP,"Phase 4 concluded the uplift estimate is an upper bound, so 0.88 is the central case"

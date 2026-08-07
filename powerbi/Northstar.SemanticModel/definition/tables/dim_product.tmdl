@@ -1,0 +1,86 @@
+table dim_product
+
+	column sku_id
+		dataType: string
+		sourceColumn: sku_id
+		formatString: #,0.0000
+
+	column sku_name
+		dataType: string
+		sourceColumn: sku_name
+		formatString: #,0.0000
+
+	column category
+		dataType: string
+		sourceColumn: category
+		formatString: #,0.0000
+
+	column subcategory
+		dataType: string
+		sourceColumn: subcategory
+		formatString: #,0.0000
+
+	column brand_type
+		dataType: string
+		sourceColumn: brand_type
+		formatString: #,0.0000
+
+	column regular_unit_price_gbp
+		dataType: double
+		sourceColumn: regular_unit_price_gbp
+		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+
+	column unit_cost_gbp
+		dataType: double
+		sourceColumn: unit_cost_gbp
+		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+
+	column baseline_gross_margin_pct
+		dataType: double
+		sourceColumn: baseline_gross_margin_pct
+		formatString: #,0.00
+
+	column price_elasticity_segment
+		dataType: string
+		sourceColumn: price_elasticity_segment
+		formatString: #,0.0000
+
+	column promotion_sensitivity_segment
+		dataType: string
+		sourceColumn: promotion_sensitivity_segment
+		formatString: #,0.0000
+
+	column demand_volatility_segment
+		dataType: string
+		sourceColumn: demand_volatility_segment
+		formatString: #,0.0000
+
+	column seasonal_profile
+		dataType: string
+		sourceColumn: seasonal_profile
+		formatString: #,0.0000
+
+	column is_perishable
+		dataType: int64
+		sourceColumn: is_perishable
+		formatString: #,0
+
+	column shelf_life_days
+		dataType: int64
+		sourceColumn: shelf_life_days
+		formatString: #,0
+
+	column reorder_lead_time_days
+		dataType: int64
+		sourceColumn: reorder_lead_time_days
+		formatString: #,0
+
+	partition dim_product = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "dim_product.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"sku_id", type text}, {"sku_name", type text}, {"category", type text}, {"subcategory", type text}, {"brand_type", type text}, {"regular_unit_price_gbp", type number}, {"unit_cost_gbp", type number}, {"baseline_gross_margin_pct", type number}, {"price_elasticity_segment", type text}, {"promotion_sensitivity_segment", type text}, {"demand_volatility_segment", type text}, {"seasonal_profile", type text}, {"is_perishable", Int64.Type}, {"shelf_life_days", Int64.Type}, {"reorder_lead_time_days", Int64.Type}})
+				in
+				    Typed

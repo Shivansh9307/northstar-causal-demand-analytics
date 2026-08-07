@@ -1,0 +1,31 @@
+table dim_category
+
+	column category
+		dataType: string
+		sourceColumn: category
+		formatString: #,0.0000
+
+	column skus
+		dataType: int64
+		sourceColumn: skus
+		formatString: #,0
+
+	column mean_margin_pct
+		dataType: double
+		sourceColumn: mean_margin_pct
+		formatString: #,0.00
+
+	column perishable_skus
+		dataType: double
+		sourceColumn: perishable_skus
+		formatString: #,0.0000
+
+	partition dim_category = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "dim_category.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"category", type text}, {"skus", Int64.Type}, {"mean_margin_pct", type number}, {"perishable_skus", type number}})
+				in
+				    Typed

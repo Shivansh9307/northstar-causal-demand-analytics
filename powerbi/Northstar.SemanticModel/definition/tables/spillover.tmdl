@@ -1,0 +1,64 @@
+table spillover
+
+	measure 'Cannibalisation 1 Neighbour %' =
+			CALCULATE ( MAX ( spillover[effect_pct] ), spillover[others_on_promo] = "1" )
+		formatString: #,0.00
+
+	measure 'Cannibalisation 4+ Neighbours %' =
+			CALCULATE ( MAX ( spillover[effect_pct] ), spillover[others_on_promo] = "4+" )
+		formatString: #,0.00
+
+	column others_on_promo
+		dataType: string
+		sourceColumn: others_on_promo
+		formatString: #,0.0000
+
+	column n_rows
+		dataType: int64
+		sourceColumn: n_rows
+		formatString: #,0
+
+	column estimate
+		dataType: double
+		sourceColumn: estimate
+		formatString: #,0.0000
+
+	column std_err
+		dataType: double
+		sourceColumn: std_err
+		formatString: #,0.0000
+
+	column ci_low
+		dataType: double
+		sourceColumn: ci_low
+		formatString: #,0.0000
+
+	column ci_high
+		dataType: double
+		sourceColumn: ci_high
+		formatString: #,0.0000
+
+	column p_value
+		dataType: double
+		sourceColumn: p_value
+		formatString: #,0.0000
+
+	column pct_effect
+		dataType: double
+		sourceColumn: pct_effect
+		formatString: #,0.0000
+
+	column effect_pct
+		dataType: double
+		sourceColumn: effect_pct
+		formatString: #,0.00
+
+	partition spillover = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "spillover.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"others_on_promo", type text}, {"n_rows", Int64.Type}, {"estimate", type number}, {"std_err", type number}, {"ci_low", type number}, {"ci_high", type number}, {"p_value", type number}, {"pct_effect", type number}, {"effect_pct", type number}})
+				in
+				    Typed

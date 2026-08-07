@@ -1,0 +1,11 @@
+category,pairs,median_service_level,mean_safety_stock,mean_reorder_point
+Fresh Produce,360,0.5231,2.3641,59.6315
+Bakery,240,0.5871,8.4623,63.3082
+Dairy & Eggs,260,0.8419,15.8052,72.3287
+Ambient Grocery,560,0.9935,31.4389,102.9925
+Seasonal,220,0.9944,55.7042,91.7392
+Beverages,380,0.9946,58.1513,134.4965
+Frozen,240,0.995,40.5328,73.859
+Health & Beauty,140,0.995,27.69,59.9074
+Household & Cleaning,220,0.995,29.7727,75.6395
+Snacks & Confectionery,380,0.995,43.2189,105.9869

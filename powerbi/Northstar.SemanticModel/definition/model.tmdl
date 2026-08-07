@@ -1,0 +1,26 @@
+model Model
+	culture: en-GB
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+	sourceQueryCulture: en-GB
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+ref table dim_store
+ref table dim_product
+ref table dim_calendar
+ref table dim_category
+ref table fact_daily_category
+ref table reorder_policy
+ref table causal_estimates
+ref table dose_response
+ref table spillover
+ref table service_levels
+ref table promo_plan
+ref table promo_plan_uncertainty
+ref table promo_plan_draws
+ref table promo_economics
+ref table dax_parity
+
+ref expression DataFolder

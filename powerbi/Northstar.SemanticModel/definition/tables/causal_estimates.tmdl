@@ -1,0 +1,113 @@
+table causal_estimates
+
+	measure 'Naive Promo Lift %' =
+			CALCULATE (
+			    MAX ( causal_estimates[effect_pct] ),
+			    causal_estimates[method] = "promoted rows vs all others"
+			)
+		formatString: #,0.00
+
+	measure 'Causal Promo Lift %' =
+			CALCULATE (
+			    MAX ( causal_estimates[effect_pct] ),
+			    causal_estimates[method] = "DiD: uncannibalised + seasonal effects"
+			)
+		formatString: #,0.00
+
+	measure 'True Promo Lift %' =
+			MAX ( causal_estimates[true_effect_pct] )
+		formatString: #,0.00
+
+	measure 'Naive Bias pp' =
+			[Naive Promo Lift %] - [True Promo Lift %]
+		formatString: #,0.00
+
+	measure 'Causal Bias pp' =
+			[Causal Promo Lift %] - [True Promo Lift %]
+		formatString: #,0.00
+
+	measure 'Bias Removed %' =
+			VAR NaiveError =
+			    ABS (
+			        CALCULATE (
+			            MAX ( causal_estimates[error_log] ),
+			            causal_estimates[method] = "promoted rows vs all others"
+			        )
+			    )
+			VAR CausalError =
+			    ABS (
+			        CALCULATE (
+			            MAX ( causal_estimates[error_log] ),
+			            causal_estimates[method] = "DiD: uncannibalised + seasonal effects"
+			        )
+			    )
+			RETURN ( 1 - DIVIDE ( CausalError, NaiveError ) ) * 100
+		formatString: #,0.00
+
+	measure 'Estimate Health' =
+			SWITCH (
+			    TRUE (),
+			    ABS ( [Causal Bias pp] ) <= 10, "Within 10pp of truth",
+			    ABS ( [Causal Bias pp] ) <= 20, "Within 20pp — upper bound",
+			    "Large residual bias"
+			)
+
+	column method
+		dataType: string
+		sourceColumn: method
+		formatString: #,0.0000
+
+	column family
+		dataType: string
+		sourceColumn: family
+		formatString: #,0.0000
+
+	column log_effect
+		dataType: double
+		sourceColumn: log_effect
+		formatString: #,0.0000
+
+	column ci_low
+		dataType: double
+		sourceColumn: ci_low
+		formatString: #,0.0000
+
+	column ci_high
+		dataType: double
+		sourceColumn: ci_high
+		formatString: #,0.0000
+
+	column effect_pct
+		dataType: double
+		sourceColumn: effect_pct
+		formatString: #,0.00
+
+	column true_log_effect
+		dataType: double
+		sourceColumn: true_log_effect
+		formatString: #,0.0000
+
+	column true_effect_pct
+		dataType: double
+		sourceColumn: true_effect_pct
+		formatString: #,0.00
+
+	column error_log
+		dataType: double
+		sourceColumn: error_log
+		formatString: #,0.0000
+
+	column error_pp
+		dataType: double
+		sourceColumn: error_pp
+		formatString: #,0.0000
+
+	partition causal_estimates = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "causal_estimates.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"method", type text}, {"family", type text}, {"log_effect", type number}, {"ci_low", type number}, {"ci_high", type number}, {"effect_pct", type number}, {"true_log_effect", type number}, {"true_effect_pct", type number}, {"error_log", type number}, {"error_pp", type number}})
+				in
+				    Typed

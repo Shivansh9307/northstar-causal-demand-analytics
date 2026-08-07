@@ -1,0 +1,5 @@
+expression DataFolder = "/Users/vishakha/Github Portfolio Projects/northstar-causal-demand-analytics/powerbi/powerbi_data/"
+	lineageTag: data-folder-parameter
+	queryGroup: Parameters
+
+	annotation PBI_NavigationStepName = Navigation

@@ -1,0 +1,128 @@
+table fact_daily_category
+
+	measure 'Total Revenue' =
+			SUM ( fact_daily_category[revenue_gbp] )
+		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+
+	measure 'Total Gross Profit' =
+			SUM ( fact_daily_category[gross_profit_gbp] )
+		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+
+	measure 'Gross Margin %' =
+			DIVIDE ( [Total Gross Profit], [Total Revenue] ) * 100
+		formatString: #,0.00
+
+	measure 'Units Sold' =
+			SUM ( fact_daily_category[units_sold] )
+
+	measure 'Promotion Rate %' =
+			DIVIDE (
+			    SUM ( fact_daily_category[promoted_sku_days] ),
+			    SUM ( fact_daily_category[sku_days] )
+			) * 100
+		formatString: #,0.00
+
+	measure 'Stockout Rate %' =
+			DIVIDE (
+			    SUM ( fact_daily_category[stockout_sku_days] ),
+			    SUM ( fact_daily_category[sku_days] )
+			) * 100
+		formatString: #,0.00
+
+	measure 'Promoted Revenue Share %' =
+			DIVIDE ( SUM ( fact_daily_category[promoted_revenue_gbp] ), [Total Revenue] ) * 100
+		formatString: #,0.00
+
+	measure 'Revenue LY' =
+			CALCULATE ( [Total Revenue], DATEADD ( dim_calendar[date], -1, YEAR ) )
+		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+
+	measure 'Revenue YoY %' =
+			VAR Previous = [Revenue LY]
+			RETURN IF ( Previous > 0, DIVIDE ( [Total Revenue] - Previous, Previous ) * 100 )
+		formatString: #,0.00
+
+	column date
+		dataType: dateTime
+		sourceColumn: date
+		formatString: yyyy-mm-dd
+
+	column store_id
+		dataType: string
+		sourceColumn: store_id
+		formatString: #,0.0000
+
+	column category
+		dataType: string
+		sourceColumn: category
+		formatString: #,0.0000
+
+	column units_sold
+		dataType: double
+		sourceColumn: units_sold
+		formatString: #,0.0000
+
+	column revenue_gbp
+		dataType: double
+		sourceColumn: revenue_gbp
+		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+
+	column cogs_gbp
+		dataType: double
+		sourceColumn: cogs_gbp
+		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+
+	column promo_cost_gbp
+		dataType: double
+		sourceColumn: promo_cost_gbp
+		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+
+	column gross_profit_gbp
+		dataType: double
+		sourceColumn: gross_profit_gbp
+		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+
+	column promoted_sku_days
+		dataType: double
+		sourceColumn: promoted_sku_days
+		formatString: #,0.0000
+
+	column sku_days
+		dataType: int64
+		sourceColumn: sku_days
+		formatString: #,0
+
+	column stockout_sku_days
+		dataType: double
+		sourceColumn: stockout_sku_days
+		formatString: #,0.0000
+
+	column promoted_units
+		dataType: double
+		sourceColumn: promoted_units
+		formatString: #,0.0000
+
+	column promoted_revenue_gbp
+		dataType: double
+		sourceColumn: promoted_revenue_gbp
+		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+
+	column waste_units
+		dataType: double
+		sourceColumn: waste_units
+		formatString: #,0.0000
+
+	column mean_discount_pct
+		dataType: double
+		sourceColumn: mean_discount_pct
+		formatString: #,0.00
+
+	partition fact_daily_category = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "fact_daily_category.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"date", type date}, {"store_id", type text}, {"category", type text}, {"units_sold", type number}, {"revenue_gbp", type number}, {"cogs_gbp", type number}, {"promo_cost_gbp", type number}, {"gross_profit_gbp", type number}, {"promoted_sku_days", type number}, {"sku_days", Int64.Type}, {"stockout_sku_days", type number}, {"promoted_units", type number}, {"promoted_revenue_gbp", type number}, {"waste_units", type number}, {"mean_discount_pct", type number}})
+				in
+				    Typed

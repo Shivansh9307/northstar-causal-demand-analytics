@@ -1,0 +1,2 @@
+deterministic,mean,p10,p50,p90,std,probability_of_loss,probability_below_deterministic,shortfall_vs_deterministic
+337.0252,-256.171,-761.9826,-267.7425,264.7569,410.2809,0.742,0.926,604.7677

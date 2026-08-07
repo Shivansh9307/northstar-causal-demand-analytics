@@ -1,0 +1,64 @@
+table reorder_policy
+
+	measure 'Mean Safety Stock' =
+			AVERAGE ( reorder_policy[safety_stock] )
+
+	measure 'Mean Reorder Point' =
+			AVERAGE ( reorder_policy[reorder_point] )
+
+	measure 'Service Level Insight' =
+			VAR Perishable =
+			    CALCULATE ( AVERAGE ( reorder_policy[service_level] ), reorder_policy[is_perishable] = TRUE () )
+			VAR Ambient =
+			    CALCULATE ( AVERAGE ( reorder_policy[service_level] ), reorder_policy[is_perishable] = FALSE () )
+			RETURN
+			    IF (
+			        Perishable < Ambient,
+			        "Perishables optimally run LOWER availability",
+			        "Perishables optimally run higher availability"
+			    )
+
+	column store_id
+		dataType: string
+		sourceColumn: store_id
+		formatString: #,0.0000
+
+	column sku_id
+		dataType: string
+		sourceColumn: sku_id
+		formatString: #,0.0000
+
+	column category
+		dataType: string
+		sourceColumn: category
+		formatString: #,0.0000
+
+	column service_level
+		dataType: double
+		sourceColumn: service_level
+		formatString: #,0.0000
+
+	column safety_stock
+		dataType: double
+		sourceColumn: safety_stock
+		formatString: #,0.0000
+
+	column reorder_point
+		dataType: double
+		sourceColumn: reorder_point
+		formatString: #,0.0000
+
+	column is_perishable
+		dataType: int64
+		sourceColumn: is_perishable
+		formatString: #,0
+
+	partition reorder_policy = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "reorder_policy.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"store_id", type text}, {"sku_id", type text}, {"category", type text}, {"service_level", type number}, {"safety_stock", type number}, {"reorder_point", type number}, {"is_perishable", Int64.Type}})
+				in
+				    Typed

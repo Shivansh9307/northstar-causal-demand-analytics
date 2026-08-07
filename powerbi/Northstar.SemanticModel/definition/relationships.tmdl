@@ -1,0 +1,19 @@
+relationship rel_1
+	fromColumn: fact_daily_category.date
+	toColumn: dim_calendar.date
+
+relationship rel_2
+	fromColumn: fact_daily_category.store_id
+	toColumn: dim_store.store_id
+
+relationship rel_3
+	fromColumn: fact_daily_category.category
+	toColumn: dim_category.category
+
+relationship rel_4
+	fromColumn: reorder_policy.store_id
+	toColumn: dim_store.store_id
+
+relationship rel_5
+	fromColumn: reorder_policy.sku_id
+	toColumn: dim_product.sku_id

@@ -1,0 +1,11 @@
+category,skus,mean_margin_pct,perishable_skus
+Ambient Grocery,28,40.3496,1.0
+Bakery,12,43.2358,10.0
+Beverages,19,40.3442,0.0
+Dairy & Eggs,13,43.6915,11.0
+Fresh Produce,18,41.6683,18.0
+Frozen,12,43.0667,3.0
+Health & Beauty,7,42.6843,0.0
+Household & Cleaning,11,39.2282,0.0
+Seasonal,11,40.3818,0.0
+Snacks & Confectionery,19,39.1221,0.0

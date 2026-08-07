@@ -1,0 +1,36 @@
+table dax_parity
+
+	column page
+		dataType: string
+		sourceColumn: page
+		formatString: #,0.0000
+
+	column measure
+		dataType: string
+		sourceColumn: measure
+		formatString: #,0.0000
+
+	column expected_value
+		dataType: double
+		sourceColumn: expected_value
+		formatString: #,0.0000
+
+	column unit
+		dataType: string
+		sourceColumn: unit
+		formatString: #,0.0000
+
+	column note
+		dataType: string
+		sourceColumn: note
+		formatString: #,0.0000
+
+	partition dax_parity = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "dax_parity.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"page", type text}, {"measure", type text}, {"expected_value", type number}, {"unit", type text}, {"note", type text}})
+				in
+				    Typed

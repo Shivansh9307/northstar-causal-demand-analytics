@@ -1,0 +1,276 @@
+// =============================================================================
+// PromoPulse — DAX measure library
+//
+// Every measure below is paired with the value it must return, taken from
+// powerbi_data/dax_parity.csv, which src/powerbi/parity.py computes directly
+// from the exported tables. Open the model, drop the measure on a card with no
+// filters applied, and it should match the "expects" comment.
+//
+// Regenerate the expectations with:
+//     uv run python src/powerbi/export.py
+//     uv run python src/powerbi/parity.py
+//
+// Note on what parity does and does not prove: the expectations are computed in
+// pandas, so they pin down the numbers. They do not execute DAX, so they cannot
+// prove these expressions are right - only Power BI Desktop can. See
+// reports/phase8_powerbi.md.
+// =============================================================================
+
+
+// -----------------------------------------------------------------------------
+// Page 1 — Executive Summary
+// -----------------------------------------------------------------------------
+
+Total Revenue =
+SUM ( fact_daily_category[revenue_gbp] )
+// expects 182,537,804.93 (GBP, no filters)
+
+Total Gross Profit =
+SUM ( fact_daily_category[gross_profit_gbp] )
+// expects 69,059,188.19 (GBP)
+
+Gross Margin % =
+DIVIDE ( [Total Gross Profit], [Total Revenue] ) * 100
+// expects 37.8328 (percent)
+
+Units Sold =
+SUM ( fact_daily_category[units_sold] )
+// expects 39,235,280
+
+Promotion Rate % =
+DIVIDE (
+    SUM ( fact_daily_category[promoted_sku_days] ),
+    SUM ( fact_daily_category[sku_days] )
+) * 100
+// expects 8.4889 (percent of store x SKU x days on promotion)
+
+Stockout Rate % =
+DIVIDE (
+    SUM ( fact_daily_category[stockout_sku_days] ),
+    SUM ( fact_daily_category[sku_days] )
+) * 100
+// expects 0.2823 (percent)
+
+Promoted Revenue Share % =
+DIVIDE ( SUM ( fact_daily_category[promoted_revenue_gbp] ), [Total Revenue] ) * 100
+// expects 15.9633 (percent)
+
+// Revenue on the same calendar days a year earlier, for the trend card.
+Revenue LY =
+CALCULATE ( [Total Revenue], DATEADD ( dim_calendar[date], -1, YEAR ) )
+
+Revenue YoY % =
+VAR Previous = [Revenue LY]
+RETURN IF ( Previous > 0, DIVIDE ( [Total Revenue] - Previous, Previous ) * 100 )
+
+
+// -----------------------------------------------------------------------------
+// Page 2 — Promotion ROI (naive vs causal, side by side)
+//
+// The whole point of this page is that these two numbers differ, and by how
+// much. Both are read from causal_estimates rather than recomputed, because the
+// causal estimate requires fixed effects that DAX cannot express.
+// -----------------------------------------------------------------------------
+
+Naive Promo Lift % =
+CALCULATE (
+    MAX ( causal_estimates[effect_pct] ),
+    causal_estimates[method] = "promoted rows vs all others"
+)
+// expects 126.7368 (percent)
+
+Causal Promo Lift % =
+CALCULATE (
+    MAX ( causal_estimates[effect_pct] ),
+    causal_estimates[method] = "DiD: uncannibalised + seasonal effects"
+)
+// expects 96.4411 (percent)
+
+True Promo Lift % =
+MAX ( causal_estimates[true_effect_pct] )
+// expects 81.0255 (percent) — available only because the data is simulated
+
+Naive Bias pp =
+[Naive Promo Lift %] - [True Promo Lift %]
+// expects 45.7113 (percentage points)
+
+Causal Bias pp =
+[Causal Promo Lift %] - [True Promo Lift %]
+// expects 15.4156 (percentage points)
+
+Bias Removed % =
+VAR NaiveError =
+    ABS (
+        CALCULATE (
+            MAX ( causal_estimates[error_log] ),
+            causal_estimates[method] = "promoted rows vs all others"
+        )
+    )
+VAR CausalError =
+    ABS (
+        CALCULATE (
+            MAX ( causal_estimates[error_log] ),
+            causal_estimates[method] = "DiD: uncannibalised + seasonal effects"
+        )
+    )
+RETURN ( 1 - DIVIDE ( CausalError, NaiveError ) ) * 100
+// expects 63.7211 (percent of the naive bias the correction removes)
+
+// Coloured label for the estimate card, so a reader is told which number to
+// trust rather than left to guess.
+Estimate Health =
+SWITCH (
+    TRUE (),
+    ABS ( [Causal Bias pp] ) <= 10, "Within 10pp of truth",
+    ABS ( [Causal Bias pp] ) <= 20, "Within 20pp — upper bound",
+    "Large residual bias"
+)
+
+
+// -----------------------------------------------------------------------------
+// Page 3 — Elasticity Explorer
+// -----------------------------------------------------------------------------
+
+Dose Response Points =
+COUNTROWS ( dose_response )
+// expects 18 (3 segments x 6 discount depths)
+
+CI Coverage % =
+DIVIDE (
+    CALCULATE ( COUNTROWS ( dose_response ), dose_response[ci_covers_truth] = 1 ),
+    COUNTROWS ( dose_response )
+) * 100
+// expects 83.3333 (percent of intervals covering the simulated value)
+
+Max Recovery Error =
+MAXX ( dose_response, ABS ( dose_response[error] ) )
+// expects 0.0266 (log points)
+
+Mean Lift at 20% Discount =
+CALCULATE (
+    AVERAGE ( dose_response[estimated_lift_pct] ),
+    dose_response[discount_pct] = 20
+)
+// expects 97.4221 (percent)
+
+Estimated Lift % =
+AVERAGE ( dose_response[estimated_lift_pct] )
+
+True Lift % =
+AVERAGE ( dose_response[true_lift_pct] )
+
+// Signed gap for the estimate-versus-truth column chart.
+Lift Recovery Gap pp =
+[Estimated Lift %] - [True Lift %]
+
+
+// -----------------------------------------------------------------------------
+// Page 4 — Stockout Risk & Replenishment
+// -----------------------------------------------------------------------------
+
+Cannibalisation 1 Neighbour % =
+CALCULATE ( MAX ( spillover[effect_pct] ), spillover[others_on_promo] = "1" )
+// expects -6.1203 (percent effect on an untreated SKU)
+
+Cannibalisation 4+ Neighbours % =
+CALCULATE ( MAX ( spillover[effect_pct] ), spillover[others_on_promo] = "4+" )
+// expects -16.3727 (percent)
+
+Median Service Level % =
+MEDIANX ( service_levels, service_levels[median_service_level] ) * 100
+// expects 99.4500 (percent)
+
+Lowest Service Level % =
+MINX ( service_levels, service_levels[median_service_level] ) * 100
+// expects 52.3100 (percent — the category the newsvendor ratio pushes lowest)
+
+Mean Safety Stock =
+AVERAGE ( reorder_policy[safety_stock] )
+
+Mean Reorder Point =
+AVERAGE ( reorder_policy[reorder_point] )
+
+// Flags the counter-intuitive result on the page rather than leaving a reader to
+// infer it from a chart.
+Service Level Insight =
+VAR Perishable =
+    CALCULATE ( AVERAGE ( reorder_policy[service_level] ), reorder_policy[is_perishable] = TRUE () )
+VAR Ambient =
+    CALCULATE ( AVERAGE ( reorder_policy[service_level] ), reorder_policy[is_perishable] = FALSE () )
+RETURN
+    IF (
+        Perishable < Ambient,
+        "Perishables optimally run LOWER availability",
+        "Perishables optimally run higher availability"
+    )
+
+
+// -----------------------------------------------------------------------------
+// Page 5 — What-If Promotion Simulator
+//
+// Requires a what-if parameter table. Create it in Desktop with:
+//     Modeling > New parameter > Numeric range
+//     Name "Uplift Scenario", Minimum 0.5, Maximum 1.3, Increment 0.05,
+//     Default 0.88
+// The 0.88 default is not arbitrary: Phase 4 found the DiD estimate overshot the
+// simulated truth, so the central case assumes the estimate is optimistic.
+// -----------------------------------------------------------------------------
+
+Promotions Selected =
+COUNTROWS ( promo_plan )
+// expects 10
+
+Plan Spend =
+SUM ( promo_plan[promotion_cost] )
+// expects 4,409.1902 (GBP of retailer-funded give-away)
+
+Plan Incremental Profit =
+SUM ( promo_plan[incremental_profit] )
+// expects 337.0253 (GBP — the optimiser's deterministic figure)
+
+Plan Profit P10 =
+MAX ( promo_plan_uncertainty[p10] )
+// expects -761.9826 (GBP)
+
+Plan Profit P50 =
+MAX ( promo_plan_uncertainty[p50] )
+// expects -267.7425 (GBP)
+
+Plan Profit P90 =
+MAX ( promo_plan_uncertainty[p90] )
+// expects 264.7569 (GBP)
+
+Probability of Loss % =
+MAX ( promo_plan_uncertainty[probability_of_loss] ) * 100
+// expects 74.2000 (percent of Monte Carlo draws below zero)
+
+Candidates Profitable % =
+DIVIDE ( SUM ( promo_economics[profitable] ), SUM ( promo_economics[candidates] ) ) * 100
+// expects 0.1500 (percent clearing zero after cannibalisation)
+
+// The interactive measure. Rescales the promotional uplift by the slider and
+// recomputes profit on the same accounting the optimiser used: promoted volume
+// at the discounted margin, less baseline volume at the full margin, less
+// cannibalisation. The give-away is NOT deducted again — it is already inside
+// promo_margin. Deducting it twice was a real bug in Phase 6.
+Scenario Incremental Profit =
+VAR Multiplier = SELECTEDVALUE ( 'Uplift Scenario'[Uplift Scenario], 1 )
+RETURN
+    SUMX (
+        promo_plan,
+        ( promo_plan[baseline_units] + promo_plan[incremental_units] * Multiplier )
+            * promo_plan[promo_margin]
+            - promo_plan[baseline_units] * promo_plan[full_margin]
+            - promo_plan[cannibalisation_loss]
+    )
+// At Multiplier = 1 this must equal [Plan Incremental Profit] = 337.0253
+
+Scenario vs Plan =
+[Scenario Incremental Profit] - [Plan Incremental Profit]
+
+Scenario Verdict =
+IF (
+    [Scenario Incremental Profit] < 0,
+    "Plan loses money at this uplift",
+    "Plan remains profitable"
+)

@@ -1,0 +1,44 @@
+table service_levels
+
+	measure 'Median Service Level %' =
+			MEDIANX ( service_levels, service_levels[median_service_level] ) * 100
+		formatString: #,0.00
+
+	measure 'Lowest Service Level %' =
+			MINX ( service_levels, service_levels[median_service_level] ) * 100
+		formatString: #,0.00
+
+	column category
+		dataType: string
+		sourceColumn: category
+		formatString: #,0.0000
+
+	column pairs
+		dataType: int64
+		sourceColumn: pairs
+		formatString: #,0
+
+	column median_service_level
+		dataType: double
+		sourceColumn: median_service_level
+		formatString: #,0.0000
+
+	column mean_safety_stock
+		dataType: double
+		sourceColumn: mean_safety_stock
+		formatString: #,0.0000
+
+	column mean_reorder_point
+		dataType: double
+		sourceColumn: mean_reorder_point
+		formatString: #,0.0000
+
+	partition service_levels = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "service_levels.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"category", type text}, {"pairs", Int64.Type}, {"median_service_level", type number}, {"mean_safety_stock", type number}, {"mean_reorder_point", type number}})
+				in
+				    Typed

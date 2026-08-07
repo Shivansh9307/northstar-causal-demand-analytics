@@ -1,0 +1,72 @@
+table promo_plan_uncertainty
+
+	measure 'Plan Profit P10' =
+			MAX ( promo_plan_uncertainty[p10] )
+		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+
+	measure 'Plan Profit P50' =
+			MAX ( promo_plan_uncertainty[p50] )
+		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+
+	measure 'Plan Profit P90' =
+			MAX ( promo_plan_uncertainty[p90] )
+		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+
+	measure 'Probability of Loss %' =
+			MAX ( promo_plan_uncertainty[probability_of_loss] ) * 100
+		formatString: #,0.00
+
+	column deterministic
+		dataType: double
+		sourceColumn: deterministic
+		formatString: #,0.0000
+
+	column mean
+		dataType: double
+		sourceColumn: mean
+		formatString: #,0.0000
+
+	column p10
+		dataType: double
+		sourceColumn: p10
+		formatString: #,0.0000
+
+	column p50
+		dataType: double
+		sourceColumn: p50
+		formatString: #,0.0000
+
+	column p90
+		dataType: double
+		sourceColumn: p90
+		formatString: #,0.0000
+
+	column std
+		dataType: double
+		sourceColumn: std
+		formatString: #,0.0000
+
+	column probability_of_loss
+		dataType: double
+		sourceColumn: probability_of_loss
+		formatString: #,0.0000
+
+	column probability_below_deterministic
+		dataType: double
+		sourceColumn: probability_below_deterministic
+		formatString: #,0.0000
+
+	column shortfall_vs_deterministic
+		dataType: double
+		sourceColumn: shortfall_vs_deterministic
+		formatString: #,0.0000
+
+	partition promo_plan_uncertainty = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "promo_plan_uncertainty.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"deterministic", type number}, {"mean", type number}, {"p10", type number}, {"p50", type number}, {"p90", type number}, {"std", type number}, {"probability_of_loss", type number}, {"probability_below_deterministic", type number}, {"shortfall_vs_deterministic", type number}})
+				in
+				    Typed

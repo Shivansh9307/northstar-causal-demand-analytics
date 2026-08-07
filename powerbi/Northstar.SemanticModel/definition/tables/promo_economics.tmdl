@@ -1,0 +1,45 @@
+table promo_economics
+
+	measure 'Candidates Profitable %' =
+			DIVIDE ( SUM ( promo_economics[profitable] ), SUM ( promo_economics[candidates] ) ) * 100
+		formatString: #,0.00
+
+	column discount_pct
+		dataType: int64
+		sourceColumn: discount_pct
+		formatString: #,0
+
+	column candidates
+		dataType: int64
+		sourceColumn: candidates
+		formatString: #,0
+
+	column profitable
+		dataType: int64
+		sourceColumn: profitable
+		formatString: #,0
+
+	column mean_incremental_profit
+		dataType: double
+		sourceColumn: mean_incremental_profit
+		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+
+	column mean_margin_sacrificed
+		dataType: double
+		sourceColumn: mean_margin_sacrificed
+		formatString: #,0.0000
+
+	column mean_cannibalisation
+		dataType: double
+		sourceColumn: mean_cannibalisation
+		formatString: #,0.0000
+
+	partition promo_economics = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(File.Contents(DataFolder & "promo_economics.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
+				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    Typed = Table.TransformColumnTypes(Headers, {{"discount_pct", Int64.Type}, {"candidates", Int64.Type}, {"profitable", Int64.Type}, {"mean_incremental_profit", type number}, {"mean_margin_sacrificed", type number}, {"mean_cannibalisation", type number}})
+				in
+				    Typed

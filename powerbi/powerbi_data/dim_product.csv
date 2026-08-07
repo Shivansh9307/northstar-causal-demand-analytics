@@ -1,0 +1,151 @@
+sku_id,sku_name,category,subcategory,brand_type,regular_unit_price_gbp,unit_cost_gbp,baseline_gross_margin_pct,price_elasticity_segment,promotion_sensitivity_segment,demand_volatility_segment,seasonal_profile,is_perishable,shelf_life_days,reorder_lead_time_days
+SKU0001,British Strawberries 400g,Fresh Produce,Fruit,Premium,3.81,2.06,45.93,High,High,High,None,True,9,3
+SKU0002,Northstar Free Range Eggs 6 Pack,Dairy & Eggs,Eggs,Own Label,1.69,1.01,40.24,Low,Medium,Medium,None,True,21,4
+SKU0003,Yorkshire Tea 80 Bags,Ambient Grocery,Tea & Coffee,Own Label,1.77,1.0,43.5,Medium,High,Low,Christmas,False,260,2
+SKU0004,Sparkling Water 500ml,Beverages,Water,Own Label,11.17,6.56,41.27,High,High,High,Christmas,False,195,8
+SKU0005,Northstar White Farmhouse Loaf 800g,Bakery,Bread,Branded,1.32,0.87,34.09,Medium,Medium,Medium,Easter,False,90,7
+SKU0006,British Maris Piper Potatoes 2.5kg,Fresh Produce,Vegetables,Own Label,3.73,2.21,40.75,High,High,High,Winter,True,8,3
+SKU0007,Northstar Semi Skimmed Milk 2 Pints,Dairy & Eggs,Milk,Premium,2.95,1.58,46.44,Low,Low,Medium,None,True,14,3
+SKU0008,Northstar Vanilla Ice Cream 1L,Frozen,Ice Cream,Own Label,2.33,1.43,38.63,Medium,Medium,Medium,None,True,506,1
+SKU0009,Milk Chocolate Bar 100g,Snacks & Confectionery,Chocolate,Own Label,2.87,1.4,51.22,High,High,Medium,None,False,253,2
+SKU0010,Northstar Easter Milk Chocolate Egg 180g,Seasonal,Easter,Own Label,8.33,4.9,41.18,High,High,High,Winter,False,329,1
+SKU0011,Oakfield Toilet Tissue 12 Pack,Household & Cleaning,Paper Products,Branded,2.78,1.79,35.61,Low,Medium,Low,Winter,False,1277,2
+SKU0012,Northstar Red Leicester 6 Pack,Dairy & Eggs,Cheese,Own Label,2.71,1.49,45.02,Low,High,Medium,Christmas,False,90,3
+SKU0013,Britannia Kitchen Roll 1L,Household & Cleaning,Paper Products,Branded,7.98,4.95,37.97,Medium,Medium,Low,Winter,False,1371,5
+SKU0014,Oakfield Barbecue Charcoal 300g,Seasonal,Summer Outdoor,Branded,16.21,10.98,32.26,Low,High,High,Summer,False,590,2
+SKU0015,Oakfield Vanilla Ice Cream 2 Pack,Frozen,Ice Cream,Branded,5.99,4.16,30.55,Medium,Medium,Medium,Winter,True,422,4
+SKU0016,Northstar Chocolate Chip Cookies 6 Pack,Snacks & Confectionery,Biscuits,Own Label,1.38,0.79,42.75,High,High,Medium,Christmas,False,252,6
+SKU0017,Northstar Finest Decaf Tea 1kg,Ambient Grocery,Tea & Coffee,Premium,9.67,5.14,46.85,Medium,Medium,Low,None,False,411,5
+SKU0018,Northstar Gold Blend Coffee 500g,Ambient Grocery,Tea & Coffee,Own Label,6.06,3.49,42.41,Medium,Medium,Low,Winter,False,680,1
+SKU0019,Northstar Mixed Leaf Salad 250g,Fresh Produce,Salads,Own Label,1.24,0.68,45.16,High,High,High,Winter,True,5,1
+SKU0020,Britannia Lactose Free Milk 500g,Dairy & Eggs,Milk,Branded,6.69,4.14,38.12,Low,Low,Medium,None,True,21,1
+SKU0021,Britannia Multi Surface Cleaner 750ml,Household & Cleaning,Cleaning,Branded,4.23,2.46,41.84,Medium,Medium,Low,None,False,922,2
+SKU0022,Northstar Finest Chocolate Chip Cookies 4 Pack,Bakery,Biscuits,Premium,4.53,2.74,39.51,Medium,Medium,Medium,Christmas,True,6,3
+SKU0023,Northstar Vanilla Ice Cream 1kg,Frozen,Ice Cream,Own Label,2.17,1.31,39.63,Medium,High,Medium,Winter,False,449,2
+SKU0024,Northstar British Carrots 1kg,Fresh Produce,Vegetables,Own Label,2.88,1.55,46.18,High,High,High,Summer,True,4,2
+SKU0025,Crown Apple Juice 1L,Beverages,Juice,Branded,14.24,9.18,35.53,Low,High,High,Christmas,False,283,4
+SKU0026,Northstar Maris Piper Potatoes Each,Fresh Produce,Vegetables,Own Label,1.89,1.06,43.92,High,High,High,Winter,True,4,2
+SKU0027,Northstar Finest Sweetcorn 400g,Ambient Grocery,Tins,Premium,4.65,2.63,43.44,Medium,Medium,Low,Winter,False,323,7
+SKU0028,Greenfield Picnic Plates 180g,Seasonal,Summer Outdoor,Branded,3.61,2.38,34.07,Medium,High,High,Easter,False,723,4
+SKU0029,Northstar Classic Coleslaw 400g,Fresh Produce,Salads,Own Label,2.93,1.73,40.96,High,High,High,Winter,True,8,3
+SKU0030,Yorkshire Mayonnaise 400g,Ambient Grocery,Sauces,Branded,5.28,3.16,40.15,Medium,Medium,Low,Christmas,False,635,7
+SKU0031,Northstar Toothpaste 75ml,Health & Beauty,Oral Care,Own Label,3.9,2.31,40.77,Low,High,Low,Christmas,False,671,4
+SKU0032,Northstar Lemonade 4 Pack,Beverages,Soft Drinks,Own Label,8.82,4.23,52.04,High,High,High,Summer,False,671,6
+SKU0033,Northstar Festive Shortbread 6 Pack,Seasonal,Christmas,Own Label,11.5,6.97,39.39,High,High,High,Winter,False,415,8
+SKU0034,Northstar Mixed Nuts 100g,Snacks & Confectionery,Nuts,Own Label,4.68,2.58,44.87,High,High,Medium,None,False,456,1
+SKU0035,Yorkshire Kitchen Roll 12 Pack,Household & Cleaning,Paper Products,Branded,3.8,2.27,40.26,Medium,Medium,Low,Winter,False,1407,7
+SKU0036,Northstar Bathroom Spray 12 Pack,Household & Cleaning,Cleaning,Own Label,5.8,3.42,41.03,Medium,Medium,Low,None,False,692,3
+SKU0037,Northstar Large British Eggs 1L,Dairy & Eggs,Eggs,Own Label,5.49,2.89,47.36,Low,High,Medium,Christmas,True,14,1
+SKU0038,Yorkshire Basmati Rice 400g,Ambient Grocery,Pasta & Rice,Branded,9.31,5.96,35.98,Medium,Medium,Low,None,False,376,3
+SKU0039,Northstar Premium Lager 2L,Beverages,Beer & Cider,Own Label,4.28,2.48,42.06,High,High,High,Summer,False,156,5
+SKU0040,Greenfield Premium Lager 2L,Beverages,Beer & Cider,Branded,3.36,2.34,30.36,Medium,High,High,Christmas,False,600,4
+SKU0041,Northstar Easy Peeler Oranges 400g,Fresh Produce,Fruit,Own Label,2.66,1.64,38.35,High,High,High,Winter,True,7,4
+SKU0042,Northstar Curry Sauce 1kg,Ambient Grocery,Sauces,Own Label,0.91,0.51,43.96,Medium,Medium,Low,Winter,False,646,7
+SKU0043,Northstar Oat Cereal 80 Bags,Ambient Grocery,Cereals,Own Label,7.04,4.37,37.93,Medium,Medium,Low,None,False,236,1
+SKU0044,Harbour Fresh Basil 1kg,Fresh Produce,Fresh Herbs,Branded,3.86,2.74,29.02,Medium,High,High,None,True,6,4
+SKU0045,Northstar Finest Honey Granola 80 Bags,Ambient Grocery,Cereals,Premium,8.95,4.83,46.03,Medium,Medium,Low,Christmas,False,434,7
+SKU0046,Crown White Farmhouse Loaf 6 Pack,Bakery,Bread,Branded,2.48,1.57,36.69,Low,Medium,Medium,Easter,True,6,1
+SKU0047,Yorkshire Mixed Leaf Salad 250g,Fresh Produce,Salads,Branded,5.43,3.48,35.91,Low,High,High,Summer,True,4,1
+SKU0048,Northstar Orange Fizz 4 Pack,Beverages,Soft Drinks,Own Label,7.56,4.24,43.92,High,High,High,None,False,274,5
+SKU0049,Yorkshire Pepperoni Pizza 500g,Frozen,Frozen Pizza,Branded,3.98,2.37,40.45,Low,Medium,Medium,Summer,False,187,3
+SKU0050,Northstar Finest Sea Salt Crisps 150g,Snacks & Confectionery,Crisps,Premium,6.19,3.37,45.56,High,High,Medium,Easter,False,337,7
+SKU0051,Northstar Finest Fruit Pastilles 100g,Snacks & Confectionery,Sweets,Premium,6.28,3.83,39.01,High,High,Medium,Christmas,False,359,1
+SKU0052,Northstar Tomato Pasta Sauce 400g,Ambient Grocery,Sauces,Own Label,5.42,2.98,45.02,Medium,Medium,Low,Winter,False,219,8
+SKU0053,Northstar Chicken Tikka Meal 1kg,Frozen,Frozen Meals,Own Label,3.91,1.91,51.15,Medium,Medium,Medium,None,False,491,3
+SKU0054,Northstar Finest Halloween Sweet Tub Each,Seasonal,Halloween,Premium,8.01,4.94,38.33,High,High,High,Summer,False,178,2
+SKU0055,Northstar Orange Juice 2L,Beverages,Juice,Own Label,5.22,2.65,49.23,High,High,High,Christmas,False,488,2
+SKU0056,Northstar Digestive Biscuits 400g,Bakery,Biscuits,Own Label,3.21,1.57,51.09,Medium,High,Medium,None,True,3,1
+SKU0057,Yorkshire Dark Chocolate Bar 150g,Snacks & Confectionery,Chocolate,Branded,3.63,2.52,30.58,Low,High,Medium,Easter,False,196,2
+SKU0058,Northstar British Strawberries 400g,Fresh Produce,Fruit,Own Label,3.01,1.72,42.86,High,High,High,None,True,5,4
+SKU0059,Northstar Digestive Biscuits 6 Pack,Bakery,Biscuits,Own Label,1.96,1.01,48.47,Medium,Medium,Medium,None,True,5,3
+SKU0060,Northstar Natural Yogurt 1L,Dairy & Eggs,Yogurt,Own Label,1.69,0.93,44.97,Low,Medium,Medium,Easter,False,90,4
+SKU0061,Northstar Picnic Plates 300g,Seasonal,Summer Outdoor,Own Label,12.84,8.0,37.69,High,High,High,Easter,False,567,4
+SKU0062,Yorkshire Sweetcorn 1kg,Ambient Grocery,Tins,Branded,6.93,4.1,40.84,Medium,Medium,Low,Christmas,False,462,4
+SKU0063,Harbour Sparkling Water 2L,Beverages,Water,Branded,4.97,3.03,39.03,Medium,High,High,Summer,False,578,7
+SKU0064,Northstar Face Wash Each,Health & Beauty,Skincare,Own Label,13.41,7.55,43.7,Low,Medium,Low,Christmas,False,877,4
+SKU0065,Northstar Dishwasher Tablets 1L,Household & Cleaning,Washing Up,Own Label,7.86,4.56,41.98,Medium,Medium,Low,Winter,False,849,4
+SKU0066,Crown Salted Peanuts 100g,Snacks & Confectionery,Nuts,Branded,3.09,1.93,37.54,Low,High,Medium,Christmas,False,321,4
+SKU0067,Northstar Pain au Chocolat 400g,Bakery,Morning Goods,Own Label,3.65,2.15,41.1,Medium,High,Medium,None,True,2,4
+SKU0068,Northstar Festive Shortbread 6 Pack,Seasonal,Christmas,Own Label,4.79,2.39,50.1,High,High,High,Winter,False,596,2
+SKU0069,Northstar Finest Apple Cider 2L,Beverages,Beer & Cider,Premium,8.68,4.57,47.35,High,High,High,Summer,False,301,2
+SKU0070,Yorkshire Colour Laundry Liquid 12 Pack,Household & Cleaning,Laundry,Branded,9.16,5.92,35.37,Low,Medium,Low,Winter,False,717,1
+SKU0071,Northstar Seedless Grapes 400g,Fresh Produce,Fruit,Own Label,0.83,0.43,48.19,High,High,High,None,True,3,2
+SKU0072,Harbour Oat Cereal 80 Bags,Ambient Grocery,Cereals,Branded,5.44,3.53,35.11,Low,Medium,Low,None,False,578,7
+SKU0073,Northstar Sourdough Loaf 6 Pack,Bakery,Bread,Own Label,1.27,0.69,45.67,Medium,High,Medium,Easter,True,3,2
+SKU0074,Oakfield Sea Salt Crisps 6 Pack,Snacks & Confectionery,Crisps,Branded,4.16,2.93,29.57,Low,High,Medium,None,False,467,4
+SKU0075,Britannia Tomato Pasta Sauce 1kg,Ambient Grocery,Sauces,Branded,5.87,4.12,29.81,Medium,Medium,Low,Winter,True,125,4
+SKU0076,Northstar Deodorant 75ml,Health & Beauty,Toiletries,Own Label,3.94,2.19,44.42,Low,Medium,Low,None,False,792,2
+SKU0077,Northstar Penne Pasta 500g,Ambient Grocery,Pasta & Rice,Own Label,4.93,2.82,42.8,Medium,Medium,Low,None,False,546,4
+SKU0078,Greenfield Kitchen Roll 750ml,Household & Cleaning,Paper Products,Branded,5.11,3.0,41.29,Medium,Medium,Low,None,False,413,8
+SKU0079,Northstar Orange Juice 500ml,Beverages,Juice,Own Label,1.78,0.9,49.44,High,High,High,Christmas,False,526,7
+SKU0080,Northstar Free Range Eggs 200g,Dairy & Eggs,Eggs,Own Label,3.96,2.24,43.43,Low,Medium,Medium,None,True,14,1
+SKU0081,Northstar Pepperoni Pizza 2 Pack,Frozen,Frozen Pizza,Own Label,6.14,3.29,46.42,Medium,Medium,Medium,None,True,395,4
+SKU0082,Northstar Vanilla Ice Cream 1kg,Frozen,Ice Cream,Own Label,3.98,2.38,40.2,Medium,Medium,Medium,Winter,False,477,3
+SKU0083,Harbour Cheese & Onion Crisps 150g,Snacks & Confectionery,Crisps,Branded,6.36,4.36,31.45,Low,High,Medium,None,False,524,4
+SKU0084,Northstar Merlot Red Wine 4 Pack,Beverages,Wine,Own Label,1.95,0.97,50.26,High,High,High,Summer,False,374,7
+SKU0085,Britannia Fruit Pastilles 100g,Snacks & Confectionery,Sweets,Branded,3.73,2.42,35.12,Low,High,Medium,Christmas,False,511,4
+SKU0086,Northstar Finest Bathroom Spray 750ml,Household & Cleaning,Cleaning,Premium,12.42,7.43,40.18,Medium,Medium,Low,Winter,False,1078,8
+SKU0087,Northstar Natural Yogurt 200g,Dairy & Eggs,Yogurt,Own Label,4.77,3.06,35.85,Low,High,Medium,None,True,23,4
+SKU0088,Northstar Picnic Plates 6 Pack,Seasonal,Summer Outdoor,Own Label,14.5,8.51,41.31,High,High,High,Winter,False,273,8
+SKU0089,Greenfield Dark Chocolate Bar 150g,Snacks & Confectionery,Chocolate,Branded,6.23,4.03,35.31,Low,High,Medium,None,False,482,1
+SKU0090,Britannia Shower Gel 250ml,Health & Beauty,Toiletries,Branded,5.47,3.73,31.81,Medium,Low,Low,Christmas,False,479,2
+SKU0091,Northstar Finest Wholemeal Bread 4 Pack,Bakery,Bread,Premium,4.04,2.18,46.04,Medium,Medium,Medium,None,False,90,1
+SKU0092,Oakfield Gold Blend Coffee 500g,Ambient Grocery,Tea & Coffee,Branded,3.81,2.37,37.8,Low,Medium,Low,Winter,False,231,2
+SKU0093,Greenfield Vanilla Ice Cream 1L,Frozen,Ice Cream,Branded,7.91,5.12,35.27,Medium,Medium,Medium,None,False,528,6
+SKU0094,Northstar Toothbrush Each,Health & Beauty,Oral Care,Own Label,9.6,5.07,47.19,Low,High,Low,Christmas,False,965,3
+SKU0095,Yorkshire Baked Beans 1kg,Ambient Grocery,Tins,Branded,7.0,4.77,31.86,Low,Medium,Low,Christmas,False,333,1
+SKU0096,Northstar Barbecue Charcoal 300g,Seasonal,Summer Outdoor,Own Label,8.41,4.14,50.77,High,High,High,Christmas,False,276,3
+SKU0097,Crown Red Leicester 500g,Dairy & Eggs,Cheese,Branded,1.6,0.97,39.38,Low,Low,Medium,Christmas,True,7,2
+SKU0098,Northstar Penne Pasta 400g,Ambient Grocery,Pasta & Rice,Own Label,2.7,1.65,38.89,Medium,Medium,Low,None,False,311,7
+SKU0099,Yorkshire Toilet Tissue 12 Pack,Household & Cleaning,Paper Products,Branded,10.76,6.99,35.04,Low,Medium,Low,None,False,1142,4
+SKU0100,Northstar British Carrots 400g,Fresh Produce,Vegetables,Own Label,4.48,2.17,51.56,High,High,High,Summer,True,8,2
+SKU0101,Northstar Vanilla Ice Cream 1kg,Frozen,Ice Cream,Own Label,1.79,0.91,49.16,Medium,Medium,Medium,Winter,False,121,2
+SKU0102,Harbour Pinot Grigio 1L,Beverages,Wine,Branded,13.52,8.84,34.62,Low,High,High,None,False,288,7
+SKU0103,Northstar Finest Mixed Leaf Salad Each,Fresh Produce,Salads,Premium,2.25,1.28,43.11,High,High,High,None,True,5,1
+SKU0104,Crown Colour Laundry Liquid 12 Pack,Household & Cleaning,Laundry,Branded,5.3,3.13,40.94,Medium,Medium,Low,Winter,False,1441,1
+SKU0105,Harbour Spaghetti 1kg,Ambient Grocery,Pasta & Rice,Branded,7.23,4.88,32.5,Medium,Medium,Low,Christmas,False,288,8
+SKU0106,Crown White Farmhouse Loaf 800g,Bakery,Bread,Branded,5.14,3.08,40.08,Low,Medium,Medium,Easter,True,3,2
+SKU0107,Greenfield Sea Salt Crisps 6 Pack,Snacks & Confectionery,Crisps,Branded,5.51,3.38,38.66,Low,High,Medium,Christmas,False,187,8
+SKU0108,Greenfield Spaghetti 400g,Ambient Grocery,Pasta & Rice,Branded,7.31,4.69,35.84,Medium,Medium,Low,Winter,False,270,6
+SKU0109,Northstar Finest Premium Lager 1L,Beverages,Beer & Cider,Premium,8.75,5.21,40.46,High,High,High,Christmas,False,492,7
+SKU0110,Britannia Lemonade 4 Pack,Beverages,Soft Drinks,Branded,10.82,6.99,35.4,Low,High,High,None,False,254,1
+SKU0111,Northstar Finest Jelly Sweets 100g,Snacks & Confectionery,Sweets,Premium,6.25,3.53,43.52,High,High,Medium,Christmas,False,454,3
+SKU0112,Northstar Margherita Pizza 500g,Frozen,Frozen Pizza,Own Label,2.51,1.22,51.39,Medium,High,Medium,None,False,388,8
+SKU0113,Northstar All Butter Croissants 400g,Bakery,Morning Goods,Own Label,1.04,0.55,47.12,Medium,High,Medium,None,True,5,1
+SKU0114,Northstar Digestive Biscuits 6 Pack,Snacks & Confectionery,Biscuits,Own Label,1.43,0.77,46.15,High,High,Medium,None,False,316,7
+SKU0115,Northstar Fresh Basil 250g,Fresh Produce,Fresh Herbs,Own Label,3.32,1.73,47.89,High,High,High,Summer,True,4,2
+SKU0116,Crown Chocolate Chip Cookies 150g,Snacks & Confectionery,Biscuits,Branded,3.15,2.2,30.16,Low,High,Medium,Easter,False,151,2
+SKU0117,Crown Sweetcorn 1kg,Ambient Grocery,Tins,Branded,5.11,3.23,36.79,Low,Medium,Low,Winter,False,193,5
+SKU0118,Northstar Oat Cereal 1kg,Ambient Grocery,Cereals,Own Label,0.9,0.5,44.44,Medium,Medium,Low,Christmas,False,178,2
+SKU0119,Northstar Red Leicester 6 Pack,Dairy & Eggs,Cheese,Own Label,2.04,1.03,49.51,Low,High,Medium,Easter,True,14,3
+SKU0120,Northstar Finest Easter Milk Chocolate Egg 180g,Seasonal,Easter,Premium,21.82,13.57,37.81,High,High,High,Easter,False,498,4
+SKU0121,Northstar Mixed Nuts 100g,Snacks & Confectionery,Nuts,Own Label,3.11,1.71,45.02,High,High,Medium,Easter,False,405,4
+SKU0122,Northstar Spaghetti 500g,Ambient Grocery,Pasta & Rice,Own Label,1.04,0.63,39.42,Medium,Medium,Low,None,False,457,1
+SKU0123,Northstar Chocolate Brownies 4 Pack,Bakery,Cakes,Own Label,1.04,0.51,50.96,Medium,High,Medium,Christmas,True,5,3
+SKU0124,Northstar Finest Still Water 4 Pack,Beverages,Water,Premium,8.72,5.65,35.21,High,High,High,None,False,303,1
+SKU0125,Britannia Fruit Pastilles 6 Pack,Snacks & Confectionery,Sweets,Branded,3.43,2.33,32.07,Low,High,Medium,None,False,483,1
+SKU0126,Northstar Deodorant 250ml,Health & Beauty,Toiletries,Own Label,1.65,0.81,50.91,Low,High,Low,Christmas,False,1059,1
+SKU0127,Northstar Mayonnaise 80 Bags,Ambient Grocery,Sauces,Own Label,1.4,0.71,49.29,Medium,Medium,Low,Winter,False,560,2
+SKU0128,Northstar Finest Tomato Pasta Sauce 80 Bags,Ambient Grocery,Sauces,Premium,9.54,5.29,44.55,Medium,Medium,Low,Winter,False,251,3
+SKU0129,Northstar Mixed Leaf Salad Each,Fresh Produce,Salads,Own Label,2.51,1.36,45.82,High,High,High,Winter,True,3,2
+SKU0130,Northstar Finest Fresh Basil Each,Fresh Produce,Fresh Herbs,Premium,2.02,1.33,34.16,High,High,High,Summer,True,3,2
+SKU0131,Crown Cola 1L,Beverages,Soft Drinks,Branded,0.88,0.57,35.23,Low,High,High,None,False,586,2
+SKU0132,Northstar Sweetcorn 500g,Ambient Grocery,Tins,Own Label,1.05,0.55,47.62,Medium,High,Low,Christmas,False,694,8
+SKU0133,Northstar Salted Caramel Ice Cream 500g,Frozen,Ice Cream,Own Label,1.58,0.86,45.57,Medium,High,Medium,None,False,121,1
+SKU0134,Northstar Chicken Tikka Meal 1L,Frozen,Frozen Meals,Own Label,4.01,2.07,48.38,Medium,High,Medium,Summer,False,510,3
+SKU0135,Northstar Christmas Chocolate Selection 180g,Seasonal,Christmas,Own Label,6.49,3.81,41.29,High,High,High,Easter,False,414,5
+SKU0136,Northstar Finest Penne Pasta 500g,Ambient Grocery,Pasta & Rice,Premium,9.83,6.34,35.5,Medium,Medium,Low,None,False,250,6
+SKU0137,Crown Still Water 2L,Beverages,Water,Branded,5.13,3.3,35.67,Medium,High,High,Christmas,False,596,1
+SKU0138,Northstar Salted Butter 200g,Dairy & Eggs,Butter,Own Label,1.87,1.09,41.71,Low,Medium,Medium,None,True,10,1
+SKU0139,Greenfield Shower Gel 75ml,Health & Beauty,Toiletries,Branded,14.43,8.66,39.99,Medium,Low,Low,Christmas,False,488,7
+SKU0140,Northstar Milk Chocolate Bar 100g,Snacks & Confectionery,Chocolate,Own Label,4.01,2.06,48.63,High,High,Medium,None,False,134,3
+SKU0141,Northstar Unsalted Butter 1L,Dairy & Eggs,Butter,Own Label,2.22,1.14,48.65,Low,Medium,Medium,Christmas,True,19,2
+SKU0142,Harbour Sweetcorn 400g,Ambient Grocery,Tins,Branded,8.16,4.9,39.95,Low,Medium,Low,None,False,711,7
+SKU0143,Harbour British Carrots Each,Fresh Produce,Vegetables,Branded,3.88,2.72,29.9,Medium,High,High,Summer,True,5,2
+SKU0144,Yorkshire Merlot Red Wine 1L,Beverages,Wine,Branded,2.41,1.57,34.85,Low,High,High,None,False,215,1
+SKU0145,Northstar Mozzarella 1L,Dairy & Eggs,Cheese,Own Label,1.86,0.98,47.31,Low,Medium,Medium,None,True,17,1
+SKU0146,Northstar Finest Dark Chocolate Bar 150g,Snacks & Confectionery,Chocolate,Premium,3.46,2.21,36.13,High,High,Medium,None,False,254,4
+SKU0147,Greenfield Spaghetti 1kg,Ambient Grocery,Pasta & Rice,Branded,4.24,2.48,41.51,Medium,Medium,Low,Christmas,False,194,6
+SKU0148,Britannia Tenderstem Broccoli 400g,Fresh Produce,Vegetables,Branded,3.37,2.01,40.36,Medium,High,High,Winter,True,8,4
+SKU0149,Yorkshire Wholemeal Bread 6 Pack,Bakery,Bread,Branded,1.71,1.06,38.01,Medium,Medium,Medium,Easter,True,6,1
+SKU0150,Northstar Still Water 2L,Beverages,Water,Own Label,8.9,5.82,34.61,High,High,High,None,False,144,7
