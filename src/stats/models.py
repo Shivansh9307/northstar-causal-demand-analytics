@@ -118,6 +118,7 @@ def load_analysis_frame() -> pd.DataFrame:
                 display_support_flag, email_or_app_support_flag, leaflet_support_flag,
                 store_footfall,
                 category, price_elasticity_segment, promotion_sensitivity_segment,
+                demand_volatility_segment,
                 -- Read via DuckDB, not pandas: the literal category "None" in
                 -- seasonal_profile is in pandas' default na_values list, so a
                 -- direct read_csv turns it into NaN.
