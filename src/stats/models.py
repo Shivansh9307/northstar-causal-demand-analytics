@@ -118,7 +118,10 @@ def load_analysis_frame() -> pd.DataFrame:
                 display_support_flag, email_or_app_support_flag, leaflet_support_flag,
                 store_footfall,
                 category, price_elasticity_segment, promotion_sensitivity_segment,
-                brand_type, month, day_of_week
+                -- Read via DuckDB, not pandas: the literal category "None" in
+                -- seasonal_profile is in pandas' default na_values list, so a
+                -- direct read_csv turns it into NaN.
+                seasonal_profile, brand_type, month, day_of_week
             FROM analytics_daily
             -- Explicit ordering: DuckDB's parallel scan returns rows in a
             -- nondeterministic order, which made the sampled count-model fit
@@ -192,6 +195,8 @@ def fit_within_ols(
     regressors: Sequence[str],
     name: str,
     n_absorbed: int | None = None,
+    unit_key: str = "pair_id",
+    time_key: str = "date",
 ) -> FitResult:
     """
     OLS on two-way demeaned data with standard errors clustered on the pair.
@@ -200,7 +205,13 @@ def fit_within_ols(
     independent units, and unclustered errors would be roughly 25x too small.
     """
     columns = [outcome, *regressors]
-    demeaned = two_way_within(frame, columns)
+    demeaned = two_way_within(frame, columns, unit_key=unit_key, time_key=time_key)
+    if demeaned.isna().any().any():
+        raise ValueError(
+            f"Demeaning produced NaN for '{name}'. Check that '{unit_key}' and "
+            f"'{time_key}' have no missing values — pandas reads the literal "
+            "string 'None' as NaN, which silently breaks grouping keys."
+        )
     endog = demeaned[outcome]
     exog = demeaned[list(regressors)]
 
