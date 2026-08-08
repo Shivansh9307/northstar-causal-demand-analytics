@@ -10,30 +10,98 @@ uv run python src/powerbi/tmdl.py      # generate the semantic model
 
 ---
 
-## What is verified, and what is not
+## What is verified
 
-This is the one phase where a substantial deliverable could not be checked by the
-person who built it. Power BI Desktop is not available in this environment, so:
+All five pages are built — **66 visuals** authored as PBIR definition files —
+opened, refreshed and checked page by page in Power BI Desktop 2.155.756.0.
 
 | Artefact | Status |
 |---|---|
-| Exported data layer (14 tables) | **Verified** — 31 tests cover grain, keys, relationship integrity, size and content |
+| Exported data layer (14 tables) | **Verified** — tests cover grain, keys, relationship integrity, size and content |
 | Measure expectations (`dax_parity.csv`) | **Verified** — computed from the exported data and reconciled against the phase reports |
-| Scenario measure arithmetic | **Verified** — the identity at multiplier 1 is asserted in tests |
-| `measures.dax` (41 measures) | **Authored, not executed** — parses and every measure has a home table, but no DAX engine has evaluated it |
-| TMDL semantic model | **Generated, not opened** — schema is derived from the data so it cannot drift, but Desktop has never loaded it |
-| Report pages | **Specified, not built** — see `powerbi/PAGE_SPEC.md` |
+| `measures.dax` (45 measures) | **Executed** — every figure below read off the rendered report |
+| TMDL semantic model | **Loaded and refreshed** in Desktop |
+| Report pages | **Built** — `powerbi/screenshots/` |
 
-Nothing here should be read as "the dashboard works". The honest claim is that
-the model and measures are authored, the numbers behind them are pinned down and
-tested, and the pages are specified precisely enough to assemble.
+Every headline figure matches its expected value, including both what-if cases:
 
-**Why the pages are a spec rather than a file.** A PBIP's visual layer is a
-large, position-sensitive JSON document. Hand-authoring one without being able to
-open Desktop and look at it is where blind authoring fails hardest, and the
-likely outcome is a file that opens to broken or empty visuals — worse in a
-portfolio than an honest specification. The semantic model is the hard part and
-it is done.
+| Measure | Shown | Expected |
+|---|---|---|
+| Total Revenue / Gross Profit | £182.54M / £69.06M | 182,537,804.93 / 69,059,188.19 |
+| Gross Margin % / Units Sold | 37.83 / 39.24M | 37.8328 / 39,235,280 |
+| Promotion Rate % / Promoted Revenue Share % | 8.49 / 15.96 | 8.4889 / 15.9633 |
+| Stockout Rate % | 0.28 | 0.2823 |
+| Naive / Causal / True Promo Lift % | 126.74 / 96.44 / 81.03 | 126.7368 / 96.4411 / 81.0255 |
+| Naive / Causal Bias pp | 45.71 / 15.42 | 45.7113 / 15.4156 |
+| Bias Removed % | 63.72 | 63.7211 |
+| CI Coverage % / Max Recovery Error | 83.33 / 0.027 | 83.3333 / 0.0266 |
+| Mean Lift at 20% Discount | 97.42 | 97.4221 |
+| Median / Lowest Service Level % | 99.45 / 52.31 | 99.45 / 52.31 |
+| Cannibalisation 1 / 4+ neighbours | −6.12 / −16.37 | −6.1244 / −16.3727 |
+| Plan Incremental Profit | £337.03 | 337.0253 |
+| P10 / P50 / P90 | (£761.98) / (£267.74) / £264.76 | −761.9826 / −267.7425 / 264.7569 |
+| Probability of Loss % / Candidates Profitable % | 74.20 / 0.15 | 74.2 / 0.15 |
+| Scenario @ 1.00 / @ 0.88 | £337.03 / (£259.55) | 337.0255 / −259.5533 |
+
+**The scenario identity holds in the engine, not just in Python.** At multiplier
+1.00 `Scenario Incremental Profit` reads £337.03 with `Scenario vs Plan` at 0.00
+— equal to `Plan Incremental Profit`. That is the same property the Phase 6
+regression test pins: the promotional give-away is not deducted twice.
+
+---
+
+## What the build exposed
+
+The model was generated without a DAX engine to check it against, and four
+defects survived that gap. Each is now fixed in `src/powerbi/tmdl.py` and pinned
+by a test, because regenerating would otherwise reintroduce all of them.
+
+**1. Boolean columns loaded as empty tables.** pandas writes booleans as the text
+`True`/`False`; the generated M cast them to `Int64.Type`. Power Query cannot
+convert `"True"` to a whole number, so *every row errored* and the table loaded
+empty — behind nothing louder than a "some tables have incomplete or no data"
+banner. Eleven columns across `dim_calendar`, `dim_product` and `reorder_policy`.
+`dim_calendar` failing was the expensive one: it is the date dimension, so the
+relationship to `fact_daily_category` went dead and took `Revenue LY`,
+`Revenue YoY %` and every date slicer with it.
+
+**2. A DAX type error downstream of the same cause.** `Service Level Insight`
+compares `reorder_policy[is_perishable] = TRUE()`. Against an `int64` column DAX
+refuses — *"cannot compare values of type Integer with values of type
+True/False"*. The measure was right; the column type was wrong.
+
+**3. PBIR has generations, and the scaffold was written against the wrong one.**
+Desktop 2.155 reads 2.x. Seeing definition version `1.0.0` it silently treated
+the report as PBIR-Legacy, found no legacy layout, opened **one blank page**, and
+refused to save with *"unable to upgrade report to PBIR format — the report has
+no pages"*. No error named the version. Ground truth came from letting Desktop
+upgrade a throwaway copy and reading what it wrote: `report/2.1.0`,
+`page/2.0.0`, `visualContainer/2.1.0`, definition version `2.0.0` — and no
+`$schema` at all in `definition.pbir` or the `.pbip`.
+
+This one carries a lesson beyond Power BI. The scaffold *passed* JSON Schema
+validation the whole time, because it was validated against the 1.x schemas its
+author chose to vendor. **Validating against a schema proves conformance to that
+schema, not fitness for the consumer.**
+
+**4. The what-if slider could not reach its own parity value.** The column was
+`double` over `GENERATESERIES(0.5, 1.3, 0.05)`. Stepping 0.05 through binary
+floating point drifts, so the series ended at 1.25 rather than 1.30, and no
+stored value exactly equalled what the slicer computed. Worse, `dax_parity.csv`
+expects a **0.88** multiplier, which is not a member of a 0.05 series at all —
+the spec and the parity file contradicted each other. Now `decimal`, built from
+exact integers at 0.01 steps, so 0.88 is a real member.
+
+Also corrected: `dim_calendar` now carries `dataCategory: Time` so `DATEADD` in
+`Revenue LY` is dependable, and numeric format strings are no longer emitted on
+text and boolean columns.
+
+**Four measures and two calculated columns were added during the build.** The
+model sets `discourageImplicitMeasures`, so a raw numeric column cannot go in a
+visual's Values well; `Effect %`, `Service Level`, `Spillover Effect %` and
+`Draw Count` stand in front of stored columns for four charts, and
+`profit_bucket` and `month_start` supply axes the exported CSVs do not carry.
+They are in `measures.dax` and the generator so regeneration cannot drop them.
 
 ---
 

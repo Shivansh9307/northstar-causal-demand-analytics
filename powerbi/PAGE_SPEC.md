@@ -1,5 +1,11 @@
 # Power BI page specification
 
+> **These pages are built.** All five exist as PBIR definition files under
+> `Northstar.Report/definition/pages/` — 66 visuals, opened and verified in
+> Desktop, screenshots in `screenshots/`. This file is the specification they
+> were built from, kept as the record of intent. Deviations taken during the
+> build, and the defects it exposed, are in `reports/phase8_powerbi.md`.
+
 The semantic model in `Northstar.SemanticModel/` is generated and carries all 41
 measures, and `Northstar.Report/` is scaffolded with these five pages already
 named and empty. This file specifies what goes on them, precisely enough to
