@@ -55,14 +55,23 @@ PROJECT_NAME = "Northstar"
 # strings rather than approximations. The original `.pbip` shipped with the
 # *report item* schema path where the pbip path belongs, which is precisely the
 # error this class of constant exists to stop recurring.
+#
+# PBIR has *generations*. The first scaffold emitted the 1.x set; Desktop 2.155
+# reads 2.x, and on seeing definition version 1.0.0 it silently treated the
+# report as PBIR-Legacy, found no legacy layout, and opened one blank page —
+# then refused to save with "the report has no pages". No error named the cause.
+# These values are read off a report Desktop itself wrote, not inferred: note
+# that version.json keeps the 1.0.0 *schema* while its version *value* is 2.0.0,
+# and that definition.pbir carries no $schema at all.
 _SCHEMA = "https://developer.microsoft.com/json-schemas/fabric"
 PBIP_SCHEMA = f"{_SCHEMA}/pbip/pbipProperties/1.0.0/schema.json"
-PBIR_SCHEMA = f"{_SCHEMA}/item/report/definitionProperties/2.0.0/schema.json"
 PLATFORM_SCHEMA = f"{_SCHEMA}/gitIntegration/platformProperties/2.0.0/schema.json"
 PBIR_VERSION_SCHEMA = f"{_SCHEMA}/item/report/definition/versionMetadata/1.0.0/schema.json"
-PBIR_REPORT_SCHEMA = f"{_SCHEMA}/item/report/definition/report/1.0.0/schema.json"
+PBIR_DEFINITION_VERSION = "2.0.0"
+PBIR_REPORT_SCHEMA = f"{_SCHEMA}/item/report/definition/report/2.1.0/schema.json"
 PBIR_PAGES_SCHEMA = f"{_SCHEMA}/item/report/definition/pagesMetadata/1.0.0/schema.json"
-PBIR_PAGE_SCHEMA = f"{_SCHEMA}/item/report/definition/page/1.0.0/schema.json"
+PBIR_PAGE_SCHEMA = f"{_SCHEMA}/item/report/definition/page/2.0.0/schema.json"
+PBIR_VISUAL_SCHEMA = f"{_SCHEMA}/item/report/definition/visualContainer/2.1.0/schema.json"
 
 # The five pages of powerbi/PAGE_SPEC.md, scaffolded empty.
 #
@@ -83,7 +92,7 @@ PAGES: List[Tuple[str, str]] = [
 # The range is measures.dax's; 0.88 is the documented default because Phase 4
 # found the DiD estimate overshot the simulated truth.
 WHAT_IF_TABLE = "Uplift Scenario"
-WHAT_IF_MIN, WHAT_IF_MAX, WHAT_IF_STEP = 0.5, 1.3, 0.05
+WHAT_IF_MIN, WHAT_IF_MAX, WHAT_IF_STEP = 0.5, 1.3, 0.01
 
 # Tables the model loads, and the column each relates on.
 DIMENSIONS = ["dim_store", "dim_product", "dim_calendar", "dim_category"]
@@ -113,6 +122,7 @@ MEASURE_HOME = {
     "causal_estimates": [
         "Naive Promo Lift %", "Causal Promo Lift %", "True Promo Lift %",
         "Naive Bias pp", "Causal Bias pp", "Bias Removed %", "Estimate Health",
+        "Effect %",
     ],
     "dose_response": [
         "Dose Response Points", "CI Coverage %", "Max Recovery Error",
@@ -121,9 +131,10 @@ MEASURE_HOME = {
     ],
     "spillover": [
         "Cannibalisation 1 Neighbour %", "Cannibalisation 4+ Neighbours %",
+        "Spillover Effect %",
     ],
     "service_levels": [
-        "Median Service Level %", "Lowest Service Level %",
+        "Median Service Level %", "Lowest Service Level %", "Service Level",
     ],
     "reorder_policy": [
         "Mean Safety Stock", "Mean Reorder Point", "Service Level Insight",
@@ -137,6 +148,26 @@ MEASURE_HOME = {
         "Probability of Loss %",
     ],
     "promo_economics": ["Candidates Profitable %"],
+    "promo_plan_draws": ["Draw Count"],
+}
+
+# Calculated columns the report's visuals bind to. Like the chart-support
+# measures, these exist because a visual needed an axis the exported CSVs do not
+# carry — not because the analysis needs them.
+CALCULATED_COLUMNS: Dict[str, List[Tuple[str, str, str, str]]] = {
+    # table: [(column, DAX, dataType, formatString)]
+    "promo_plan_draws": [(
+        "profit_bucket",
+        "ROUNDDOWN ( promo_plan_draws[profit_gbp] / 100, 0 ) * 100",
+        "double",
+        "\\£#,0;(\\£#,0);\\£#,0",
+    )],
+    "dim_calendar": [(
+        "month_start",
+        "DATE ( YEAR ( dim_calendar[date] ), MONTH ( dim_calendar[date] ), 1 )",
+        "dateTime",
+        "mmm yyyy",
+    )],
 }
 
 
@@ -164,7 +195,15 @@ def infer_types(frame: pd.DataFrame) -> Dict[str, Tuple[str, str]]:
         elif column == "date":
             mapping[column] = ("dateTime", "type date")
         elif pd.api.types.is_bool_dtype(series):
-            mapping[column] = ("int64", "Int64.Type")
+            # NOT Int64.Type. pandas writes booleans as the text True/False, and
+            # Power Query cannot convert "True" to a whole number — so every row
+            # errors and the table loads *empty*, with only a mild "some tables
+            # have incomplete or no data" banner to show for it. This emptied
+            # dim_calendar, taking the date relationship, Revenue LY, Revenue
+            # YoY % and every date slicer with it, and turned the
+            # is_perishable comparison in Service Level Insight into a DAX type
+            # error. Nothing surfaced until Power Query actually ran.
+            mapping[column] = ("boolean", "type logical")
         elif pd.api.types.is_integer_dtype(series):
             mapping[column] = ("int64", "Int64.Type")
         elif pd.api.types.is_float_dtype(series):
@@ -175,8 +214,16 @@ def infer_types(frame: pd.DataFrame) -> Dict[str, Tuple[str, str]]:
 
 
 def format_string(column: str, data_type: str) -> str:
-    """Sensible display formatting, so cards do not render 14 decimal places."""
+    """
+    Sensible display formatting, so cards do not render 14 decimal places.
+
+    Returns "" for types that take no format string. Booleans render True/False
+    without one, and a numeric format on a text column is ignored by Power BI —
+    it was only ever noise in the TMDL.
+    """
     lowered = column.lower()
+    if data_type in ("boolean", "string"):
+        return ""
     if data_type == "dateTime":
         return "yyyy-mm-dd"
     if data_type == "int64":
@@ -268,9 +315,25 @@ def table_tmdl(table: str, frame: pd.DataFrame, measures: Dict[str, str]) -> str
         lines.append(f"\tcolumn {column}")
         lines.append(f"\t\tdataType: {data_type}")
         lines.append(f"\t\tsourceColumn: {column}")
-        lines.append(f"\t\tformatString: {format_string(column, data_type)}")
+        fmt = format_string(column, data_type)
+        if fmt:
+            lines.append(f"\t\tformatString: {fmt}")
         if table == "dim_calendar" and column == "date":
             lines.append("\t\tisKey")
+        lines.append("")
+
+    for column, expression, data_type, fmt in CALCULATED_COLUMNS.get(table, []):
+        lines.append(f"\tcolumn {column} = {expression}")
+        lines.append(f"\t\tdataType: {data_type}")
+        lines.append(f"\t\tformatString: {fmt}")
+        lines.append("\t\tsummarizeBy: none")
+        lines.append("")
+
+    # Revenue LY uses DATEADD, which is only dependable against a table Power BI
+    # recognises as a date table. dim_calendar qualifies: `date` is a key and the
+    # range is a contiguous 731 days.
+    if table == "dim_calendar":
+        lines.append("\tdataCategory: Time")
         lines.append("")
 
     lines.append(f"\tpartition {table} = m")
@@ -308,16 +371,33 @@ def what_if_tmdl() -> str:
     backing data. Nothing references a `Uplift Scenario Value` measure, so
     inventing one here would only break that invariant.
     """
+    lo = int(round(WHAT_IF_MIN * 100))
+    hi = int(round(WHAT_IF_MAX * 100))
     return (
         f"table '{WHAT_IF_TABLE}'\n\n"
         f"\tcolumn '{WHAT_IF_TABLE}'\n"
-        "\t\tdataType: double\n"
+        # `decimal`, not `double`. Stepping through binary floating point drifts,
+        # so a double series ended at 1.25 rather than 1.30 and no stored value
+        # exactly equalled what the slicer computed.
+        "\t\tdataType: decimal\n"
         "\t\tsourceColumn: [Value]\n"
         "\t\tformatString: #,0.00\n"
-        "\t\tsummarizeBy: none\n\n"
+        "\t\tsummarizeBy: none\n"
+        # Without ParameterMetadata the slicer renders as a checkbox list rather
+        # than a what-if slider. Payload copied from the model Desktop wrote,
+        # not guessed.
+        "\n\t\textendedProperty ParameterMetadata =\n"
+        "\t\t\t\t{\n"
+        '\t\t\t\t  "version": 0\n'
+        "\t\t\t\t}\n\n"
+        "\t\tannotation SummarizationSetBy = User\n\n"
         f"\tpartition '{WHAT_IF_TABLE}' = calculated\n"
         "\t\tmode: import\n"
-        f"\t\tsource = GENERATESERIES({WHAT_IF_MIN}, {WHAT_IF_MAX}, {WHAT_IF_STEP})\n"
+        # Built from exact integers so every step is representable. 0.01 steps,
+        # not 0.05: dax_parity.csv expects a 0.88 multiplier, which is not a
+        # member of a 0.05 series at all.
+        f"\t\tsource = SELECTCOLUMNS ( GENERATESERIES ( {lo}, {hi}, 1 ), "
+        '"Value", DIVIDE ( [Value], 100 ) )\n'
     )
 
 
@@ -329,87 +409,83 @@ def _json(document: Dict[str, Any]) -> str:
     return json.dumps(document, indent=2) + "\n"
 
 
-def write_report(root: Path) -> Path:
+def write_report(root: Path, force: bool = False) -> Path:
     """
     Write the PBIR report artifact the `.pbip` points at.
 
     A `.pbip` is only a shortcut to a report; without this folder Desktop has
-    nothing to open no matter how valid the semantic model is. Phase 8 shipped
-    the shortcut without the target, so the project could never have opened.
+    nothing to open no matter how valid the semantic model is.
+
+    **This is a scaffolder, not the owner of the report.** The committed report
+    carries 66 hand-authored visuals that nothing here can reproduce, so by
+    default this writes only what is missing and never overwrites an existing
+    file. Schema drift in a scaffold is a smaller hazard than silently deleting
+    a day of visual authoring. Pass `force=True` for a clean re-scaffold, which
+    is destructive by design.
 
     PBIR (a `definition/` folder), not PBIR-Legacy (`report.json`): the legacy
     format is documented as not supporting external editing, while every PBIR
-    file has a public schema. Pages are scaffolded empty — `powerbi/PAGE_SPEC.md`
-    explains why the visual layer is assembled in Desktop rather than authored
-    blind here.
+    file has a public schema.
     """
     report_root = root / f"{PROJECT_NAME}.Report"
     definition = report_root / "definition"
     pages_dir = definition / "pages"
     pages_dir.mkdir(parents=True, exist_ok=True)
 
-    (report_root / "definition.pbir").write_text(
-        _json({
-            "$schema": PBIR_SCHEMA,
-            "version": "4.0",
-            # Relative, forward slashes, no absolute paths — a byPath reference
-            # is what makes Desktop open the semantic model in edit mode too.
-            "datasetReference": {"byPath": {"path": f"../{PROJECT_NAME}.SemanticModel"}},
-        }),
-        encoding="utf-8",
-    )
-    (report_root / ".platform").write_text(
-        _json({
-            "$schema": PLATFORM_SCHEMA,
-            "metadata": {"type": "Report", "displayName": PROJECT_NAME},
-            "config": {"version": "2.0", "logicalId": "00000000-0000-0000-0000-000000000002"},
-        }),
-        encoding="utf-8",
-    )
+    def put(path: Path, text: str) -> None:
+        """Write only if absent, unless forcing."""
+        if force or not path.exists():
+            path.write_text(text, encoding="utf-8")
 
-    (definition / "version.json").write_text(
-        _json({"$schema": PBIR_VERSION_SCHEMA, "version": "1.0.0"}), encoding="utf-8"
-    )
-    (definition / "report.json").write_text(
-        _json({
-            "$schema": PBIR_REPORT_SCHEMA,
-            "layoutOptimization": "None",
-            # Microsoft's own documented base theme pair. Inventing a name here
-            # gets silently dropped rather than resolved.
-            "themeCollection": {
-                "baseTheme": {
-                    "name": "CY24SU06",
-                    "reportVersionAtImport": "5.55",
-                    "type": "SharedResources",
-                }
-            },
-        }),
-        encoding="utf-8",
-    )
-    (pages_dir / "pages.json").write_text(
-        _json({
-            "$schema": PBIR_PAGES_SCHEMA,
-            "pageOrder": [name for name, _ in PAGES],
-            "activePageName": PAGES[0][0],
-        }),
-        encoding="utf-8",
-    )
+    # No $schema. Desktop writes this file without one, and adding it is the
+    # kind of plausible-looking extra that a strict validator rejects.
+    put(report_root / "definition.pbir", _json({
+        "version": "4.0",
+        # Relative, forward slashes, no absolute paths — a byPath reference
+        # is what makes Desktop open the semantic model in edit mode too.
+        "datasetReference": {"byPath": {"path": f"../{PROJECT_NAME}.SemanticModel"}},
+    }))
+    put(report_root / ".platform", _json({
+        "$schema": PLATFORM_SCHEMA,
+        "metadata": {"type": "Report", "displayName": PROJECT_NAME},
+        "config": {"version": "2.0", "logicalId": "00000000-0000-0000-0000-000000000002"},
+    }))
+
+    put(definition / "version.json", _json({
+        "$schema": PBIR_VERSION_SCHEMA,
+        "version": PBIR_DEFINITION_VERSION,
+    }))
+    put(definition / "report.json", _json({
+        "$schema": PBIR_REPORT_SCHEMA,
+        # Microsoft's own documented base theme pair. Inventing a name here
+        # gets silently dropped rather than resolved.
+        "themeCollection": {
+            "baseTheme": {
+                "name": "CY24SU06",
+                "reportVersionAtImport": "5.55",
+                "type": "SharedResources",
+            }
+        },
+        "settings": {"useEnhancedTooltips": True},
+    }))
+    put(pages_dir / "pages.json", _json({
+        "$schema": PBIR_PAGES_SCHEMA,
+        "pageOrder": [name for name, _ in PAGES],
+        "activePageName": PAGES[0][0],
+    }))
 
     for name, display_name in PAGES:
         page_dir = pages_dir / name
         page_dir.mkdir(parents=True, exist_ok=True)
-        (page_dir / "page.json").write_text(
-            _json({
-                "$schema": PBIR_PAGE_SCHEMA,
-                "name": name,
-                "displayName": display_name,
-                "displayOption": "FitToPage",
-                # Required for every displayOption except DeprecatedDynamic.
-                "width": 1280,
-                "height": 720,
-            }),
-            encoding="utf-8",
-        )
+        put(page_dir / "page.json", _json({
+            "$schema": PBIR_PAGE_SCHEMA,
+            "name": name,
+            "displayName": display_name,
+            "displayOption": "FitToPage",
+            # Required for every displayOption except DeprecatedDynamic.
+            "width": 1280,
+            "height": 720,
+        }))
 
     return report_root
 
@@ -430,7 +506,11 @@ def data_folder_literal(path: str | Path) -> str:
     return str(path).replace("\\", "/").rstrip("/") + "/"
 
 
-def build(data_folder: str | None = None) -> Dict[str, object]:
+def build(
+    data_folder: str | None = None,
+    output_root: str | Path | None = None,
+    force_report: bool = False,
+) -> Dict[str, object]:
     """
     Generate the semantic model and report.
 
@@ -438,15 +518,25 @@ def build(data_folder: str | None = None) -> Dict[str, object]:
     against a machine other than this one. The CSVs are still read from
     `output_dir()` to infer column types — those must be local and real, so the
     two paths are deliberately not the same knob.
+
+    `output_root` redirects everything this writes. Tests must pass it: the
+    committed `powerbi/` tree holds 66 hand-authored visuals and a model Desktop
+    has enriched, none of which this function can reproduce, so a test that
+    called `build()` bare would quietly destroy work.
+
+    `force_report` re-scaffolds the report from scratch. Off by default — see
+    `write_report`.
     """
     data = output_dir()
-    root = powerbi_dir()
+    source = powerbi_dir()  # measures.dax is a hand-authored input, always read from here
+    root = Path(output_root) if output_root is not None else source
+    root.mkdir(parents=True, exist_ok=True)
     model_root = root / f"{PROJECT_NAME}.SemanticModel"
     definition = model_root / "definition"
     tables_dir = definition / "tables"
     tables_dir.mkdir(parents=True, exist_ok=True)
 
-    measures = parse_measures(root / "measures.dax")
+    measures = parse_measures(source / "measures.dax")
     LOGGER.info("Parsed %d measures from measures.dax", len(measures))
 
     all_tables = DIMENSIONS + FACTS + RESULTS
@@ -524,13 +614,16 @@ def build(data_folder: str | None = None) -> Dict[str, object]:
         encoding="utf-8",
     )
 
-    report_root = write_report(root)
+    report_root = write_report(root, force=force_report)
 
     # `artifacts[].report.path` is a relative path to the report *folder* — the
     # convention Desktop itself writes when it saves a project.
     (root / f"{PROJECT_NAME}.pbip").write_text(
+        # No $schema. Desktop omits it here and in definition.pbir, and the one
+        # time this file guessed one it named the wrong item's schema and
+        # blocked the project from opening. Omitting is both what the consumer
+        # does and the option that cannot be wrong.
         _json({
-            "$schema": PBIP_SCHEMA,
             "version": "1.0",
             "artifacts": [{"report": {"path": f"{PROJECT_NAME}.Report"}}],
             "settings": {"enableAutoRecovery": True},

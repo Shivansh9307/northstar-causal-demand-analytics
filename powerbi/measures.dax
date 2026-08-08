@@ -275,3 +275,29 @@ IF (
     "Plan loses money at this uplift",
     "Plan remains profitable"
 )
+
+// -----------------------------------------------------------------------------
+// Chart-support measures
+//
+// The model sets discourageImplicitMeasures, so a raw numeric column cannot be
+// dropped into a visual's Values well. Every chart that plots a stored column
+// needs an explicit measure standing in front of it. These aggregate one row per
+// category by construction — MAX over a single filtered row, not a real
+// aggregation — so they carry no analytical meaning of their own.
+// -----------------------------------------------------------------------------
+
+Effect % =
+MAX ( causal_estimates[effect_pct] )
+// Page 2, all-specifications bar
+
+Service Level =
+MAX ( service_levels[median_service_level] )
+// Page 4, cost-optimal service level bar
+
+Spillover Effect % =
+MAX ( spillover[effect_pct] )
+// Page 4, cannibalisation bar
+
+Draw Count =
+COUNTROWS ( promo_plan_draws )
+// Page 5, Monte Carlo histogram frequency

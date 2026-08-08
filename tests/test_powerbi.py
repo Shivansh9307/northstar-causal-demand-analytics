@@ -245,21 +245,95 @@ def test_data_folder_literal_normalises_separators(given, expected):
     assert tmdl.data_folder_literal(given) == expected
 
 
-def test_data_folder_override_does_not_change_where_csvs_are_read_from():
+def test_data_folder_override_does_not_change_where_csvs_are_read_from(tmp_path):
     """
     The override targets another machine. If it leaked into the read path, type
     inference would be reading CSVs from a directory that does not exist here.
+
+    Note `output_root` — no test may generate into `powerbi/`. That tree holds 66
+    hand-authored visuals and a model Desktop has enriched, and an earlier
+    version of this test called `build()` bare, which would have overwritten
+    both. The visuals were untracked at the time.
     """
-    before = (DEFINITION / "tables" / "dim_store.tmdl").read_text(encoding="utf-8")
-    try:
-        result = tmdl.build(data_folder=r"C:\elsewhere\powerbi_data")
-        assert result["data_folder"] == "C:/elsewhere/powerbi_data/"
-        expressions = (DEFINITION / "expressions.tmdl").read_text(encoding="utf-8")
-        assert '"C:/elsewhere/powerbi_data/"' in expressions
-        # Types still came from the real local CSVs.
-        assert (DEFINITION / "tables" / "dim_store.tmdl").read_text(encoding="utf-8") == before
-    finally:
-        tmdl.build()  # restore the repo's own path
+    result = tmdl.build(data_folder=r"C:\elsewhere\powerbi_data", output_root=tmp_path)
+    assert result["data_folder"] == "C:/elsewhere/powerbi_data/"
+
+    definition = tmp_path / f"{tmdl.PROJECT_NAME}.SemanticModel" / "definition"
+    assert '"C:/elsewhere/powerbi_data/"' in (definition / "expressions.tmdl").read_text("utf-8")
+    # Types still came from the real local CSVs, not the overridden path.
+    generated = (definition / "tables" / "dim_store.tmdl").read_text("utf-8")
+    for column in pd.read_csv(DATA / "dim_store.csv", nrows=1).columns:
+        assert f"column {column}\n" in generated
+
+
+def test_generating_never_touches_the_committed_report(tmp_path):
+    """
+    66 hand-authored visuals are not regenerable. write_report scaffolds only
+    what is missing, so a routine `build()` cannot delete a day of authoring.
+    """
+    report = tmp_path / f"{tmdl.PROJECT_NAME}.Report"
+    tmdl.build(output_root=tmp_path)
+
+    page = report / "definition" / "pages" / tmdl.PAGES[0][0] / "page.json"
+    page.write_text('{"sentinel": true}', encoding="utf-8")
+    visual = page.parent / "visuals" / "v1" / "visual.json"
+    visual.parent.mkdir(parents=True)
+    visual.write_text('{"sentinel": true}', encoding="utf-8")
+
+    tmdl.build(output_root=tmp_path)
+    assert json.loads(page.read_text("utf-8")) == {"sentinel": True}, "page.json was overwritten"
+    assert visual.exists(), "an authored visual was deleted"
+
+    tmdl.build(output_root=tmp_path, force_report=True)
+    assert "sentinel" not in page.read_text("utf-8"), "force_report should re-scaffold"
+
+
+def test_boolean_columns_are_typed_as_logical_not_integer():
+    """
+    The defect that emptied three tables. pandas writes booleans as the text
+    True/False; casting them to Int64.Type makes Power Query error on *every*
+    row, so the table loads empty behind a mild "incomplete data" banner.
+    dim_calendar dying took the date relationship, Revenue LY, Revenue YoY % and
+    every date slicer with it, and made Service Level Insight a DAX type error.
+
+    Nothing surfaced until Power Query ran, which is why it is pinned here.
+    """
+    frame = pd.DataFrame({"is_perishable": [True, False], "units": [1, 2]})
+    types = tmdl.infer_types(frame)
+    assert types["is_perishable"] == ("boolean", "type logical")
+    assert types["units"] == ("int64", "Int64.Type")
+    # A boolean renders True/False; a numeric format string on it is wrong.
+    assert tmdl.format_string("is_perishable", "boolean") == ""
+
+
+def test_every_boolean_column_in_the_shipped_model_is_logical():
+    """The same check against the committed TMDL, not just the type mapper."""
+    for path in (DEFINITION / "tables").glob("*.tmdl"):
+        text = path.read_text(encoding="utf-8")
+        for column in re.findall(r"^\tcolumn (is_\w+)$", text, re.M):
+            block = text.split(f"\tcolumn {column}\n", 1)[1].split("\n\n", 1)[0]
+            assert "dataType: boolean" in block, f"{path.name}:{column} is not boolean"
+            assert f'{{"{column}", type logical}}' in text, (
+                f"{path.name}:{column} is boolean in TMDL but not cast as logical in M"
+            )
+
+
+def test_uplift_scenario_contains_the_multiplier_parity_expects():
+    """
+    PAGE_SPEC once specified a 0.05 step while dax_parity.csv expects a 0.88
+    multiplier — which is not a member of that series. A double-typed series
+    also drifted, ending at 1.25 instead of 1.30.
+    """
+    expected = parity.compute_expected().set_index("measure")["expected_value"]
+    assert "Scenario Profit at Multiplier 0.88" in expected.index
+
+    text = (DEFINITION / "tables" / f"{tmdl.WHAT_IF_TABLE}.tmdl").read_text("utf-8")
+    assert "dataType: decimal" in text, "double drifts through binary floating point"
+    assert "ParameterMetadata" in text, "without it the slicer is a checkbox list"
+
+    steps = round((tmdl.WHAT_IF_MAX - tmdl.WHAT_IF_MIN) / tmdl.WHAT_IF_STEP)
+    members = {round(tmdl.WHAT_IF_MIN + i * tmdl.WHAT_IF_STEP, 2) for i in range(steps + 1)}
+    assert 0.88 in members, "the parity multiplier is not reachable on the slider"
 
 
 def test_emitted_data_folder_is_normalised():
@@ -317,13 +391,19 @@ PBIP_SCHEMA_PATTERN = re.compile(
 
 
 def _generated_json_files():
-    """Every JSON document the generator emits, whatever its extension."""
-    return sorted(
+    """
+    Every JSON document in the shipped project, whatever its extension.
+
+    `.pbi/` is excluded: it is per-user editor state, gitignored per Microsoft's
+    guidance, and carries schemas this repo has no reason to mirror.
+    """
+    paths = (
         [PBIP, REPORT / "definition.pbir"]
         + list(POWERBI.rglob(".platform"))
         + list(REPORT.rglob("*.json"))
         + [POWERBI / f"{tmdl.PROJECT_NAME}.SemanticModel" / "definition.pbism"]
     )
+    return sorted(p for p in paths if ".pbi" not in p.parts)
 
 
 def test_every_generated_json_document_parses():
@@ -332,9 +412,24 @@ def test_every_generated_json_document_parses():
         json.loads(path.read_text(encoding="utf-8"))
 
 
-def test_pbip_schema_matches_the_pattern_desktop_enforces():
-    schema = json.loads(PBIP.read_text(encoding="utf-8"))["$schema"]
-    assert PBIP_SCHEMA_PATTERN.match(schema), f"Desktop will reject this $schema: {schema}"
+def test_pbip_schema_is_absent_or_correct():
+    """
+    Desktop writes the `.pbip` with no `$schema` at all, and likewise
+    `definition.pbir`. A *wrong* one is fatal — that was the first blocking
+    error — so the rule is: omit it, or get it exactly right.
+    """
+    document = json.loads(PBIP.read_text(encoding="utf-8"))
+    schema = document.get("$schema")
+    if schema is not None:
+        assert PBIP_SCHEMA_PATTERN.match(schema), f"Desktop will reject this $schema: {schema}"
+
+
+def test_report_definition_carries_no_schema():
+    """
+    `definition.pbir` must not declare one. This was part of why the 1.x
+    scaffold opened to a blank page.
+    """
+    assert "$schema" not in json.loads((REPORT / "definition.pbir").read_text("utf-8"))
 
 
 def test_every_schema_url_is_a_microsoft_schema():
@@ -498,9 +593,21 @@ def _schema_registry():
     from referencing import Registry, Resource
 
     resources = []
-    for path in SCHEMA_DIR.rglob("schema.json"):
+    for path in SCHEMA_DIR.rglob("*.json"):
         document = json.loads(path.read_text(encoding="utf-8"))
-        resources.append((document["$id"], Resource.from_contents(document)))
+        resource = Resource.from_contents(document)
+        # Register under the URL its own path implies *and* its declared $id.
+        # These disagree for the embedded schemas: the file and every $ref say
+        # `schema-embedded.json`, while $id says `schema.embedded.json`. Keying
+        # on $id alone leaves those refs unresolvable.
+        canonical = (
+            "https://developer.microsoft.com/json-schemas/"
+            + str(path.relative_to(SCHEMA_DIR)).replace("\\", "/")
+        )
+        resources.append((canonical, resource))
+        declared = document.get("$id")
+        if declared and declared != canonical:
+            resources.append((declared, resource))
     return Registry().with_resources(resources)
 
 
@@ -542,11 +649,15 @@ def test_generated_documents_validate_against_the_published_schemas():
     checked = 0
     for path in _generated_json_files():
         document = json.loads(path.read_text(encoding="utf-8"))
+        # definition.pbism and definition.pbir declare none — Desktop writes
+        # definition.pbir without a $schema, and adding one gets it rejected.
         if "$schema" not in document:
-            continue  # definition.pbism declares none
+            continue
         _validate(document, registry)
         checked += 1
-    assert checked >= 10, f"only {checked} documents were schema-validated"
+    # 66 visuals plus the project files. A collapse in this count means the file
+    # walk stopped finding the report, not that validation got easier.
+    assert checked >= 70, f"only {checked} documents were schema-validated"
 
 
 @pytest.mark.parametrize(
