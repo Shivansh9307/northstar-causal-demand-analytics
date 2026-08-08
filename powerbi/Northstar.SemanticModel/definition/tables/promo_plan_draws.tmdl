@@ -1,14 +1,33 @@
 table promo_plan_draws
+	lineageTag: 249078a1-dc4a-492b-98ec-5819c7546da9
+
+	measure 'Draw Count' = COUNTROWS ( promo_plan_draws )
+		formatString: #,0
+		lineageTag: 3614fe0c-01dd-43f8-b483-9ffe531baca2
 
 	column draw
 		dataType: int64
-		sourceColumn: draw
 		formatString: #,0
+		lineageTag: e0d72ce6-e12e-4f66-86b8-08ee72226a1f
+		summarizeBy: sum
+		sourceColumn: draw
+
+		annotation SummarizationSetBy = Automatic
 
 	column profit_gbp
 		dataType: double
-		sourceColumn: profit_gbp
 		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+		lineageTag: 9c500ee1-d923-47dc-af0e-6d6da098790d
+		summarizeBy: sum
+		sourceColumn: profit_gbp
+
+		annotation SummarizationSetBy = Automatic
+
+	column profit_bucket = ROUNDDOWN ( promo_plan_draws[profit_gbp] / 100, 0 ) * 100
+		dataType: double
+		formatString: \£#,0;(\£#,0);\£#,0
+		lineageTag: b344f338-00b8-44b8-973a-6ae1773f19f4
+		summarizeBy: none
 
 	partition promo_plan_draws = m
 		mode: import
@@ -19,3 +38,4 @@ table promo_plan_draws
 				    Typed = Table.TransformColumnTypes(Headers, {{"draw", Int64.Type}, {"profit_gbp", type number}})
 				in
 				    Typed
+

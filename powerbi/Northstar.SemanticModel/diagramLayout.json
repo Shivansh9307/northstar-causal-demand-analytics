@@ -1,0 +1,230 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 0,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 1398.8207401064878,
+            "y": 289.44143401925464
+          },
+          "nodeIndex": "causal_estimates",
+          "nodeLineageTag": "c40b30fd-2056-4305-bf96-9b3f9bbd6683",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1682.8207401064878,
+            "y": 339.44143401925464
+          },
+          "nodeIndex": "dax_parity",
+          "nodeLineageTag": "79d25d59-4abf-46c9-af56-8ed267551c82",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1164.8207401064878,
+            "y": 528.8828680385094
+          },
+          "nodeIndex": "dim_calendar",
+          "nodeLineageTag": "2dd78ebc-e35f-4bd6-a0bc-0c465bd9e076",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 822.21578968458732,
+            "y": -50
+          },
+          "nodeIndex": "dim_category",
+          "nodeLineageTag": "d857344c-0e63-4a42-b362-03b9b6dc888d",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 50,
+            "y": 259.183183295891
+          },
+          "nodeIndex": "dim_product",
+          "nodeLineageTag": "0ee50a5e-e5a8-4e27-82a5-80d401ca1291",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 621.43515493828477,
+            "y": 332.81315086597476
+          },
+          "nodeIndex": "dim_store",
+          "nodeLineageTag": "2126fe1c-1deb-4979-8093-c5c8c714649e",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 1966.8207401064878,
+            "y": 289.44143401925464
+          },
+          "nodeIndex": "dose_response",
+          "nodeLineageTag": "d96a989a-0a32-4f8c-bacd-9a732560aae3",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 908.511643997819,
+            "y": 177.34416490701159
+          },
+          "nodeIndex": "fact_daily_category",
+          "nodeLineageTag": "b2462521-19e2-4b2b-9a5c-2cf70129a5bf",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2250.8207401064878,
+            "y": 315.44143401925464
+          },
+          "nodeIndex": "promo_economics",
+          "nodeLineageTag": "2cf8d470-8b04-4255-a95d-86f297475ed2",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2534.8207401064878,
+            "y": 289.44143401925464
+          },
+          "nodeIndex": "promo_plan",
+          "nodeLineageTag": "682205a0-c18c-4151-9221-11fa51fc30a3",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 2818.8207401064878,
+            "y": 351.44143401925464
+          },
+          "nodeIndex": "promo_plan_draws",
+          "nodeLineageTag": "249078a1-dc4a-492b-98ec-5819c7546da9",
+          "size": {
+            "height": 176,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3102.8207401064878,
+            "y": 289.44143401925464
+          },
+          "nodeIndex": "promo_plan_uncertainty",
+          "nodeLineageTag": "f052bc79-778f-404c-a9cd-e9b9e60e40c1",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 337.03146117597953,
+            "y": 96.161780103157184
+          },
+          "nodeIndex": "reorder_policy",
+          "nodeLineageTag": "5e43ef8a-087c-4d97-95ae-472bb6ae3141",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3386.8207401064878,
+            "y": 303.44143401925464
+          },
+          "nodeIndex": "service_levels",
+          "nodeLineageTag": "6a39b4ab-d72c-4827-969a-df689bce48b6",
+          "size": {
+            "height": 272,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3670.8207401064878,
+            "y": 289.44143401925464
+          },
+          "nodeIndex": "spillover",
+          "nodeLineageTag": "09135319-e680-4b02-8a11-9dc49d11534f",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 0
+        },
+        {
+          "location": {
+            "x": 3954.8207401064878,
+            "y": 339.44143401925464
+          },
+          "nodeIndex": "Uplift Scenario",
+          "nodeLineageTag": "395968dc-6299-4ee6-a191-99a8268a2d78",
+          "size": {
+            "height": 200,
+            "width": 234
+          },
+          "zIndex": 0
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 100,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

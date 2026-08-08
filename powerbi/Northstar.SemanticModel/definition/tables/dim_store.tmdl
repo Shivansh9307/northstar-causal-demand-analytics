@@ -1,64 +1,113 @@
 table dim_store
+	lineageTag: 2126fe1c-1deb-4979-8093-c5c8c714649e
 
 	column store_id
 		dataType: string
-		sourceColumn: store_id
 		formatString: #,0.0000
+		lineageTag: 84947372-e10a-4fb7-ada5-529fd638ead6
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
 
 	column store_name
 		dataType: string
-		sourceColumn: store_name
 		formatString: #,0.0000
+		lineageTag: c76d267c-8a91-4d03-959c-6bea559dbe86
+		summarizeBy: none
+		sourceColumn: store_name
+
+		annotation SummarizationSetBy = Automatic
 
 	column city
 		dataType: string
-		sourceColumn: city
 		formatString: #,0.0000
+		lineageTag: de1a3216-e343-4e3e-b878-7d7252eb6970
+		summarizeBy: none
+		sourceColumn: city
+
+		annotation SummarizationSetBy = Automatic
 
 	column region
 		dataType: string
-		sourceColumn: region
 		formatString: #,0.0000
+		lineageTag: 0193b2e1-ac6b-4466-985e-fd8a9dcec4b0
+		summarizeBy: none
+		sourceColumn: region
+
+		annotation SummarizationSetBy = Automatic
 
 	column country
 		dataType: string
-		sourceColumn: country
 		formatString: #,0.0000
+		lineageTag: dcd54671-640d-4467-b348-ddc88864ea44
+		summarizeBy: none
+		sourceColumn: country
+
+		annotation SummarizationSetBy = Automatic
 
 	column store_format
 		dataType: string
-		sourceColumn: store_format
 		formatString: #,0.0000
+		lineageTag: cd30d045-18f1-4aa2-bfe1-c0f0a55a53ac
+		summarizeBy: none
+		sourceColumn: store_format
+
+		annotation SummarizationSetBy = Automatic
 
 	column floor_area_sqm
 		dataType: int64
-		sourceColumn: floor_area_sqm
 		formatString: #,0
+		lineageTag: 236876a5-e147-4c4c-8919-a7315fc6dec5
+		summarizeBy: sum
+		sourceColumn: floor_area_sqm
+
+		annotation SummarizationSetBy = Automatic
 
 	column average_daily_footfall
 		dataType: int64
-		sourceColumn: average_daily_footfall
 		formatString: #,0
+		lineageTag: 2e4eef94-e02b-4922-a900-2ca6924ea2a2
+		summarizeBy: sum
+		sourceColumn: average_daily_footfall
+
+		annotation SummarizationSetBy = Automatic
 
 	column competition_intensity_score
 		dataType: int64
-		sourceColumn: competition_intensity_score
 		formatString: #,0
+		lineageTag: 326eb9b2-6039-47ab-aa44-e8caf8524ee5
+		summarizeBy: sum
+		sourceColumn: competition_intensity_score
+
+		annotation SummarizationSetBy = Automatic
 
 	column store_income_index
 		dataType: double
-		sourceColumn: store_income_index
 		formatString: #,0.0000
+		lineageTag: b7a50011-4205-4c9e-bfac-7714ac968b79
+		summarizeBy: sum
+		sourceColumn: store_income_index
+
+		annotation SummarizationSetBy = Automatic
 
 	column local_deprivation_decile
 		dataType: int64
-		sourceColumn: local_deprivation_decile
 		formatString: #,0
+		lineageTag: f839d241-02cd-4afe-a5f7-66a9f7cc9c60
+		summarizeBy: sum
+		sourceColumn: local_deprivation_decile
+
+		annotation SummarizationSetBy = Automatic
 
 	column rollout_cohort
 		dataType: int64
-		sourceColumn: rollout_cohort
 		formatString: #,0
+		lineageTag: 0a6a0af4-0b9a-4dd0-b922-a9efe635a923
+		summarizeBy: sum
+		sourceColumn: rollout_cohort
+
+		annotation SummarizationSetBy = Automatic
 
 	partition dim_store = m
 		mode: import
@@ -69,3 +118,4 @@ table dim_store
 				    Typed = Table.TransformColumnTypes(Headers, {{"store_id", type text}, {"store_name", type text}, {"city", type text}, {"region", type text}, {"country", type text}, {"store_format", type text}, {"floor_area_sqm", Int64.Type}, {"average_daily_footfall", Int64.Type}, {"competition_intensity_score", Int64.Type}, {"store_income_index", type number}, {"local_deprivation_decile", Int64.Type}, {"rollout_cohort", Int64.Type}})
 				in
 				    Typed
+

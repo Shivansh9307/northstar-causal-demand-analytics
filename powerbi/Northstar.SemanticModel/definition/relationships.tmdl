@@ -17,3 +17,4 @@ relationship rel_4
 relationship rel_5
 	fromColumn: reorder_policy.sku_id
 	toColumn: dim_product.sku_id
+

@@ -7,6 +7,14 @@ model Model
 		legacyRedirects
 		returnErrorValuesAsNull
 
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBIDesktopVersion = 2.145.1457.0 (25.07)+6e87ffa743c5aa106a85a0b5e383d76d522045ba
+
+annotation PBI_QueryOrder = ["dim_store","dim_product","dim_calendar","dim_category","fact_daily_category","reorder_policy","causal_estimates","dose_response","spillover","service_levels","promo_plan","promo_plan_uncertainty","promo_plan_draws","promo_economics","dax_parity","DataFolder"]
+
+annotation PBI_ProTooling = ["DevMode"]
+
 ref table dim_store
 ref table dim_product
 ref table dim_calendar
@@ -22,5 +30,7 @@ ref table promo_plan_uncertainty
 ref table promo_plan_draws
 ref table promo_economics
 ref table dax_parity
+ref table 'Uplift Scenario'
 
-ref expression DataFolder
+ref cultureInfo en-GB
+

@@ -1,29 +1,50 @@
 table dax_parity
+	lineageTag: 79d25d59-4abf-46c9-af56-8ed267551c82
 
 	column page
 		dataType: string
-		sourceColumn: page
 		formatString: #,0.0000
+		lineageTag: bb21a24d-889b-45cc-a725-60ce4350bc65
+		summarizeBy: none
+		sourceColumn: page
+
+		annotation SummarizationSetBy = Automatic
 
 	column measure
 		dataType: string
-		sourceColumn: measure
 		formatString: #,0.0000
+		lineageTag: 399c791c-35b2-4583-bf9a-d0fbf01c02f6
+		summarizeBy: none
+		sourceColumn: measure
+
+		annotation SummarizationSetBy = Automatic
 
 	column expected_value
 		dataType: double
-		sourceColumn: expected_value
 		formatString: #,0.0000
+		lineageTag: afd09f4a-c1a2-4c4c-8c17-2a829abb622a
+		summarizeBy: sum
+		sourceColumn: expected_value
+
+		annotation SummarizationSetBy = Automatic
 
 	column unit
 		dataType: string
-		sourceColumn: unit
 		formatString: #,0.0000
+		lineageTag: 771ad9ea-b7e1-4161-ad47-df18d074e76e
+		summarizeBy: none
+		sourceColumn: unit
+
+		annotation SummarizationSetBy = Automatic
 
 	column note
 		dataType: string
-		sourceColumn: note
 		formatString: #,0.0000
+		lineageTag: 57a7df23-970f-49c5-a226-55bb815a0c53
+		summarizeBy: none
+		sourceColumn: note
+
+		annotation SummarizationSetBy = Automatic
 
 	partition dax_parity = m
 		mode: import
@@ -34,3 +55,4 @@ table dax_parity
 				    Typed = Table.TransformColumnTypes(Headers, {{"page", type text}, {"measure", type text}, {"expected_value", type number}, {"unit", type text}, {"note", type text}})
 				in
 				    Typed
+

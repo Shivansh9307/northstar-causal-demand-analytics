@@ -1,24 +1,41 @@
 table dim_category
+	lineageTag: d857344c-0e63-4a42-b362-03b9b6dc888d
 
 	column category
 		dataType: string
-		sourceColumn: category
 		formatString: #,0.0000
+		lineageTag: f21fa651-3fc0-4a65-ae0f-8945bfa59574
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
 
 	column skus
 		dataType: int64
-		sourceColumn: skus
 		formatString: #,0
+		lineageTag: 0e61ba95-ccdd-40b6-a310-3ef2d8b8e414
+		summarizeBy: none
+		sourceColumn: skus
+
+		annotation SummarizationSetBy = Automatic
 
 	column mean_margin_pct
 		dataType: double
-		sourceColumn: mean_margin_pct
 		formatString: #,0.00
+		lineageTag: 335b25a5-210c-4988-bd71-6eef0660715a
+		summarizeBy: none
+		sourceColumn: mean_margin_pct
+
+		annotation SummarizationSetBy = Automatic
 
 	column perishable_skus
 		dataType: double
-		sourceColumn: perishable_skus
 		formatString: #,0.0000
+		lineageTag: 915e65db-4b74-4f86-8fd8-3f4f1f767618
+		summarizeBy: none
+		sourceColumn: perishable_skus
+
+		annotation SummarizationSetBy = Automatic
 
 	partition dim_category = m
 		mode: import
@@ -29,3 +46,4 @@ table dim_category
 				    Typed = Table.TransformColumnTypes(Headers, {{"category", type text}, {"skus", Int64.Type}, {"mean_margin_pct", type number}, {"perishable_skus", type number}})
 				in
 				    Typed
+

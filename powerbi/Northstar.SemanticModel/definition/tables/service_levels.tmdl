@@ -1,37 +1,62 @@
 table service_levels
+	lineageTag: 6a39b4ab-d72c-4827-969a-df689bce48b6
 
-	measure 'Median Service Level %' =
-			MEDIANX ( service_levels, service_levels[median_service_level] ) * 100
+	measure 'Median Service Level %' = MEDIANX ( service_levels, service_levels[median_service_level] ) * 100
 		formatString: #,0.00
+		lineageTag: b26e34b0-b0c9-42a1-b6b7-99791052d4b1
 
-	measure 'Lowest Service Level %' =
-			MINX ( service_levels, service_levels[median_service_level] ) * 100
+	measure 'Lowest Service Level %' = MINX ( service_levels, service_levels[median_service_level] ) * 100
 		formatString: #,0.00
+		lineageTag: 3c9bfeff-70af-434e-a61a-41690ebbfaac
+
+	measure 'Service Level' = MAX ( service_levels[median_service_level] )
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: b0d45aa7-602b-4e72-ada9-0045a6f707ad
 
 	column category
 		dataType: string
-		sourceColumn: category
 		formatString: #,0.0000
+		lineageTag: b2ba7950-8f52-41bf-944b-6ff83334cd79
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
 
 	column pairs
 		dataType: int64
-		sourceColumn: pairs
 		formatString: #,0
+		lineageTag: 7a5cd660-69af-4e88-a19a-6bd7cffe9fe8
+		summarizeBy: sum
+		sourceColumn: pairs
+
+		annotation SummarizationSetBy = Automatic
 
 	column median_service_level
 		dataType: double
-		sourceColumn: median_service_level
 		formatString: #,0.0000
+		lineageTag: 20752b10-9b77-4fb4-8c20-eef63ec66e10
+		summarizeBy: sum
+		sourceColumn: median_service_level
+
+		annotation SummarizationSetBy = Automatic
 
 	column mean_safety_stock
 		dataType: double
-		sourceColumn: mean_safety_stock
 		formatString: #,0.0000
+		lineageTag: 16f966e4-782b-490a-b6b5-d797b7ed123a
+		summarizeBy: sum
+		sourceColumn: mean_safety_stock
+
+		annotation SummarizationSetBy = Automatic
 
 	column mean_reorder_point
 		dataType: double
-		sourceColumn: mean_reorder_point
 		formatString: #,0.0000
+		lineageTag: 8af8db50-bc4b-4d59-a087-3bb5bdc2a830
+		summarizeBy: sum
+		sourceColumn: mean_reorder_point
+
+		annotation SummarizationSetBy = Automatic
 
 	partition service_levels = m
 		mode: import
@@ -42,3 +67,4 @@ table service_levels
 				    Typed = Table.TransformColumnTypes(Headers, {{"category", type text}, {"pairs", Int64.Type}, {"median_service_level", type number}, {"mean_safety_stock", type number}, {"mean_reorder_point", type number}})
 				in
 				    Typed
+

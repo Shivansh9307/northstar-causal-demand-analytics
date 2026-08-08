@@ -4,7 +4,7 @@
 **Owner:** Shivansh Chauhan
 **Purpose:** Flagship portfolio project demonstrating statistical analysis, regression, causal inference, machine learning, and prescriptive optimization for a UK multi-store retailer — built to be read closely by a Fortune 500 hiring manager screening for a Data Analyst / BI Analyst role.
 
-This document is the **architecture plan**. Claude Code should read this file in full before writing any code, propose a build order confirmation, and work phase by phase rather than attempting the whole repo in one pass.
+This document is the **architecture plan**. Read it in full before writing any code, confirm the build order, and work phase by phase rather than attempting the whole repo in one pass.
 
 ---
 
@@ -73,7 +73,6 @@ This phase is what lets your README say, credibly: *"the same feature engineerin
 northstar-causal-demand-analytics/
 ├── PROJECT_ARCHITECTURE.md        <- this file
 ├── README.md                      <- business case narrative (written last, Phase 9)
-├── CLAUDE.md                      <- working conventions for Claude Code sessions
 ├── config/
 │   └── config.yaml                <- FULL_MODE toggle, seed, paths, model params
 ├── data/
@@ -173,10 +172,10 @@ Tests, basic CI (lint + test on push), pinned dependencies, `.gitignore` for lar
 
 ---
 
-## 9. Notes for Claude Code
+## 9. Build Discipline
 
 - Work through the phases **in order**. Do not attempt to generate the full `FULL_MODE=True` dataset (~30M rows) until the entire pipeline has been proven correct in dev mode on the smaller synthetic dataset — this avoids burning time regenerating a huge dataset after finding a bug in Phase 4 or 5.
-- Before installing non-trivial dependencies (EconML, DoWhy, PuLP, LightGBM/XGBoost, great_expectations, etc.), confirm with the user rather than assuming.
+- Weigh non-trivial dependencies (EconML, DoWhy, PuLP, LightGBM/XGBoost, great_expectations, etc.) before adding them rather than pulling them in by reflex.
 - Commit at the end of each phase with a clear message, so the repo history itself tells the story of the build (useful for a hiring manager who checks commit history).
 - If a phase's output contradicts the ground truth in a way that can't be explained (e.g., DiD recovery error is large), stop and flag it rather than silently adjusting the model until numbers look right — that would defeat the entire point of the validation design.
 - Ask before scope-creeping in extras (e.g., double/debiased ML via EconML) — they're valuable stretch goals but the core Definition of Done in §8 is the actual bar for "flagship" status.

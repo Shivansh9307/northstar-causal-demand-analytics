@@ -1,79 +1,139 @@
 table dim_product
+	lineageTag: 0ee50a5e-e5a8-4e27-82a5-80d401ca1291
 
 	column sku_id
 		dataType: string
-		sourceColumn: sku_id
 		formatString: #,0.0000
+		lineageTag: 3f7e8bb6-f1bb-47d6-91b5-33074809604d
+		summarizeBy: none
+		sourceColumn: sku_id
+
+		annotation SummarizationSetBy = Automatic
 
 	column sku_name
 		dataType: string
-		sourceColumn: sku_name
 		formatString: #,0.0000
+		lineageTag: 433c30db-8b17-4f78-bf78-6e4201a8cf63
+		summarizeBy: none
+		sourceColumn: sku_name
+
+		annotation SummarizationSetBy = Automatic
 
 	column category
 		dataType: string
-		sourceColumn: category
 		formatString: #,0.0000
+		lineageTag: 55647b38-5955-4dbe-bfa0-a90f3a749ce7
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
 
 	column subcategory
 		dataType: string
-		sourceColumn: subcategory
 		formatString: #,0.0000
+		lineageTag: 93bf7d97-a4f2-417b-831b-ac6375b6e03a
+		summarizeBy: none
+		sourceColumn: subcategory
+
+		annotation SummarizationSetBy = Automatic
 
 	column brand_type
 		dataType: string
-		sourceColumn: brand_type
 		formatString: #,0.0000
+		lineageTag: 55852390-d315-4b88-8ffd-0add82b6af92
+		summarizeBy: none
+		sourceColumn: brand_type
+
+		annotation SummarizationSetBy = Automatic
 
 	column regular_unit_price_gbp
 		dataType: double
-		sourceColumn: regular_unit_price_gbp
 		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+		lineageTag: bee10be0-2a26-4e41-a519-64fd2c2c6934
+		summarizeBy: none
+		sourceColumn: regular_unit_price_gbp
+
+		annotation SummarizationSetBy = Automatic
 
 	column unit_cost_gbp
 		dataType: double
-		sourceColumn: unit_cost_gbp
 		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+		lineageTag: af297397-9118-4924-af6d-7b9146d0f2e1
+		summarizeBy: none
+		sourceColumn: unit_cost_gbp
+
+		annotation SummarizationSetBy = Automatic
 
 	column baseline_gross_margin_pct
 		dataType: double
-		sourceColumn: baseline_gross_margin_pct
 		formatString: #,0.00
+		lineageTag: aa7e15c4-803f-42ce-af7c-64bf7ceff44b
+		summarizeBy: none
+		sourceColumn: baseline_gross_margin_pct
+
+		annotation SummarizationSetBy = Automatic
 
 	column price_elasticity_segment
 		dataType: string
-		sourceColumn: price_elasticity_segment
 		formatString: #,0.0000
+		lineageTag: 3396b28e-7c58-4b3d-9fdb-1a98dc7b595c
+		summarizeBy: none
+		sourceColumn: price_elasticity_segment
+
+		annotation SummarizationSetBy = Automatic
 
 	column promotion_sensitivity_segment
 		dataType: string
-		sourceColumn: promotion_sensitivity_segment
 		formatString: #,0.0000
+		lineageTag: e99395c6-b11e-47ba-aa76-55ca85c407e5
+		summarizeBy: none
+		sourceColumn: promotion_sensitivity_segment
+
+		annotation SummarizationSetBy = Automatic
 
 	column demand_volatility_segment
 		dataType: string
-		sourceColumn: demand_volatility_segment
 		formatString: #,0.0000
+		lineageTag: 757d5394-6990-4345-972d-2c295266175b
+		summarizeBy: none
+		sourceColumn: demand_volatility_segment
+
+		annotation SummarizationSetBy = Automatic
 
 	column seasonal_profile
 		dataType: string
-		sourceColumn: seasonal_profile
 		formatString: #,0.0000
+		lineageTag: c874e1bb-225d-4a2f-a955-a50568976d7c
+		summarizeBy: none
+		sourceColumn: seasonal_profile
+
+		annotation SummarizationSetBy = Automatic
 
 	column is_perishable
-		dataType: int64
+		dataType: boolean
+		lineageTag: 64ed1ecc-26a1-456c-b30b-523e5b368929
+		summarizeBy: none
 		sourceColumn: is_perishable
-		formatString: #,0
+
+		annotation SummarizationSetBy = Automatic
 
 	column shelf_life_days
 		dataType: int64
-		sourceColumn: shelf_life_days
 		formatString: #,0
+		lineageTag: eb27bce0-adf5-4928-bc89-653d2c7fc80e
+		summarizeBy: none
+		sourceColumn: shelf_life_days
+
+		annotation SummarizationSetBy = Automatic
 
 	column reorder_lead_time_days
 		dataType: int64
-		sourceColumn: reorder_lead_time_days
 		formatString: #,0
+		lineageTag: 1fbd9b73-ae79-4810-bccf-e529ce9f480d
+		summarizeBy: none
+		sourceColumn: reorder_lead_time_days
+
+		annotation SummarizationSetBy = Automatic
 
 	partition dim_product = m
 		mode: import
@@ -81,6 +141,7 @@ table dim_product
 				let
 				    Source = Csv.Document(File.Contents(DataFolder & "dim_product.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
 				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
-				    Typed = Table.TransformColumnTypes(Headers, {{"sku_id", type text}, {"sku_name", type text}, {"category", type text}, {"subcategory", type text}, {"brand_type", type text}, {"regular_unit_price_gbp", type number}, {"unit_cost_gbp", type number}, {"baseline_gross_margin_pct", type number}, {"price_elasticity_segment", type text}, {"promotion_sensitivity_segment", type text}, {"demand_volatility_segment", type text}, {"seasonal_profile", type text}, {"is_perishable", Int64.Type}, {"shelf_life_days", Int64.Type}, {"reorder_lead_time_days", Int64.Type}})
+				    Typed = Table.TransformColumnTypes(Headers, {{"sku_id", type text}, {"sku_name", type text}, {"category", type text}, {"subcategory", type text}, {"brand_type", type text}, {"regular_unit_price_gbp", type number}, {"unit_cost_gbp", type number}, {"baseline_gross_margin_pct", type number}, {"price_elasticity_segment", type text}, {"promotion_sensitivity_segment", type text}, {"demand_volatility_segment", type text}, {"seasonal_profile", type text}, {"is_perishable", type logical}, {"shelf_life_days", Int64.Type}, {"reorder_lead_time_days", Int64.Type}})
 				in
 				    Typed
+

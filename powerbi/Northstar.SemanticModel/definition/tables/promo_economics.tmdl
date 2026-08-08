@@ -1,38 +1,63 @@
 table promo_economics
+	lineageTag: 2cf8d470-8b04-4255-a95d-86f297475ed2
 
-	measure 'Candidates Profitable %' =
-			DIVIDE ( SUM ( promo_economics[profitable] ), SUM ( promo_economics[candidates] ) ) * 100
+	measure 'Candidates Profitable %' = DIVIDE ( SUM ( promo_economics[profitable] ), SUM ( promo_economics[candidates] ) ) * 100
 		formatString: #,0.00
+		lineageTag: 83eb9b6f-850f-440b-8aa7-ef6e91c2b201
 
 	column discount_pct
 		dataType: int64
-		sourceColumn: discount_pct
 		formatString: #,0
+		lineageTag: 0e5a8c22-0bbc-42ae-9573-58ef1f886f00
+		summarizeBy: sum
+		sourceColumn: discount_pct
+
+		annotation SummarizationSetBy = Automatic
 
 	column candidates
 		dataType: int64
-		sourceColumn: candidates
 		formatString: #,0
+		lineageTag: 0cbf59c5-893b-4e22-bd7b-3949d3b5a315
+		summarizeBy: sum
+		sourceColumn: candidates
+
+		annotation SummarizationSetBy = Automatic
 
 	column profitable
 		dataType: int64
-		sourceColumn: profitable
 		formatString: #,0
+		lineageTag: 0875e86d-2b6b-4553-8bd4-6d39fc40ce77
+		summarizeBy: sum
+		sourceColumn: profitable
+
+		annotation SummarizationSetBy = Automatic
 
 	column mean_incremental_profit
 		dataType: double
-		sourceColumn: mean_incremental_profit
 		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+		lineageTag: 93026cf7-6caa-4019-a11f-d307e90e9f95
+		summarizeBy: sum
+		sourceColumn: mean_incremental_profit
+
+		annotation SummarizationSetBy = Automatic
 
 	column mean_margin_sacrificed
 		dataType: double
-		sourceColumn: mean_margin_sacrificed
 		formatString: #,0.0000
+		lineageTag: ac725e25-a1a9-4bf8-91f0-4b4cddab56bb
+		summarizeBy: sum
+		sourceColumn: mean_margin_sacrificed
+
+		annotation SummarizationSetBy = Automatic
 
 	column mean_cannibalisation
 		dataType: double
-		sourceColumn: mean_cannibalisation
 		formatString: #,0.0000
+		lineageTag: 11a01b9f-7d27-4b22-8a59-460916d4302d
+		summarizeBy: sum
+		sourceColumn: mean_cannibalisation
+
+		annotation SummarizationSetBy = Automatic
 
 	partition promo_economics = m
 		mode: import
@@ -43,3 +68,4 @@ table promo_economics
 				    Typed = Table.TransformColumnTypes(Headers, {{"discount_pct", Int64.Type}, {"candidates", Int64.Type}, {"profitable", Int64.Type}, {"mean_incremental_profit", type number}, {"mean_margin_sacrificed", type number}, {"mean_cannibalisation", type number}})
 				in
 				    Typed
+

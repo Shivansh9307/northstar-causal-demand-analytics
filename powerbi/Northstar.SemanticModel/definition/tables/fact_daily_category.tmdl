@@ -1,19 +1,20 @@
 table fact_daily_category
+	lineageTag: b2462521-19e2-4b2b-9a5c-2cf70129a5bf
 
-	measure 'Total Revenue' =
-			SUM ( fact_daily_category[revenue_gbp] )
+	measure 'Total Revenue' = SUM ( fact_daily_category[revenue_gbp] )
 		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+		lineageTag: cdb02f06-03c8-4d4d-9eb3-e368a668117d
 
-	measure 'Total Gross Profit' =
-			SUM ( fact_daily_category[gross_profit_gbp] )
+	measure 'Total Gross Profit' = SUM ( fact_daily_category[gross_profit_gbp] )
 		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+		lineageTag: 5e8402a2-4b27-44d4-8b6d-8720ae980a33
 
-	measure 'Gross Margin %' =
-			DIVIDE ( [Total Gross Profit], [Total Revenue] ) * 100
+	measure 'Gross Margin %' = DIVIDE ( [Total Gross Profit], [Total Revenue] ) * 100
 		formatString: #,0.00
+		lineageTag: 8b81c23c-8c81-49f1-aff5-1b5f19dae4c2
 
-	measure 'Units Sold' =
-			SUM ( fact_daily_category[units_sold] )
+	measure 'Units Sold' = SUM ( fact_daily_category[units_sold] )
+		lineageTag: 2a6fb952-56ee-4cfd-b024-f5425ca862a1
 
 	measure 'Promotion Rate %' =
 			DIVIDE (
@@ -21,6 +22,7 @@ table fact_daily_category
 			    SUM ( fact_daily_category[sku_days] )
 			) * 100
 		formatString: #,0.00
+		lineageTag: 4c5b45a0-2a47-478c-a2c9-89634b985924
 
 	measure 'Stockout Rate %' =
 			DIVIDE (
@@ -28,94 +30,158 @@ table fact_daily_category
 			    SUM ( fact_daily_category[sku_days] )
 			) * 100
 		formatString: #,0.00
+		lineageTag: 52b5aa98-e2f1-42ed-9a52-9333126b473b
 
-	measure 'Promoted Revenue Share %' =
-			DIVIDE ( SUM ( fact_daily_category[promoted_revenue_gbp] ), [Total Revenue] ) * 100
+	measure 'Promoted Revenue Share %' = DIVIDE ( SUM ( fact_daily_category[promoted_revenue_gbp] ), [Total Revenue] ) * 100
 		formatString: #,0.00
+		lineageTag: 13e6fb4e-3245-4d72-b3f7-c42d579c2c26
 
-	measure 'Revenue LY' =
-			CALCULATE ( [Total Revenue], DATEADD ( dim_calendar[date], -1, YEAR ) )
+	measure 'Revenue LY' = CALCULATE ( [Total Revenue], DATEADD ( dim_calendar[date], -1, YEAR ) )
 		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+		lineageTag: aa663a2f-daa8-4147-b398-8e821e80846d
 
 	measure 'Revenue YoY %' =
 			VAR Previous = [Revenue LY]
 			RETURN IF ( Previous > 0, DIVIDE ( [Total Revenue] - Previous, Previous ) * 100 )
 		formatString: #,0.00
+		lineageTag: 7b0d0066-bffa-439f-8256-c2a1fd50babb
 
 	column date
 		dataType: dateTime
-		sourceColumn: date
 		formatString: yyyy-mm-dd
+		lineageTag: f3f94ca7-e177-4e72-96a9-6009376c7d90
+		summarizeBy: none
+		sourceColumn: date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
 
 	column store_id
 		dataType: string
-		sourceColumn: store_id
 		formatString: #,0.0000
+		lineageTag: e11c602c-6c1f-4876-bc0c-09c8f4057098
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
 
 	column category
 		dataType: string
-		sourceColumn: category
 		formatString: #,0.0000
+		lineageTag: 9851b369-e9fe-45f5-993d-8a020a2fb37a
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
 
 	column units_sold
 		dataType: double
-		sourceColumn: units_sold
 		formatString: #,0.0000
+		lineageTag: d3691482-9a30-4c98-8e39-c9daff03f4e6
+		summarizeBy: sum
+		sourceColumn: units_sold
+
+		annotation SummarizationSetBy = Automatic
 
 	column revenue_gbp
 		dataType: double
-		sourceColumn: revenue_gbp
 		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+		lineageTag: 5f3f5fa6-ef3b-4467-b7e4-8127419aa29a
+		summarizeBy: sum
+		sourceColumn: revenue_gbp
+
+		annotation SummarizationSetBy = Automatic
 
 	column cogs_gbp
 		dataType: double
-		sourceColumn: cogs_gbp
 		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+		lineageTag: 35c414ce-4adb-404a-ac9d-b26bf067ed5e
+		summarizeBy: sum
+		sourceColumn: cogs_gbp
+
+		annotation SummarizationSetBy = Automatic
 
 	column promo_cost_gbp
 		dataType: double
-		sourceColumn: promo_cost_gbp
 		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+		lineageTag: 15bdb6ff-e932-4eb4-ba7c-4532b99d8b4b
+		summarizeBy: sum
+		sourceColumn: promo_cost_gbp
+
+		annotation SummarizationSetBy = Automatic
 
 	column gross_profit_gbp
 		dataType: double
-		sourceColumn: gross_profit_gbp
 		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+		lineageTag: a9e7e49c-777c-4e19-bbcf-b4b0120ee86c
+		summarizeBy: sum
+		sourceColumn: gross_profit_gbp
+
+		annotation SummarizationSetBy = Automatic
 
 	column promoted_sku_days
 		dataType: double
-		sourceColumn: promoted_sku_days
 		formatString: #,0.0000
+		lineageTag: a373c988-61d2-49e3-8b25-a51fd56a3900
+		summarizeBy: sum
+		sourceColumn: promoted_sku_days
+
+		annotation SummarizationSetBy = Automatic
 
 	column sku_days
 		dataType: int64
-		sourceColumn: sku_days
 		formatString: #,0
+		lineageTag: 8d50004f-1b62-4540-ac54-7ba33f0f91e5
+		summarizeBy: sum
+		sourceColumn: sku_days
+
+		annotation SummarizationSetBy = Automatic
 
 	column stockout_sku_days
 		dataType: double
-		sourceColumn: stockout_sku_days
 		formatString: #,0.0000
+		lineageTag: 2ac579cc-54f3-4f87-a0fb-833fb7de62fa
+		summarizeBy: sum
+		sourceColumn: stockout_sku_days
+
+		annotation SummarizationSetBy = Automatic
 
 	column promoted_units
 		dataType: double
-		sourceColumn: promoted_units
 		formatString: #,0.0000
+		lineageTag: 79e0192f-6288-4180-80f1-ee435eadd7d5
+		summarizeBy: sum
+		sourceColumn: promoted_units
+
+		annotation SummarizationSetBy = Automatic
 
 	column promoted_revenue_gbp
 		dataType: double
-		sourceColumn: promoted_revenue_gbp
 		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+		lineageTag: 81210d60-e437-49ba-a933-2eec21dff373
+		summarizeBy: sum
+		sourceColumn: promoted_revenue_gbp
+
+		annotation SummarizationSetBy = Automatic
 
 	column waste_units
 		dataType: double
-		sourceColumn: waste_units
 		formatString: #,0.0000
+		lineageTag: c197873a-2891-4aa0-b3fa-2b55e207d1a4
+		summarizeBy: sum
+		sourceColumn: waste_units
+
+		annotation SummarizationSetBy = Automatic
 
 	column mean_discount_pct
 		dataType: double
-		sourceColumn: mean_discount_pct
 		formatString: #,0.00
+		lineageTag: b3498f07-c195-4044-a4e5-d009c6d56768
+		summarizeBy: sum
+		sourceColumn: mean_discount_pct
+
+		annotation SummarizationSetBy = Automatic
 
 	partition fact_daily_category = m
 		mode: import
@@ -126,3 +192,4 @@ table fact_daily_category
 				    Typed = Table.TransformColumnTypes(Headers, {{"date", type date}, {"store_id", type text}, {"category", type text}, {"units_sold", type number}, {"revenue_gbp", type number}, {"cogs_gbp", type number}, {"promo_cost_gbp", type number}, {"gross_profit_gbp", type number}, {"promoted_sku_days", type number}, {"sku_days", Int64.Type}, {"stockout_sku_days", type number}, {"promoted_units", type number}, {"promoted_revenue_gbp", type number}, {"waste_units", type number}, {"mean_discount_pct", type number}})
 				in
 				    Typed
+

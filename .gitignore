@@ -26,8 +26,16 @@ __pycache__/
 # Strip outputs before committing; keep the notebooks themselves.
 
 # ---- Power BI ------------------------------------------------------------
-powerbi/**/.pbi/cache.abf
+# .pbi/ holds per-user, per-machine editor state (local settings, the data
+# cache). Microsoft's own guidance is to exclude it from source control.
+powerbi/**/.pbi/
 *.pbix
+*.pdf
+
+# ---- Tooling -------------------------------------------------------------
+# Editor and assistant configuration - working conventions, not project code.
+CLAUDE.md
+.claude/
 
 # ---- OS / editor ---------------------------------------------------------
 .DS_Store

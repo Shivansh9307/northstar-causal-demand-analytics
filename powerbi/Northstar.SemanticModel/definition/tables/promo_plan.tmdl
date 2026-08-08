@@ -1,15 +1,16 @@
 table promo_plan
+	lineageTag: 682205a0-c18c-4151-9221-11fa51fc30a3
 
-	measure 'Promotions Selected' =
-			COUNTROWS ( promo_plan )
+	measure 'Promotions Selected' = COUNTROWS ( promo_plan )
+		lineageTag: a2f4512c-f1d2-497e-95b9-e29683ab4528
 
-	measure 'Plan Spend' =
-			SUM ( promo_plan[promotion_cost] )
+	measure 'Plan Spend' = SUM ( promo_plan[promotion_cost] )
 		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+		lineageTag: 2b9893f1-1389-481c-ba3e-1cbd69f008ca
 
-	measure 'Plan Incremental Profit' =
-			SUM ( promo_plan[incremental_profit] )
+	measure 'Plan Incremental Profit' = SUM ( promo_plan[incremental_profit] )
 		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+		lineageTag: 0594894e-c8f5-4994-bb8f-c96814618468
 
 	measure 'Scenario Incremental Profit' =
 			VAR Multiplier = SELECTEDVALUE ( 'Uplift Scenario'[Uplift Scenario], 1 )
@@ -22,9 +23,10 @@ table promo_plan
 			            - promo_plan[cannibalisation_loss]
 			    )
 		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+		lineageTag: 374e6a89-c18b-4cad-8c3f-1f1ef25f570d
 
-	measure 'Scenario vs Plan' =
-			[Scenario Incremental Profit] - [Plan Incremental Profit]
+	measure 'Scenario vs Plan' = [Scenario Incremental Profit] - [Plan Incremental Profit]
+		lineageTag: f238c4e1-8235-4e36-8b69-32b29f8c146e
 
 	measure 'Scenario Verdict' =
 			IF (
@@ -32,61 +34,106 @@ table promo_plan
 			    "Plan loses money at this uplift",
 			    "Plan remains profitable"
 			)
+		lineageTag: e89d0977-c801-48ae-8996-1b352eef690b
 
 	column store_id
 		dataType: string
-		sourceColumn: store_id
 		formatString: #,0.0000
+		lineageTag: e8724c38-636c-4cf3-8a24-3af6b1c6705e
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
 
 	column sku_id
 		dataType: string
-		sourceColumn: sku_id
 		formatString: #,0.0000
+		lineageTag: 8224cbfc-73de-4ec5-8827-ee5059bd62a6
+		summarizeBy: none
+		sourceColumn: sku_id
+
+		annotation SummarizationSetBy = Automatic
 
 	column category
 		dataType: string
-		sourceColumn: category
 		formatString: #,0.0000
+		lineageTag: 3ec22b90-d998-4022-8285-497fb836941f
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
 
 	column discount_pct
 		dataType: int64
-		sourceColumn: discount_pct
 		formatString: #,0
+		lineageTag: a09afcc6-f846-45f6-9bc6-44f4a7120340
+		summarizeBy: sum
+		sourceColumn: discount_pct
+
+		annotation SummarizationSetBy = Automatic
 
 	column baseline_units
 		dataType: double
-		sourceColumn: baseline_units
 		formatString: #,0.0000
+		lineageTag: fbb93b34-9b57-412c-89b2-31b71532f2b8
+		summarizeBy: sum
+		sourceColumn: baseline_units
+
+		annotation SummarizationSetBy = Automatic
 
 	column incremental_units
 		dataType: double
-		sourceColumn: incremental_units
 		formatString: #,0.0000
+		lineageTag: 649f51ba-5492-428a-a511-752b79d9b467
+		summarizeBy: sum
+		sourceColumn: incremental_units
+
+		annotation SummarizationSetBy = Automatic
 
 	column promo_margin
 		dataType: double
-		sourceColumn: promo_margin
 		formatString: #,0.0000
+		lineageTag: 1c7af657-fbf0-47d7-8a33-7db140ba501d
+		summarizeBy: sum
+		sourceColumn: promo_margin
+
+		annotation SummarizationSetBy = Automatic
 
 	column full_margin
 		dataType: double
-		sourceColumn: full_margin
 		formatString: #,0.0000
+		lineageTag: 920613a8-a5f4-4c16-9405-48ca077e0c3d
+		summarizeBy: sum
+		sourceColumn: full_margin
+
+		annotation SummarizationSetBy = Automatic
 
 	column promotion_cost
 		dataType: double
-		sourceColumn: promotion_cost
 		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+		lineageTag: 28a82566-2be0-49d0-a81f-2363c271160c
+		summarizeBy: sum
+		sourceColumn: promotion_cost
+
+		annotation SummarizationSetBy = Automatic
 
 	column cannibalisation_loss
 		dataType: double
-		sourceColumn: cannibalisation_loss
 		formatString: #,0.0000
+		lineageTag: 6d61fbff-a32b-490f-9b1e-ca3991bc7f48
+		summarizeBy: sum
+		sourceColumn: cannibalisation_loss
+
+		annotation SummarizationSetBy = Automatic
 
 	column incremental_profit
 		dataType: double
-		sourceColumn: incremental_profit
 		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+		lineageTag: 1cf7548c-2f70-4bcd-9fef-0706f204a1ee
+		summarizeBy: sum
+		sourceColumn: incremental_profit
+
+		annotation SummarizationSetBy = Automatic
 
 	partition promo_plan = m
 		mode: import
@@ -97,3 +144,4 @@ table promo_plan
 				    Typed = Table.TransformColumnTypes(Headers, {{"store_id", type text}, {"sku_id", type text}, {"category", type text}, {"discount_pct", Int64.Type}, {"baseline_units", type number}, {"incremental_units", type number}, {"promo_margin", type number}, {"full_margin", type number}, {"promotion_cost", type number}, {"cannibalisation_loss", type number}, {"incremental_profit", type number}})
 				in
 				    Typed
+

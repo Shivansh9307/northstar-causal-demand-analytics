@@ -1,12 +1,13 @@
 # Power BI page specification
 
 The semantic model in `Northstar.SemanticModel/` is generated and carries all 41
-measures. This file specifies the five report pages precisely enough to assemble
-them in Power BI Desktop.
+measures, and `Northstar.Report/` is scaffolded with these five pages already
+named and empty. This file specifies what goes on them, precisely enough to
+assemble in Power BI Desktop.
 
-**Why this is a spec rather than a built report.** The visual layer of a PBIP is
-a large, position-sensitive JSON document. Authoring one without being able to
-open Desktop and look at it is where blind authoring fails hardest — the likely
+**Why this is a spec rather than a built report.** A PBIR visual carries both
+position and query bindings. Authoring thirty of them without being able to open
+Desktop and look at them is where blind authoring fails hardest — the likely
 outcome is a file that opens to broken or empty visuals, which is worse in a
 portfolio than an honest spec. The model and measures are the hard part and they
 are done; the pages are half an hour of drag-and-drop.
@@ -15,19 +16,49 @@ are done; the pages are half an hour of drag-and-drop.
 
 ## Before you start
 
-1. Open `Northstar.pbip` in Power BI Desktop.
-2. **Fix the data path.** `definition/expressions.tmdl` holds a `DataFolder`
-   parameter written with an absolute path at generation time. If you cloned this
-   repository somewhere else, edit it to your own
-   `.../powerbi/powerbi_data/` (Transform data → Manage parameters), or re-run
-   `uv run python src/powerbi/tmdl.py` to regenerate it.
-3. Create the what-if parameter Page 5 needs:
-   Modeling → New parameter → Numeric range, named **Uplift Scenario**,
-   Minimum `0.5`, Maximum `1.3`, Increment `0.05`, Default `0.88`.
-   The default is not arbitrary — Phase 4 found the DiD estimate overshot the
-   simulated truth, so the central case assumes the estimate is optimistic.
-4. Check any measure against `powerbi_data/dax_parity.csv`. Drop it on a card
+1. **Do this before opening anything.** In **File → Options and settings →
+   Options → Preview features**, tick *Store semantic model using TMDL format*
+   and *Store reports using enhanced metadata format (PBIR)*. This project is
+   stored in both formats.
+
+   With PBIR off, Desktop **silently ignores** `Northstar.Report/definition/`.
+   There is no error — the model loads fine and you get one blank page instead
+   of five, which looks like the pages were never generated. Worse, saving in
+   that state rewrites the report in the legacy format and the five scaffolded
+   pages are gone.
+
+2. Open `Northstar.pbip`. It opens on **Executive Summary** with all five pages
+   present and empty.
+
+3. **Repoint the data folder.** `DataFolder` is generated with an absolute path,
+   so on any machine but the one that generated it, set it under
+   **Home → Transform data → Edit parameters** to your own
+   `.../powerbi_data/` — keep the trailing separator — then **Apply changes**
+   and **Refresh**.
+
+   To skip that step, generate for the target machine directly:
+
+   ```bash
+   uv run python src/powerbi/tmdl.py \
+     --data-folder 'C:/Users/you/Desktop/power-bi-northstar/powerbi_data/'
+   ```
+
+   Regenerate without the flag afterwards, so the repo isn't left holding
+   someone else's path.
+
+4. On first open the model is unrefreshed, so expect banners about calculated
+   objects needing a refresh and tables having no data. They clear once the
+   parameter resolves and you refresh — they are not errors.
+
+5. Check any measure against `powerbi_data/dax_parity.csv`. Drop it on a card
    with no filters; it should match the `expected_value` column.
+
+The **Uplift Scenario** what-if parameter Page 5 needs is generated as part of the
+model — you no longer create it by hand. It is a calculated table over
+`GENERATESERIES(0.5, 1.3, 0.05)`. Set the slicer's default to `0.88` when you
+build the page: that value is not arbitrary, as Phase 4 found the DiD estimate
+overshot the simulated truth, so the central case assumes the estimate is
+optimistic.
 
 ---
 

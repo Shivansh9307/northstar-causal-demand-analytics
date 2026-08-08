@@ -1,0 +1,21 @@
+table 'Uplift Scenario'
+	lineageTag: 395968dc-6299-4ee6-a191-99a8268a2d78
+
+	column 'Uplift Scenario'
+		dataType: decimal
+		formatString: #,0.00
+		lineageTag: 5e4a78c6-fee6-4275-b4fb-7002b1b39d0f
+		summarizeBy: none
+		sourceColumn: [Value]
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 0
+				}
+
+		annotation SummarizationSetBy = User
+
+	partition 'Uplift Scenario' = calculated
+		mode: import
+		source = SELECTCOLUMNS ( GENERATESERIES ( 50, 130, 1 ), "Value", DIVIDE ( [Value], 100 ) )
+

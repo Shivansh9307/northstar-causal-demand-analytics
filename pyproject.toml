@@ -18,4 +18,8 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pytest>=9.1.1",
+    # Validates the generated PBIP/PBIR documents against Microsoft's published
+    # schemas (mirrored in tests/fixtures/fabric_schemas/). Needs >=4.18 for the
+    # `referencing` registry that resolves the schemas' relative $refs offline.
+    "jsonschema>=4.18",
 ]

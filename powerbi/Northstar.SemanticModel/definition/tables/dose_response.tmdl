@@ -1,7 +1,8 @@
 table dose_response
+	lineageTag: d96a989a-0a32-4f8c-bacd-9a732560aae3
 
-	measure 'Dose Response Points' =
-			COUNTROWS ( dose_response )
+	measure 'Dose Response Points' = COUNTROWS ( dose_response )
+		lineageTag: 702ac910-20fb-4571-9d68-a3798d1b1bd9
 
 	measure 'CI Coverage %' =
 			DIVIDE (
@@ -9,9 +10,11 @@ table dose_response
 			    COUNTROWS ( dose_response )
 			) * 100
 		formatString: #,0.00
+		lineageTag: cd45f56b-1857-478e-9689-671d513f64d2
 
-	measure 'Max Recovery Error' =
-			MAXX ( dose_response, ABS ( dose_response[error] ) )
+	measure 'Max Recovery Error' = MAXX ( dose_response, ABS ( dose_response[error] ) )
+		formatString: #,0.000
+		lineageTag: 2ba07dd1-b32e-4e71-823a-9ae0c2800aec
 
 	measure 'Mean Lift at 20% Discount' =
 			CALCULATE (
@@ -19,68 +22,109 @@ table dose_response
 			    dose_response[discount_pct] = 20
 			)
 		formatString: #,0.00
+		lineageTag: 19c85389-b478-480f-a90f-86233e804a72
 
-	measure 'Estimated Lift %' =
-			AVERAGE ( dose_response[estimated_lift_pct] )
+	measure 'Estimated Lift %' = AVERAGE ( dose_response[estimated_lift_pct] )
 		formatString: #,0.00
+		lineageTag: cb732cd2-7d87-4c19-afe6-cddbd5b15d13
 
-	measure 'True Lift %' =
-			AVERAGE ( dose_response[true_lift_pct] )
+	measure 'True Lift %' = AVERAGE ( dose_response[true_lift_pct] )
 		formatString: #,0.00
+		lineageTag: 1ff55abd-dcab-4f57-8522-92a62d954fe8
 
-	measure 'Lift Recovery Gap pp' =
-			[Estimated Lift %] - [True Lift %]
+	measure 'Lift Recovery Gap pp' = [Estimated Lift %] - [True Lift %]
 		formatString: #,0.00
+		lineageTag: 37dee624-7f40-4b3e-b160-ae4db8810d40
 
 	column segment
 		dataType: string
-		sourceColumn: segment
 		formatString: #,0.0000
+		lineageTag: f0ac0a5a-caff-4241-9d50-afd95f67d64e
+		summarizeBy: none
+		sourceColumn: segment
+
+		annotation SummarizationSetBy = Automatic
 
 	column discount_pct
 		dataType: int64
-		sourceColumn: discount_pct
 		formatString: #,0
+		lineageTag: bb5a8507-e073-4b09-b668-fc11fdb96830
+		summarizeBy: sum
+		sourceColumn: discount_pct
+
+		annotation SummarizationSetBy = Automatic
 
 	column estimate
 		dataType: double
-		sourceColumn: estimate
 		formatString: #,0.0000
+		lineageTag: 0b1d8a8d-8cc1-4529-bc8c-23e9989558a8
+		summarizeBy: sum
+		sourceColumn: estimate
+
+		annotation SummarizationSetBy = Automatic
 
 	column ci_low
 		dataType: double
-		sourceColumn: ci_low
 		formatString: #,0.0000
+		lineageTag: 3e81763e-ebcb-4215-8c7d-56d79a0b22f0
+		summarizeBy: sum
+		sourceColumn: ci_low
+
+		annotation SummarizationSetBy = Automatic
 
 	column ci_high
 		dataType: double
-		sourceColumn: ci_high
 		formatString: #,0.0000
+		lineageTag: 5394b01b-464c-4bc6-b7f2-7edcc2304930
+		summarizeBy: sum
+		sourceColumn: ci_high
+
+		annotation SummarizationSetBy = Automatic
 
 	column true_effect
 		dataType: double
-		sourceColumn: true_effect
 		formatString: #,0.0000
+		lineageTag: d6464b49-c90c-4501-b6db-0c37c557a677
+		summarizeBy: sum
+		sourceColumn: true_effect
+
+		annotation SummarizationSetBy = Automatic
 
 	column error
 		dataType: double
-		sourceColumn: error
 		formatString: #,0.0000
+		lineageTag: 6e2e7228-08ce-4581-a7e5-c8b2a8e8caf8
+		summarizeBy: sum
+		sourceColumn: error
+
+		annotation SummarizationSetBy = Automatic
 
 	column ci_covers_truth
 		dataType: int64
-		sourceColumn: ci_covers_truth
 		formatString: #,0
+		lineageTag: 7bf2045f-e09c-4607-abcf-08feef246328
+		summarizeBy: sum
+		sourceColumn: ci_covers_truth
+
+		annotation SummarizationSetBy = Automatic
 
 	column estimated_lift_pct
 		dataType: double
-		sourceColumn: estimated_lift_pct
 		formatString: #,0.00
+		lineageTag: 08544e0e-f856-4f11-ab17-dc680680d6da
+		summarizeBy: sum
+		sourceColumn: estimated_lift_pct
+
+		annotation SummarizationSetBy = Automatic
 
 	column true_lift_pct
 		dataType: double
-		sourceColumn: true_lift_pct
 		formatString: #,0.00
+		lineageTag: 8e8f1842-aec0-453d-81fd-5b65abb777a0
+		summarizeBy: sum
+		sourceColumn: true_lift_pct
+
+		annotation SummarizationSetBy = Automatic
 
 	partition dose_response = m
 		mode: import
@@ -91,3 +135,4 @@ table dose_response
 				    Typed = Table.TransformColumnTypes(Headers, {{"segment", type text}, {"discount_pct", Int64.Type}, {"estimate", type number}, {"ci_low", type number}, {"ci_high", type number}, {"true_effect", type number}, {"error", type number}, {"ci_covers_truth", Int64.Type}, {"estimated_lift_pct", type number}, {"true_lift_pct", type number}})
 				in
 				    Typed
+

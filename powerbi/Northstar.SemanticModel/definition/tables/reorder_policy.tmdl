@@ -1,10 +1,11 @@
 table reorder_policy
+	lineageTag: 5e43ef8a-087c-4d97-95ae-472bb6ae3141
 
-	measure 'Mean Safety Stock' =
-			AVERAGE ( reorder_policy[safety_stock] )
+	measure 'Mean Safety Stock' = AVERAGE ( reorder_policy[safety_stock] )
+		lineageTag: cf803f0c-afc7-412f-996a-115205ebc30e
 
-	measure 'Mean Reorder Point' =
-			AVERAGE ( reorder_policy[reorder_point] )
+	measure 'Mean Reorder Point' = AVERAGE ( reorder_policy[reorder_point] )
+		lineageTag: fb77dbfd-b8a2-4668-9266-c597e5c2b0db
 
 	measure 'Service Level Insight' =
 			VAR Perishable =
@@ -17,41 +18,69 @@ table reorder_policy
 			        "Perishables optimally run LOWER availability",
 			        "Perishables optimally run higher availability"
 			    )
+		lineageTag: 11e3cbff-0036-4d8d-843d-e2143b800a53
 
 	column store_id
 		dataType: string
-		sourceColumn: store_id
 		formatString: #,0.0000
+		lineageTag: 37d9957c-79d6-4fd1-92a0-f07058717eff
+		summarizeBy: none
+		sourceColumn: store_id
+
+		annotation SummarizationSetBy = Automatic
 
 	column sku_id
 		dataType: string
-		sourceColumn: sku_id
 		formatString: #,0.0000
+		lineageTag: c40061cb-03ee-4d79-b014-cc5bcc351a8f
+		summarizeBy: none
+		sourceColumn: sku_id
+
+		annotation SummarizationSetBy = Automatic
 
 	column category
 		dataType: string
-		sourceColumn: category
 		formatString: #,0.0000
+		lineageTag: e9368842-5a4b-4ce9-9cfc-67713198c055
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
 
 	column service_level
 		dataType: double
-		sourceColumn: service_level
 		formatString: #,0.0000
+		lineageTag: 366aed17-99e8-4f37-976d-b0ba6880d3cb
+		summarizeBy: sum
+		sourceColumn: service_level
+
+		annotation SummarizationSetBy = Automatic
 
 	column safety_stock
 		dataType: double
-		sourceColumn: safety_stock
 		formatString: #,0.0000
+		lineageTag: f6f09cd6-b13b-48ce-be2d-3c812c428692
+		summarizeBy: sum
+		sourceColumn: safety_stock
+
+		annotation SummarizationSetBy = Automatic
 
 	column reorder_point
 		dataType: double
-		sourceColumn: reorder_point
 		formatString: #,0.0000
+		lineageTag: b8ee34ca-ea70-4c0c-a1e9-532a69c6cd5e
+		summarizeBy: sum
+		sourceColumn: reorder_point
+
+		annotation SummarizationSetBy = Automatic
 
 	column is_perishable
-		dataType: int64
+		dataType: boolean
+		lineageTag: 18269b50-5485-4773-a3ce-acd2d06a0c17
+		summarizeBy: none
 		sourceColumn: is_perishable
-		formatString: #,0
+
+		annotation SummarizationSetBy = Automatic
 
 	partition reorder_policy = m
 		mode: import
@@ -59,6 +88,7 @@ table reorder_policy
 				let
 				    Source = Csv.Document(File.Contents(DataFolder & "reorder_policy.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
 				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
-				    Typed = Table.TransformColumnTypes(Headers, {{"store_id", type text}, {"sku_id", type text}, {"category", type text}, {"service_level", type number}, {"safety_stock", type number}, {"reorder_point", type number}, {"is_perishable", Int64.Type}})
+				    Typed = Table.TransformColumnTypes(Headers, {{"store_id", type text}, {"sku_id", type text}, {"category", type text}, {"service_level", type number}, {"safety_stock", type number}, {"reorder_point", type number}, {"is_perishable", type logical}})
 				in
 				    Typed
+

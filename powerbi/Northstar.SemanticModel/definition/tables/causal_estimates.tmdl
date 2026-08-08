@@ -1,4 +1,5 @@
 table causal_estimates
+	lineageTag: c40b30fd-2056-4305-bf96-9b3f9bbd6683
 
 	measure 'Naive Promo Lift %' =
 			CALCULATE (
@@ -6,6 +7,7 @@ table causal_estimates
 			    causal_estimates[method] = "promoted rows vs all others"
 			)
 		formatString: #,0.00
+		lineageTag: 37fe856e-a060-4623-9546-aa0e3d54f569
 
 	measure 'Causal Promo Lift %' =
 			CALCULATE (
@@ -13,18 +15,19 @@ table causal_estimates
 			    causal_estimates[method] = "DiD: uncannibalised + seasonal effects"
 			)
 		formatString: #,0.00
+		lineageTag: 8d25f491-5260-4e16-80ab-991429152ba7
 
-	measure 'True Promo Lift %' =
-			MAX ( causal_estimates[true_effect_pct] )
+	measure 'True Promo Lift %' = MAX ( causal_estimates[true_effect_pct] )
 		formatString: #,0.00
+		lineageTag: 6604da88-f9cb-46d9-80e6-4ae1794e6eb1
 
-	measure 'Naive Bias pp' =
-			[Naive Promo Lift %] - [True Promo Lift %]
+	measure 'Naive Bias pp' = [Naive Promo Lift %] - [True Promo Lift %]
 		formatString: #,0.00
+		lineageTag: c6fd9ead-d0bf-4ece-8ec5-35f97336f132
 
-	measure 'Causal Bias pp' =
-			[Causal Promo Lift %] - [True Promo Lift %]
+	measure 'Causal Bias pp' = [Causal Promo Lift %] - [True Promo Lift %]
 		formatString: #,0.00
+		lineageTag: 24bb8416-7ba5-4342-9467-4fbf24e77770
 
 	measure 'Bias Removed %' =
 			VAR NaiveError =
@@ -43,6 +46,7 @@ table causal_estimates
 			    )
 			RETURN ( 1 - DIVIDE ( CausalError, NaiveError ) ) * 100
 		formatString: #,0.00
+		lineageTag: 57071670-3a9f-4fad-a1c4-b66c9853b23e
 
 	measure 'Estimate Health' =
 			SWITCH (
@@ -51,56 +55,101 @@ table causal_estimates
 			    ABS ( [Causal Bias pp] ) <= 20, "Within 20pp — upper bound",
 			    "Large residual bias"
 			)
+		lineageTag: a5e5aaf9-1e94-4107-b9ff-d9bb37f2a2e2
+
+	measure 'Effect %' = MAX ( causal_estimates[effect_pct] )
+		formatString: #,0.0
+		lineageTag: 83283e61-8b2a-48b6-8fec-8cbb32df2034
 
 	column method
 		dataType: string
-		sourceColumn: method
 		formatString: #,0.0000
+		lineageTag: 81f7a7d0-9065-441b-890f-afe84dd61b6a
+		summarizeBy: none
+		sourceColumn: method
+
+		annotation SummarizationSetBy = Automatic
 
 	column family
 		dataType: string
-		sourceColumn: family
 		formatString: #,0.0000
+		lineageTag: 11386970-ebbc-4991-b73d-de054efe67a9
+		summarizeBy: none
+		sourceColumn: family
+
+		annotation SummarizationSetBy = Automatic
 
 	column log_effect
 		dataType: double
-		sourceColumn: log_effect
 		formatString: #,0.0000
+		lineageTag: 9649d125-96ac-41b6-8d51-79f58510f129
+		summarizeBy: sum
+		sourceColumn: log_effect
+
+		annotation SummarizationSetBy = Automatic
 
 	column ci_low
 		dataType: double
-		sourceColumn: ci_low
 		formatString: #,0.0000
+		lineageTag: 85e105c7-e5b8-4085-a6ed-d936f6328b19
+		summarizeBy: sum
+		sourceColumn: ci_low
+
+		annotation SummarizationSetBy = Automatic
 
 	column ci_high
 		dataType: double
-		sourceColumn: ci_high
 		formatString: #,0.0000
+		lineageTag: 269e75e5-1640-4221-a2a0-6768a8058040
+		summarizeBy: sum
+		sourceColumn: ci_high
+
+		annotation SummarizationSetBy = Automatic
 
 	column effect_pct
 		dataType: double
-		sourceColumn: effect_pct
 		formatString: #,0.00
+		lineageTag: 6cd0bbba-9cd9-46a9-98d6-0d067242c8f4
+		summarizeBy: sum
+		sourceColumn: effect_pct
+
+		annotation SummarizationSetBy = Automatic
 
 	column true_log_effect
 		dataType: double
-		sourceColumn: true_log_effect
 		formatString: #,0.0000
+		lineageTag: b9dc11f9-31d0-4dfe-925d-461f414a4f6b
+		summarizeBy: sum
+		sourceColumn: true_log_effect
+
+		annotation SummarizationSetBy = Automatic
 
 	column true_effect_pct
 		dataType: double
-		sourceColumn: true_effect_pct
 		formatString: #,0.00
+		lineageTag: 4be87024-5f37-423d-aa77-c0ec67628aec
+		summarizeBy: sum
+		sourceColumn: true_effect_pct
+
+		annotation SummarizationSetBy = Automatic
 
 	column error_log
 		dataType: double
-		sourceColumn: error_log
 		formatString: #,0.0000
+		lineageTag: b7d3c8e8-4eaf-4dfa-94cd-5d0df503e22d
+		summarizeBy: sum
+		sourceColumn: error_log
+
+		annotation SummarizationSetBy = Automatic
 
 	column error_pp
 		dataType: double
-		sourceColumn: error_pp
 		formatString: #,0.0000
+		lineageTag: 5cb00dec-88ea-4539-bc05-11cc4ab6c40c
+		summarizeBy: sum
+		sourceColumn: error_pp
+
+		annotation SummarizationSetBy = Automatic
 
 	partition causal_estimates = m
 		mode: import
@@ -111,3 +160,4 @@ table causal_estimates
 				    Typed = Table.TransformColumnTypes(Headers, {{"method", type text}, {"family", type text}, {"log_effect", type number}, {"ci_low", type number}, {"ci_high", type number}, {"effect_pct", type number}, {"true_log_effect", type number}, {"true_effect_pct", type number}, {"error_log", type number}, {"error_pp", type number}})
 				in
 				    Typed
+

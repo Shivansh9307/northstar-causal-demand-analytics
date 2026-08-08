@@ -1,105 +1,186 @@
 table dim_calendar
+	lineageTag: 2dd78ebc-e35f-4bd6-a0bc-0c465bd9e076
+	dataCategory: Time
 
 	column date
 		dataType: dateTime
-		sourceColumn: date
-		formatString: yyyy-mm-dd
 		isKey
+		formatString: yyyy-mm-dd
+		lineageTag: f533e407-ed87-479c-af04-5b0474aa059e
+		summarizeBy: none
+		sourceColumn: date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
 
 	column year
 		dataType: int64
-		sourceColumn: year
 		formatString: #,0
+		lineageTag: 4cd62bcc-ac8f-4e1c-bb7f-1b2270b5fa56
+		summarizeBy: none
+		sourceColumn: year
+
+		annotation SummarizationSetBy = Automatic
 
 	column quarter
 		dataType: string
-		sourceColumn: quarter
 		formatString: #,0.0000
+		lineageTag: b1be734f-d2f4-49a0-a7d1-2e8f6ea38e04
+		summarizeBy: none
+		sourceColumn: quarter
+
+		annotation SummarizationSetBy = Automatic
 
 	column month
 		dataType: int64
-		sourceColumn: month
 		formatString: #,0
+		lineageTag: 73439510-2437-4667-8a71-f13b4e2a4f4b
+		summarizeBy: none
+		sourceColumn: month
+
+		annotation SummarizationSetBy = Automatic
 
 	column month_name
 		dataType: string
-		sourceColumn: month_name
 		formatString: #,0.0000
+		lineageTag: f8ea5bdc-a21b-4026-acfa-7df2cfac189c
+		summarizeBy: none
+		sourceColumn: month_name
+
+		annotation SummarizationSetBy = Automatic
 
 	column week_of_year
 		dataType: int64
-		sourceColumn: week_of_year
 		formatString: #,0
+		lineageTag: 88b9776d-50fc-40f9-84d4-5e8d771726a7
+		summarizeBy: none
+		sourceColumn: week_of_year
+
+		annotation SummarizationSetBy = Automatic
 
 	column day_of_week
 		dataType: int64
-		sourceColumn: day_of_week
 		formatString: #,0
+		lineageTag: 1e09a2b8-1510-4876-af66-121360435d04
+		summarizeBy: none
+		sourceColumn: day_of_week
+
+		annotation SummarizationSetBy = Automatic
 
 	column day_name
 		dataType: string
-		sourceColumn: day_name
 		formatString: #,0.0000
+		lineageTag: cc8e7231-ad4f-4f85-a6b0-962359300341
+		summarizeBy: none
+		sourceColumn: day_name
+
+		annotation SummarizationSetBy = Automatic
 
 	column is_weekend
-		dataType: int64
+		dataType: boolean
+		lineageTag: 6c2ae8b6-8e7a-44b6-ae23-7e127ae3a079
+		summarizeBy: none
 		sourceColumn: is_weekend
-		formatString: #,0
+
+		annotation SummarizationSetBy = Automatic
 
 	column is_month_end
-		dataType: int64
+		dataType: boolean
+		lineageTag: 87afcc4e-21e3-4b21-87f2-1649705b7b37
+		summarizeBy: none
 		sourceColumn: is_month_end
-		formatString: #,0
+
+		annotation SummarizationSetBy = Automatic
 
 	column is_payday_window
-		dataType: int64
+		dataType: boolean
+		lineageTag: ff155eed-db99-4b4e-bf53-297bc6f06128
+		summarizeBy: none
 		sourceColumn: is_payday_window
-		formatString: #,0
+
+		annotation SummarizationSetBy = Automatic
 
 	column is_school_holiday
-		dataType: int64
+		dataType: boolean
+		lineageTag: 331dcc9d-92d3-4977-b18e-608476513a0d
+		summarizeBy: none
 		sourceColumn: is_school_holiday
-		formatString: #,0
+
+		annotation SummarizationSetBy = Automatic
 
 	column is_bank_holiday
-		dataType: int64
+		dataType: boolean
+		lineageTag: 28fa1ee3-2a36-4370-bb5b-e8e598480fb1
+		summarizeBy: none
 		sourceColumn: is_bank_holiday
-		formatString: #,0
+
+		annotation SummarizationSetBy = Automatic
 
 	column bank_holiday_name
 		dataType: string
-		sourceColumn: bank_holiday_name
 		formatString: #,0.0000
+		lineageTag: 8a4d8005-7720-4a94-a635-d3b053c1b3a4
+		summarizeBy: none
+		sourceColumn: bank_holiday_name
+
+		annotation SummarizationSetBy = Automatic
 
 	column is_easter_period
-		dataType: int64
+		dataType: boolean
+		lineageTag: c28bc7b0-a64d-4f03-a54f-3ddac2f3782a
+		summarizeBy: none
 		sourceColumn: is_easter_period
-		formatString: #,0
+
+		annotation SummarizationSetBy = Automatic
 
 	column is_christmas_period
-		dataType: int64
+		dataType: boolean
+		lineageTag: 2ecf2d4d-098c-4743-9491-9a46945057f2
+		summarizeBy: none
 		sourceColumn: is_christmas_period
-		formatString: #,0
+
+		annotation SummarizationSetBy = Automatic
 
 	column is_black_friday_period
-		dataType: int64
+		dataType: boolean
+		lineageTag: 0c2314ed-cfbb-49da-8bfb-d9ed85fc37d9
+		summarizeBy: none
 		sourceColumn: is_black_friday_period
-		formatString: #,0
+
+		annotation SummarizationSetBy = Automatic
 
 	column is_heatwave
-		dataType: int64
+		dataType: boolean
+		lineageTag: ad123888-36ce-4ee2-aa0b-a3adcec698db
+		summarizeBy: none
 		sourceColumn: is_heatwave
-		formatString: #,0
+
+		annotation SummarizationSetBy = Automatic
 
 	column weather_condition
 		dataType: string
-		sourceColumn: weather_condition
 		formatString: #,0.0000
+		lineageTag: 1e27f31b-d936-4c2a-bcb0-fbe1f14934c1
+		summarizeBy: none
+		sourceColumn: weather_condition
+
+		annotation SummarizationSetBy = Automatic
 
 	column temperature_celsius
 		dataType: double
-		sourceColumn: temperature_celsius
 		formatString: #,0.0000
+		lineageTag: 97c3f12f-4d17-430d-945a-899a023f0a9d
+		summarizeBy: none
+		sourceColumn: temperature_celsius
+
+		annotation SummarizationSetBy = Automatic
+
+	column month_start = DATE ( YEAR ( dim_calendar[date] ), MONTH ( dim_calendar[date] ), 1 )
+		dataType: dateTime
+		formatString: mmm yyyy
+		lineageTag: 48d5e6ee-a269-452b-9aa6-dc8280c9384b
+		summarizeBy: none
 
 	partition dim_calendar = m
 		mode: import
@@ -107,6 +188,7 @@ table dim_calendar
 				let
 				    Source = Csv.Document(File.Contents(DataFolder & "dim_calendar.csv"), [Delimiter=",", Encoding=65001, QuoteStyle=QuoteStyle.Csv]),
 				    Headers = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
-				    Typed = Table.TransformColumnTypes(Headers, {{"date", type date}, {"year", Int64.Type}, {"quarter", type text}, {"month", Int64.Type}, {"month_name", type text}, {"week_of_year", Int64.Type}, {"day_of_week", Int64.Type}, {"day_name", type text}, {"is_weekend", Int64.Type}, {"is_month_end", Int64.Type}, {"is_payday_window", Int64.Type}, {"is_school_holiday", Int64.Type}, {"is_bank_holiday", Int64.Type}, {"bank_holiday_name", type text}, {"is_easter_period", Int64.Type}, {"is_christmas_period", Int64.Type}, {"is_black_friday_period", Int64.Type}, {"is_heatwave", Int64.Type}, {"weather_condition", type text}, {"temperature_celsius", type number}})
+				    Typed = Table.TransformColumnTypes(Headers, {{"date", type date}, {"year", Int64.Type}, {"quarter", type text}, {"month", Int64.Type}, {"month_name", type text}, {"week_of_year", Int64.Type}, {"day_of_week", Int64.Type}, {"day_name", type text}, {"is_weekend", type logical}, {"is_month_end", type logical}, {"is_payday_window", type logical}, {"is_school_holiday", type logical}, {"is_bank_holiday", type logical}, {"bank_holiday_name", type text}, {"is_easter_period", type logical}, {"is_christmas_period", type logical}, {"is_black_friday_period", type logical}, {"is_heatwave", type logical}, {"weather_condition", type text}, {"temperature_celsius", type number}})
 				in
 				    Typed
+

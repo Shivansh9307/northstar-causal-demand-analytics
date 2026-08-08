@@ -1,65 +1,102 @@
 table promo_plan_uncertainty
+	lineageTag: f052bc79-778f-404c-a9cd-e9b9e60e40c1
 
-	measure 'Plan Profit P10' =
-			MAX ( promo_plan_uncertainty[p10] )
+	measure 'Plan Profit P10' = MAX ( promo_plan_uncertainty[p10] )
 		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+		lineageTag: 2fa01558-8892-4c06-994b-66a791396dfc
 
-	measure 'Plan Profit P50' =
-			MAX ( promo_plan_uncertainty[p50] )
+	measure 'Plan Profit P50' = MAX ( promo_plan_uncertainty[p50] )
 		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+		lineageTag: 20e44dd6-53dd-4f55-b747-d4fb268f713a
 
-	measure 'Plan Profit P90' =
-			MAX ( promo_plan_uncertainty[p90] )
+	measure 'Plan Profit P90' = MAX ( promo_plan_uncertainty[p90] )
 		formatString: \£#,0.00;(\£#,0.00);\£#,0.00
+		lineageTag: ad50ff6e-10f7-49e1-b69f-4935c4f41325
 
-	measure 'Probability of Loss %' =
-			MAX ( promo_plan_uncertainty[probability_of_loss] ) * 100
+	measure 'Probability of Loss %' = MAX ( promo_plan_uncertainty[probability_of_loss] ) * 100
 		formatString: #,0.00
+		lineageTag: 0c600d1a-1684-40ab-a9e4-614919bdd104
 
 	column deterministic
 		dataType: double
-		sourceColumn: deterministic
 		formatString: #,0.0000
+		lineageTag: a01495f8-9d98-43af-9364-3fd0b660dd02
+		summarizeBy: sum
+		sourceColumn: deterministic
+
+		annotation SummarizationSetBy = Automatic
 
 	column mean
 		dataType: double
-		sourceColumn: mean
 		formatString: #,0.0000
+		lineageTag: 6d5c7649-53d2-4c84-925c-675976535d8c
+		summarizeBy: sum
+		sourceColumn: mean
+
+		annotation SummarizationSetBy = Automatic
 
 	column p10
 		dataType: double
-		sourceColumn: p10
 		formatString: #,0.0000
+		lineageTag: 35b36443-8f74-4040-9bf3-dee821cda2c5
+		summarizeBy: sum
+		sourceColumn: p10
+
+		annotation SummarizationSetBy = Automatic
 
 	column p50
 		dataType: double
-		sourceColumn: p50
 		formatString: #,0.0000
+		lineageTag: a7e8621f-1b0a-45e1-830f-c48a79cd949d
+		summarizeBy: sum
+		sourceColumn: p50
+
+		annotation SummarizationSetBy = Automatic
 
 	column p90
 		dataType: double
-		sourceColumn: p90
 		formatString: #,0.0000
+		lineageTag: c26795bb-a321-4fe0-9146-f6724adf5129
+		summarizeBy: sum
+		sourceColumn: p90
+
+		annotation SummarizationSetBy = Automatic
 
 	column std
 		dataType: double
-		sourceColumn: std
 		formatString: #,0.0000
+		lineageTag: 7966e2ff-8647-4e40-b345-2711f9047c43
+		summarizeBy: sum
+		sourceColumn: std
+
+		annotation SummarizationSetBy = Automatic
 
 	column probability_of_loss
 		dataType: double
-		sourceColumn: probability_of_loss
 		formatString: #,0.0000
+		lineageTag: 0164e7ee-fb3f-46ba-bf86-7bc913b0d773
+		summarizeBy: sum
+		sourceColumn: probability_of_loss
+
+		annotation SummarizationSetBy = Automatic
 
 	column probability_below_deterministic
 		dataType: double
-		sourceColumn: probability_below_deterministic
 		formatString: #,0.0000
+		lineageTag: 7bea01bf-764a-4f63-8e19-0eb714649a13
+		summarizeBy: sum
+		sourceColumn: probability_below_deterministic
+
+		annotation SummarizationSetBy = Automatic
 
 	column shortfall_vs_deterministic
 		dataType: double
-		sourceColumn: shortfall_vs_deterministic
 		formatString: #,0.0000
+		lineageTag: 1c0a8d59-7625-48fe-8e9c-cd9492910c1d
+		summarizeBy: sum
+		sourceColumn: shortfall_vs_deterministic
+
+		annotation SummarizationSetBy = Automatic
 
 	partition promo_plan_uncertainty = m
 		mode: import
@@ -70,3 +107,4 @@ table promo_plan_uncertainty
 				    Typed = Table.TransformColumnTypes(Headers, {{"deterministic", type number}, {"mean", type number}, {"p10", type number}, {"p50", type number}, {"p90", type number}, {"std", type number}, {"probability_of_loss", type number}, {"probability_below_deterministic", type number}, {"shortfall_vs_deterministic", type number}})
 				in
 				    Typed
+

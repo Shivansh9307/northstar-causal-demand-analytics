@@ -1,57 +1,98 @@
 table spillover
+	lineageTag: 09135319-e680-4b02-8a11-9dc49d11534f
 
-	measure 'Cannibalisation 1 Neighbour %' =
-			CALCULATE ( MAX ( spillover[effect_pct] ), spillover[others_on_promo] = "1" )
+	measure 'Cannibalisation 1 Neighbour %' = CALCULATE ( MAX ( spillover[effect_pct] ), spillover[others_on_promo] = "1" )
 		formatString: #,0.00
+		lineageTag: f011565a-2d73-49cd-961c-d185811cf664
 
-	measure 'Cannibalisation 4+ Neighbours %' =
-			CALCULATE ( MAX ( spillover[effect_pct] ), spillover[others_on_promo] = "4+" )
+	measure 'Cannibalisation 4+ Neighbours %' = CALCULATE ( MAX ( spillover[effect_pct] ), spillover[others_on_promo] = "4+" )
 		formatString: #,0.00
+		lineageTag: ae83d051-b569-459f-8c78-2590e35ca039
+
+	measure 'Spillover Effect %' = MAX ( spillover[effect_pct] )
+		formatString: #,0.0
+		lineageTag: 8ffd75a3-38a6-4ccf-9cb0-a3ac1fbcb2d3
 
 	column others_on_promo
 		dataType: string
-		sourceColumn: others_on_promo
 		formatString: #,0.0000
+		lineageTag: 85b58a00-7dfc-44d5-9fbf-dd7198553312
+		summarizeBy: none
+		sourceColumn: others_on_promo
+
+		annotation SummarizationSetBy = Automatic
 
 	column n_rows
 		dataType: int64
-		sourceColumn: n_rows
 		formatString: #,0
+		lineageTag: 6948a93c-4afe-49bb-b881-b42ec947d58a
+		summarizeBy: sum
+		sourceColumn: n_rows
+
+		annotation SummarizationSetBy = Automatic
 
 	column estimate
 		dataType: double
-		sourceColumn: estimate
 		formatString: #,0.0000
+		lineageTag: b18567ea-c934-4d92-a87a-8e573e2920b2
+		summarizeBy: sum
+		sourceColumn: estimate
+
+		annotation SummarizationSetBy = Automatic
 
 	column std_err
 		dataType: double
-		sourceColumn: std_err
 		formatString: #,0.0000
+		lineageTag: 6ced4e07-9acc-49ca-ab86-1be24f941d2e
+		summarizeBy: sum
+		sourceColumn: std_err
+
+		annotation SummarizationSetBy = Automatic
 
 	column ci_low
 		dataType: double
-		sourceColumn: ci_low
 		formatString: #,0.0000
+		lineageTag: 8c710713-38d5-485c-b2a8-659d1594779a
+		summarizeBy: sum
+		sourceColumn: ci_low
+
+		annotation SummarizationSetBy = Automatic
 
 	column ci_high
 		dataType: double
-		sourceColumn: ci_high
 		formatString: #,0.0000
+		lineageTag: d77391b1-da69-4725-9f12-b202d31bf151
+		summarizeBy: sum
+		sourceColumn: ci_high
+
+		annotation SummarizationSetBy = Automatic
 
 	column p_value
 		dataType: double
-		sourceColumn: p_value
 		formatString: #,0.0000
+		lineageTag: b101bb5f-be96-4410-a6a1-e3c227c4f8f4
+		summarizeBy: sum
+		sourceColumn: p_value
+
+		annotation SummarizationSetBy = Automatic
 
 	column pct_effect
 		dataType: double
-		sourceColumn: pct_effect
 		formatString: #,0.0000
+		lineageTag: 7387d32c-dcf8-4f87-aa18-d95254d2d3b1
+		summarizeBy: sum
+		sourceColumn: pct_effect
+
+		annotation SummarizationSetBy = Automatic
 
 	column effect_pct
 		dataType: double
-		sourceColumn: effect_pct
 		formatString: #,0.00
+		lineageTag: a88beaae-78c2-4d87-a7b8-bd1fdeb78865
+		summarizeBy: sum
+		sourceColumn: effect_pct
+
+		annotation SummarizationSetBy = Automatic
 
 	partition spillover = m
 		mode: import
@@ -62,3 +103,4 @@ table spillover
 				    Typed = Table.TransformColumnTypes(Headers, {{"others_on_promo", type text}, {"n_rows", Int64.Type}, {"estimate", type number}, {"std_err", type number}, {"ci_low", type number}, {"ci_high", type number}, {"p_value", type number}, {"pct_effect", type number}, {"effect_pct", type number}})
 				in
 				    Typed
+
