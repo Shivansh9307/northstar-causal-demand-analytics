@@ -178,7 +178,23 @@ This is a more useful outcome than a clean number would have been. Northstar's p
 | 5 | 5,790 | -0.0151 | -0.0288 | -0.0013 | 0.0318 |
 | 6 | 6,225 | -0.0241 | -0.0385 | -0.0098 | 0.0010 |
 
-A caveat the Northstar work also carried: with staggered adoption and heterogeneous effects, two-way fixed effects uses already-treated stores as controls for later adopters, which can bias the estimate (the Goodman-Bacon problem). A Callaway–Sant'Anna estimator would be the right next step, and this design would actually support one — which Northstar's non-absorbing treatment would not.
+A caveat the Northstar work also carried: with staggered adoption and heterogeneous effects, two-way fixed effects uses already-treated stores as controls for later adopters, which can bias the estimate (the Goodman-Bacon problem). Earlier drafts of this report raised that and stopped, which left the size of the problem unstated. It is measurable, so the next section measures it.
+
+### 5a. How much of the estimate rests on bad comparisons
+
+Goodman-Bacon (2021) shows a staggered two-way FE coefficient is exactly a weighted average of every 2x2 difference-in-differences the panel admits, with weights that depend only on group sizes and treatment timing. Three kinds of comparison appear. Two are clean — treated against never-treated, and earlier adopters against later ones while the later group is still untreated. The third uses **already-treated** stores as controls, and when the effect moves over time the control's own response is subtracted from the treated group's.
+
+| comparison | 2x2s | weight | avg effect | contribution |
+|---|---|---|---|---|
+| treated vs never-treated | 15 | 0.9146 | 0.0137 | 0.0125 |
+| later vs earlier (already-treated control) | 105 | 0.0617 | -0.0663 | -0.0041 |
+| earlier vs later (later as control) | 105 | 0.0238 | 0.0607 | 0.0014 |
+
+**6.2% of the weight sits on the bad comparisons.** The decomposition reproduces the regression coefficient to machine precision (+0.00987, and `tests/test_validation.py` asserts that identity rather than trusting it), so this is arithmetic rather than an approximation.
+
+The conclusion is narrow and worth stating precisely. Bad comparisons are **not** why the Promo2 estimate is unusable — they carry too little weight to move it far. The estimate is unusable because parallel trends fails, which section 5 established before this decomposition was run, and no reweighting repairs that. A Callaway–Sant'Anna estimator would replace the bad comparisons with clean ones and would still be differencing against a control group that was already drifting. It is worth being explicit that this is the useful result: the decomposition was run expecting to explain the estimate away, and it does not.
+
+Two exclusions shape the table. 297 stores had already joined Promo2 before the panel opens, so they have no pre-period and cannot enter any 2x2 — TWFE silently treats them as ordinary controls, which is its own quiet problem. A further 185 were dropped for not spanning every month: the unbalanced-panel issue the Northstar work flagged reappears here, since stores closed for refurbishment leave gaps and these weights are only meaningful on a complete rectangle.
 
 ## 6. Where the method held up, and where it did not
 

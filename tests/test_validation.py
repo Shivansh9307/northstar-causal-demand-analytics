@@ -22,16 +22,24 @@ sys.path.insert(0, str(PROJECT_ROOT / "src"))
 from data_quality import leakage  # noqa: E402
 from ml import forecast as ml_forecast  # noqa: E402
 from utils import config  # noqa: E402
+from validation import bacon  # noqa: E402
 from validation import rossmann  # noqa: E402
 
-pytestmark = pytest.mark.skipif(
-    not (config.path("external") / "train.csv").exists(),
-    reason="Rossmann files not present in data/external/.",
+HAS_ROSSMANN = (config.path("external") / "train.csv").exists()
+
+needs_rossmann = pytest.mark.skipif(
+    not HAS_ROSSMANN, reason="Rossmann files not present in data/external/."
 )
 
 
 @pytest.fixture(scope="module")
 def panel():
+    # Skipping from the fixture rather than the module keeps the Goodman-Bacon
+    # tests running. They are arithmetic on constructed panels and need no data,
+    # and CI has no Rossmann files — a module-level skip would have hidden the
+    # one test that checks the decomposition is correct.
+    if not HAS_ROSSMANN:
+        pytest.skip("Rossmann files not present in data/external/.")
     return rossmann.build_panel()
 
 
@@ -44,6 +52,7 @@ def built(panel):
 # The dataset's shape, which the report's central claim depends on
 # ---------------------------------------------------------------------------
 
+@needs_rossmann
 def test_rossmann_has_no_price_or_margin_column():
     """
     Phase 7's headline finding. If a future Rossmann variant ever shipped price
@@ -171,3 +180,97 @@ def test_northstar_pipeline_runs_unchanged_on_rossmann(built):
 
     assert model_wape < naive_wape
     assert (predictions >= 0).all()
+
+
+# ---------------------------------------------------------------------------
+# Goodman-Bacon decomposition
+#
+# Arithmetic on constructed panels, so these run without the Rossmann files.
+# ---------------------------------------------------------------------------
+
+
+def _staggered_panel(effect=0.5, units=60, periods=12, seed=3, heterogeneous=False):
+    """A staggered-adoption panel with a known treatment effect."""
+    rng = np.random.default_rng(seed)
+    rows = []
+    for unit in range(units):
+        cohort = None if unit % 3 == 0 else 4 + (unit % 4) * 2
+        for period in range(periods):
+            treated = int(cohort is not None and period >= cohort)
+            # Heterogeneous: later cohorts respond more strongly, which is the
+            # condition under which the bad comparisons actually bite.
+            size = effect * (1 + 0.5 * (cohort or 0) / periods) if heterogeneous else effect
+            rows.append({
+                "store_id": unit,
+                "period": period,
+                "log_units": unit / units + 0.05 * period + size * treated
+                + rng.normal(scale=0.01),
+                "treated": treated,
+            })
+    return pd.DataFrame(rows)
+
+
+def _twfe(frame):
+    """Two-way FE coefficient by explicit demeaning, independent of the decomposition."""
+    work = frame.copy()
+    for column in ("log_units", "treated"):
+        work[column] = (
+            work[column]
+            - work.groupby("store_id")[column].transform("mean")
+            - work.groupby("period")[column].transform("mean")
+            + work[column].mean()
+        )
+    return float(
+        np.linalg.lstsq(
+            work[["treated"]].to_numpy(), work["log_units"].to_numpy(), rcond=None
+        )[0][0]
+    )
+
+
+def test_decomposition_reproduces_the_twfe_coefficient():
+    """
+    The theorem, and the only check that the weights are right.
+
+    Goodman-Bacon (2021) proves the weighted 2x2s sum exactly to the regression
+    coefficient. Any error in a weight formula breaks that identity, so this is
+    a far stronger test than asserting the output looks plausible - a
+    decomposition that merely returned sensible-looking shares would pass an
+    eyeball check and fail here.
+    """
+    frame = _staggered_panel()
+    table = bacon.decompose(frame)
+
+    assert table["weight"].sum() == pytest.approx(1.0)
+    assert bacon.twfe_from_decomposition(table) == pytest.approx(_twfe(frame), abs=1e-10)
+
+
+def test_decomposition_reproduces_twfe_under_heterogeneous_effects():
+    """The identity is arithmetic, so it must hold when TWFE is *biased* too."""
+    frame = _staggered_panel(heterogeneous=True)
+    table = bacon.decompose(frame)
+    assert bacon.twfe_from_decomposition(table) == pytest.approx(_twfe(frame), abs=1e-10)
+
+
+def test_all_three_comparison_types_appear():
+    table = bacon.decompose(_staggered_panel())
+    assert set(table["comparison"]) == {
+        bacon.TREATED_VS_NEVER, bacon.EARLY_VS_LATE, bacon.LATE_VS_EARLY,
+    }
+
+
+def test_units_treated_before_the_panel_opens_are_dropped():
+    """
+    They have no pre-period, so no 2x2 can include them - but a TWFE regression
+    keeps them as ordinary controls without saying so.
+    """
+    frame = _staggered_panel()
+    frame.loc[frame["store_id"] == 1, "treated"] = 1
+    table = bacon.decompose(frame)
+    assert table.attrs["n_dropped_always_treated"] >= 1
+
+
+def test_decomposition_needs_a_treated_group():
+    frame = _staggered_panel()
+    frame["treated"] = 0
+    with pytest.raises(ValueError, match="no unit is treated"):
+        bacon.decompose(frame)

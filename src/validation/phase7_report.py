@@ -29,6 +29,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from ml import forecast as ml_forecast  # noqa: E402
 from stats import models  # noqa: E402
 from utils import config  # noqa: E402
+from validation import bacon  # noqa: E402
 from validation import rossmann  # noqa: E402
 
 LOGGER = logging.getLogger("northstar.phase7")
@@ -216,6 +217,21 @@ def promo2_event_study(frame: pd.DataFrame, window: int = 12) -> pd.DataFrame:
     return pd.DataFrame(rows).sort_values("event_month").reset_index(drop=True)
 
 
+def promo2_bacon(frame: pd.DataFrame) -> pd.DataFrame:
+    """
+    Goodman-Bacon decomposition of the Promo2 two-way FE estimate.
+
+    Monthly grain, matching the event study. The decomposition's weights are
+    functions of group sizes and treatment timing, so they need a balanced
+    panel; `bacon.decompose` enforces that and logs what it drops.
+    """
+    work = frame[frame["open"] == 1].copy()
+    work["log_units"] = np.log1p(work[rossmann.TARGET])
+    work["period"] = work["date"].dt.to_period("M").dt.to_timestamp()
+    work["treated"] = work["promo2_active"].astype(int)
+    return bacon.decompose(work, unit="store_id", time="period")
+
+
 def build_report() -> Path:
     figures = config.path("figures")
     figures.mkdir(parents=True, exist_ok=True)
@@ -267,6 +283,13 @@ def build_report() -> Path:
     leads = events[(events["event_month"] < 0) & (events["event_month"] != -1)]
     n_significant = int((leads["p_value"] < 0.05).sum())
     post_mean = float(events[events["event_month"] >= 0]["estimate"].mean())
+
+    LOGGER.info("Goodman-Bacon decomposition")
+    bacon_table = promo2_bacon(frame)
+    summary_bacon = bacon.summarise(bacon_table)
+    implied_twfe = bacon.twfe_from_decomposition(bacon_table)
+    n_always_treated = bacon_table.attrs["n_dropped_always_treated"]
+    n_unbalanced = bacon_table.attrs["n_dropped_unbalanced"]
 
     LOGGER.info("Rendering figures")
     fig_wape = figure_wape_comparison(holdout_metrics, figures)
@@ -540,9 +563,50 @@ def build_report() -> Path:
         "",
         "A caveat the Northstar work also carried: with staggered adoption and heterogeneous "
         "effects, two-way fixed effects uses already-treated stores as controls for later "
-        "adopters, which can bias the estimate (the Goodman-Bacon problem). A "
-        "Callaway–Sant'Anna estimator would be the right next step, and this design would "
-        "actually support one — which Northstar's non-absorbing treatment would not.",
+        "adopters, which can bias the estimate (the Goodman-Bacon problem). Earlier drafts of "
+        "this report raised that and stopped, which left the size of the problem unstated. It "
+        "is measurable, so the next section measures it.",
+        "",
+        "### 5a. How much of the estimate rests on bad comparisons",
+        "",
+        "Goodman-Bacon (2021) shows a staggered two-way FE coefficient is exactly a weighted "
+        "average of every 2x2 difference-in-differences the panel admits, with weights that "
+        "depend only on group sizes and treatment timing. Three kinds of comparison appear. Two "
+        "are clean — treated against never-treated, and earlier adopters against later ones "
+        "while the later group is still untreated. The third uses **already-treated** stores as "
+        "controls, and when the effect moves over time the control's own response is subtracted "
+        "from the treated group's.",
+        "",
+        _table(
+            summary_bacon.rename(columns={
+                "comparison": "comparison", "comparisons": "2x2s",
+                "weight": "weight", "average_effect": "avg effect",
+                "contribution": "contribution",
+            }),
+            floatfmt="{:.4f}",
+        ),
+        "",
+        f"**{summary_bacon.set_index('comparison').loc[bacon.BAD_COMPARISON, 'weight'] * 100:.1f}% "
+        "of the weight sits on the bad comparisons.** The decomposition reproduces the "
+        f"regression coefficient to machine precision ({implied_twfe:+.5f}, and "
+        "`tests/test_validation.py` asserts that identity rather than trusting it), so this is "
+        "arithmetic rather than an approximation.",
+        "",
+        "The conclusion is narrow and worth stating precisely. Bad comparisons are **not** why "
+        "the Promo2 estimate is unusable — they carry too little weight to move it far. The "
+        "estimate is unusable because parallel trends fails, which section 5 established "
+        "before this decomposition was run, and no reweighting repairs that. A "
+        "Callaway–Sant'Anna estimator would replace the bad comparisons with clean ones and "
+        "would still be differencing against a control group that was already drifting. It is "
+        "worth being explicit that this is the useful result: the decomposition was run "
+        "expecting to explain the estimate away, and it does not.",
+        "",
+        f"Two exclusions shape the table. {n_always_treated} stores had already joined Promo2 "
+        "before the panel opens, so they have no pre-period and cannot enter any 2x2 — TWFE "
+        "silently treats them as ordinary controls, which is its own quiet problem. A further "
+        f"{n_unbalanced} were dropped for not spanning every month: the unbalanced-panel issue "
+        "the Northstar work flagged reappears here, since stores closed for refurbishment leave "
+        "gaps and these weights are only meaningful on a complete rectangle.",
         "",
         "## 6. Where the method held up, and where it did not",
         "",
