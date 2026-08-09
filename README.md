@@ -164,7 +164,7 @@ gitignored.
 uv sync                                                    # Python >= 3.14, versions pinned by uv.lock
 uv run python src/generation/generate_retail_dataset.py    # ~35s, deterministic
 uv run python src/features/star_schema.py                  # DuckDB + parquet
-uv run pytest tests/ -q                                    # 196 tests
+uv run pytest tests/ -q                                    # 197 tests
 uv run ruff check .                                        # lint
 ```
 
