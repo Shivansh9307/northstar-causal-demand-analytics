@@ -211,3 +211,65 @@ def test_risk_ranking_concentrates_stockouts(built):
     scores = actual * 0.8 + rng.random(len(actual)) * 0.2
     deciles = stockout.lift_by_decile(actual, scores)
     assert deciles.iloc[0]["lift_vs_base"] > 5
+
+
+# ---------------------------------------------------------------------------
+# Hyperparameter tuning
+# ---------------------------------------------------------------------------
+
+
+def test_translate_params_maps_onto_each_backend():
+    """
+    The two backends name the same three ideas differently, and `params` used to
+    be forwarded raw to LightGBM and dropped entirely on the sklearn path. A
+    grid written in LightGBM's vocabulary was therefore a silent no-op on any
+    machine without libomp, which returns identical scores for every candidate
+    and reads as "tuning buys nothing".
+    """
+    neutral = {"learning_rate": 0.03, "leaves": 48, "min_leaf": 500}
+
+    assert forecast.translate_params(neutral, "lightgbm") == {
+        "learning_rate": 0.03, "num_leaves": 48, "min_data_in_leaf": 500,
+    }
+    assert forecast.translate_params(neutral, "sklearn_hist") == {
+        "learning_rate": 0.03, "max_leaf_nodes": 48, "min_samples_leaf": 500,
+    }
+
+
+def test_translate_params_rejects_unknown_names():
+    """A typo must fail loudly; silently ignored, it looks like a null result."""
+    with pytest.raises(ValueError, match="unknown tuning parameters"):
+        forecast.translate_params({"num_leaves": 48}, "lightgbm")
+
+
+def test_empty_params_changes_nothing():
+    """The shipped model passes no overrides, so this is the production path."""
+    for backend in ("lightgbm", "sklearn_hist"):
+        assert forecast.translate_params({}, backend) == {}
+
+
+def test_tuning_grid_contains_the_defaults():
+    """
+    Without a defaults row there is nothing to measure a gain against, and
+    `vs_defaults` would be a comparison between two tuned candidates.
+    """
+    assert {} in forecast.TUNING_GRID
+
+
+def test_tuning_reports_every_candidate_against_the_defaults(built):
+    _, frame, names = built
+    categorical = list(features.CATEGORICAL_FEATURES)
+    folds, _ = features.time_split(frame)
+    grid = [{}, {"leaves": 16}]
+
+    table = forecast.tune_gradient_booster(
+        frame, names, categorical, folds[:1], max_train_rows=40_000, grid=grid,
+    )
+
+    assert len(table) == len(grid)
+    assert "defaults" in set(table["params"])
+    baseline = table.loc[table["params"] == "defaults"]
+    assert float(baseline["vs_defaults"].iloc[0]) == pytest.approx(0.0)
+    assert table["mean_wape"].between(0, 5).all()
+    # Sorted best-first, so the reported winner is row zero.
+    assert table["mean_wape"].is_monotonic_increasing

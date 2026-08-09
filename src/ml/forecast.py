@@ -74,6 +74,27 @@ def evaluate(actual: np.ndarray, predicted: np.ndarray) -> Dict[str, float]:
 # Model wrappers
 # ---------------------------------------------------------------------------
 
+#: Tunable knobs, named once and mapped onto whichever backend is present. The
+#: two libraries name the same three ideas differently, and a grid written in
+#: one library's vocabulary is silently a no-op under the other.
+NEUTRAL_PARAMS = {
+    "learning_rate": {"lightgbm": "learning_rate", "sklearn_hist": "learning_rate"},
+    "leaves": {"lightgbm": "num_leaves", "sklearn_hist": "max_leaf_nodes"},
+    "min_leaf": {"lightgbm": "min_data_in_leaf", "sklearn_hist": "min_samples_leaf"},
+}
+
+
+def translate_params(params: Dict[str, object], backend: str) -> Dict[str, object]:
+    """Map backend-neutral parameter names onto one backend's vocabulary."""
+    unknown = set(params) - set(NEUTRAL_PARAMS)
+    if unknown:
+        raise ValueError(
+            f"unknown tuning parameters {sorted(unknown)}; "
+            f"expected any of {sorted(NEUTRAL_PARAMS)}"
+        )
+    return {NEUTRAL_PARAMS[key][backend]: value for key, value in params.items()}
+
+
 @dataclass
 class GradientBooster:
     """
@@ -83,6 +104,12 @@ class GradientBooster:
     exact TreeSHAP through `pred_contrib=True` - which is how this project gets
     SHAP values without the `shap` package, whose `llvmlite` dependency does not
     build on Python 3.14.
+
+    `params` is expressed in **backend-neutral** names (see `NEUTRAL_PARAMS`) and
+    translated per backend. It used to be passed straight through to LightGBM and
+    dropped entirely on the sklearn path, so an override silently did nothing on
+    any machine without libomp - which is every machine this has been developed
+    on. An empty `params` reproduces the defaults exactly on both backends.
     """
 
     categorical: Sequence[str]
@@ -116,7 +143,7 @@ class GradientBooster:
                 "bagging_freq": 1,
                 "verbose": -1,
                 "num_threads": 0,
-                **self.params,
+                **translate_params(self.params, "lightgbm"),
             }
             train_set = lgb.Dataset(
                 X_train, label=y_train, categorical_feature=list(self.categorical)
@@ -134,17 +161,19 @@ class GradientBooster:
             from sklearn.ensemble import HistGradientBoostingRegressor
 
             categorical_mask = [c in self.categorical for c in X_train.columns]
-            self.model = HistGradientBoostingRegressor(
-                loss="poisson",  # closest available to the count target
-                learning_rate=0.06,
-                max_iter=400,
-                max_leaf_nodes=96,
-                min_samples_leaf=200,
-                categorical_features=categorical_mask,
-                early_stopping=True,
-                validation_fraction=0.1,
-                random_state=42,
-            ).fit(X_train, y_train)
+            settings = {
+                "loss": "poisson",  # closest available to the count target
+                "learning_rate": 0.06,
+                "max_iter": 400,
+                "max_leaf_nodes": 96,
+                "min_samples_leaf": 200,
+                "categorical_features": categorical_mask,
+                "early_stopping": True,
+                "validation_fraction": 0.1,
+                "random_state": 42,
+                **translate_params(self.params, "sklearn_hist"),
+            }
+            self.model = HistGradientBoostingRegressor(**settings).fit(X_train, y_train)
         return self
 
     def predict(self, X: pd.DataFrame) -> np.ndarray:
@@ -237,6 +266,80 @@ def run_cross_validation(
             **evaluate(y_valid, booster.predict(X_valid)),
         })
     return pd.DataFrame(rows)
+
+
+#: Deliberately small. A wide grid searched against the same folds that pick the
+#: winner overfits the validation set, and the wider it is the more it overfits.
+#: These vary the three knobs that actually trade bias against variance here,
+#: one step either side of the defaults.
+TUNING_GRID: List[Dict[str, object]] = [
+    {},                                                   # the shipped defaults
+    {"learning_rate": 0.03},
+    {"learning_rate": 0.10},
+    {"leaves": 48},
+    {"leaves": 192},
+    {"min_leaf": 50},
+    {"min_leaf": 500},
+    {"learning_rate": 0.03, "leaves": 192, "min_leaf": 100},
+]
+
+
+def tune_gradient_booster(
+    frame: pd.DataFrame,
+    feature_names: Sequence[str],
+    categorical: Sequence[str],
+    folds: Sequence[Tuple[np.ndarray, np.ndarray]],
+    target: str = "units_sold",
+    max_train_rows: Optional[int] = 800_000,
+    seed: int = 42,
+    grid: Optional[Sequence[Dict[str, object]]] = None,
+) -> pd.DataFrame:
+    """
+    Sweep the booster's parameters inside the existing time-based CV.
+
+    The folds are the ones `features.time_split` already produced - expanding
+    windows, chronological, each with a HORIZON-sized gap between train and
+    validation. Nothing is shuffled and no fold is reused as a test set, which is
+    the only reason a tuned number here is comparable with the untuned one.
+
+    Returns one row per candidate with per-fold and mean WAPE. It does not pick a
+    winner or refit anything: the caller reports the comparison, and the shipped
+    model keeps the defaults unless someone decides otherwise on the evidence.
+    """
+    grid = list(grid if grid is not None else TUNING_GRID)
+    rng = np.random.default_rng(seed)
+
+    prepared = []
+    for train_index, valid_index in folds:
+        if max_train_rows is not None and len(train_index) > max_train_rows:
+            train_index = rng.choice(train_index, size=max_train_rows, replace=False)
+        train, valid = frame.iloc[train_index], frame.iloc[valid_index]
+        prepared.append((
+            train[list(feature_names)], train[target].to_numpy(),
+            valid[list(feature_names)], valid[target].to_numpy(),
+        ))
+
+    rows: List[Dict[str, object]] = []
+    for candidate in grid:
+        label = "defaults" if not candidate else ", ".join(
+            f"{key}={value}" for key, value in sorted(candidate.items())
+        )
+        record: Dict[str, object] = {"params": label}
+        scores = []
+        for fold_number, (X_train, y_train, X_valid, y_valid) in enumerate(prepared, start=1):
+            booster = GradientBooster(categorical=categorical, params=dict(candidate))
+            booster.fit(X_train, y_train, X_valid, y_valid)
+            wape = evaluate(y_valid, booster.predict(X_valid))["wape"]
+            record[f"fold_{fold_number}_wape"] = wape
+            scores.append(wape)
+        record["mean_wape"] = float(np.mean(scores))
+        LOGGER.info("Tuning %-42s mean WAPE %.4f", label, record["mean_wape"])
+        rows.append(record)
+
+    table = pd.DataFrame(rows).sort_values("mean_wape").reset_index(drop=True)
+    baseline = float(table.loc[table["params"] == "defaults", "mean_wape"].iloc[0])
+    table["vs_defaults"] = table["mean_wape"] - baseline
+    return table
 
 
 def run_holdout(

@@ -249,6 +249,11 @@ def build_report() -> Path:
     LOGGER.info("Cross-validation")
     cv = forecast.run_cross_validation(frame, feature_names, categorical, folds)
 
+    LOGGER.info("Hyperparameter sweep")
+    tuning = forecast.tune_gradient_booster(frame, feature_names, categorical, folds)
+    tuned_baseline = float(tuning.loc[tuning["params"] == "defaults", "mean_wape"].iloc[0])
+    tuned_gain = abs(float(tuning["vs_defaults"].min()))
+
     LOGGER.info("Holdout")
     holdout_metrics, booster, X_holdout, predictions = forecast.run_holdout(
         frame, feature_names, categorical, holdout_index
@@ -442,6 +447,38 @@ def build_report() -> Path:
         "otherwise divide by zero). **WAPE** — total absolute error over total actual demand — "
         "is the retail standard and is the primary metric throughout.",
         "",
+        "### Hyperparameters",
+        "",
+        "The parameters above are defaults, and an earlier draft listed the absence of a search "
+        "as a limitation. Searching it is cheap, so here is the search rather than the excuse.",
+        "",
+        "Eight candidates over learning rate, leaf count and minimum leaf size, scored on the "
+        "same expanding-window folds as the ladder — same chronology, same "
+        f"{features.HORIZON}-day gap, nothing shuffled. A grid tuned against the folds that then "
+        "pick the winner will flatter itself, so the grid is deliberately small and one step "
+        "either side of the defaults.",
+        "",
+        _table(
+            tuning.rename(columns={"params": "parameters", "mean_wape": "mean WAPE",
+                                   "vs_defaults": "vs defaults"}),
+            floatfmt="{:.4f}",
+        ),
+        "",
+        f"Best candidate: **{tuning.iloc[0]['params']}**, at mean WAPE "
+        f"{tuning.iloc[0]['mean_wape']:.4f} against the defaults' {tuned_baseline:.4f}. "
+        f"That is a gain of {tuned_gain:.4f} WAPE, or "
+        f"{tuned_gain / tuned_baseline * 100:.1f}% of the error.",
+        "",
+        "**The shipped model keeps the defaults.** Phase 6 sizes safety stock from this model's "
+        "forecast error, so changing it moves every service level, every reorder point and the "
+        "£ figure attached to them. A change that small is not worth revaluing the downstream "
+        "chain for, and adopting the winner of a sweep scored on the folds that chose it would "
+        "buy part of that gain from the validation set rather than from the model. The honest "
+        "reading is that this model is not parameter-starved: the ladder's step from naive to "
+        "Ridge to boosting is worth an order of magnitude more than any knob on the booster, "
+        "which is the useful thing to know and the reason the search is reported rather than "
+        "acted on.",
+        "",
         "## 4. Where the forecast is weak",
         "",
         "A single accuracy number hides the thing a planner needs to know.",
@@ -549,9 +586,11 @@ def build_report() -> Path:
            "LightGBM could not load (macOS `libomp` missing), so scikit-learn's histogram "
            "booster — the same algorithm family — was used, and permutation importance "
            "substitutes for TreeSHAP. Installing `libomp` switches both automatically."),
-        "- **No hyperparameter search.** Parameters are sensible defaults. A tuned model would "
-        "likely do somewhat better; the point here is the comparison against a real baseline "
-        "under honest validation, not a leaderboard score.",
+        f"- **Tuning was searched and not adopted.** A sweep over learning rate, leaf count and "
+        f"minimum leaf size across the same CV folds improves mean WAPE by {tuned_gain:.4f} at "
+        f"best ({tuning.iloc[0]['params']}); section 3 has the table. The shipped model keeps "
+        f"the defaults, because Phase 6 sizes safety stock from this model's error and a gain "
+        f"that size does not justify revaluing the downstream chain.",
         "",
         "---",
         "",

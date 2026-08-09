@@ -72,6 +72,27 @@ Training within each CV fold is capped at 800,000 rows drawn from that fold's ow
 
 MAPE is reported because §8 asks for it, but it is not what the comparison is judged on. Daily store × SKU demand contains small counts, and MAPE divides by them: a one-unit miss on a two-unit day is penalised fifty times as heavily as a one-unit miss on a hundred-unit day. It is computed on non-zero actuals only (1.2% of holdout rows are zero and would otherwise divide by zero). **WAPE** — total absolute error over total actual demand — is the retail standard and is the primary metric throughout.
 
+### Hyperparameters
+
+The parameters above are defaults, and an earlier draft listed the absence of a search as a limitation. Searching it is cheap, so here is the search rather than the excuse.
+
+Eight candidates over learning rate, leaf count and minimum leaf size, scored on the same expanding-window folds as the ladder — same chronology, same 7-day gap, nothing shuffled. A grid tuned against the folds that then pick the winner will flatter itself, so the grid is deliberately small and one step either side of the defaults.
+
+| parameters | fold_1_wape | fold_2_wape | fold_3_wape | fold_4_wape | mean WAPE | vs defaults |
+|---|---|---|---|---|---|---|
+| learning_rate=0.03 | 0.3863 | 0.4198 | 0.3820 | 0.3834 | 0.3929 | -0.0006 |
+| leaves=48 | 0.3866 | 0.4207 | 0.3814 | 0.3831 | 0.3930 | -0.0005 |
+| min_leaf=500 | 0.3859 | 0.4215 | 0.3816 | 0.3836 | 0.3932 | -0.0003 |
+| defaults | 0.3867 | 0.4217 | 0.3816 | 0.3838 | 0.3934 | 0.0000 |
+| learning_rate=0.03, leaves=192, min_leaf=100 | 0.3871 | 0.4210 | 0.3823 | 0.3834 | 0.3935 | 0.0000 |
+| min_leaf=50 | 0.3874 | 0.4221 | 0.3818 | 0.3835 | 0.3937 | 0.0003 |
+| leaves=192 | 0.3863 | 0.4232 | 0.3823 | 0.3841 | 0.3940 | 0.0005 |
+| learning_rate=0.1 | 0.3869 | 0.4241 | 0.3825 | 0.3847 | 0.3946 | 0.0011 |
+
+Best candidate: **learning_rate=0.03**, at mean WAPE 0.3929 against the defaults' 0.3934. That is a gain of 0.0006 WAPE, or 0.1% of the error.
+
+**The shipped model keeps the defaults.** Phase 6 sizes safety stock from this model's forecast error, so changing it moves every service level, every reorder point and the £ figure attached to them. A change that small is not worth revaluing the downstream chain for, and adopting the winner of a sweep scored on the folds that chose it would buy part of that gain from the validation set rather than from the model. The honest reading is that this model is not parameter-starved: the ladder's step from naive to Ridge to boosting is worth an order of magnitude more than any knob on the booster, which is the useful thing to know and the reason the search is reported rather than acted on.
+
 ## 4. Where the forecast is weak
 
 A single accuracy number hides the thing a planner needs to know.
@@ -187,7 +208,7 @@ The cost-minimising threshold is **0.982**, giving recall **0.54** at precision 
 - **The target is censored.** `units_sold` is what stock allowed, not what customers wanted. The model therefore forecasts *sales*, and on stockout days it is learning a truncated outcome. For replenishment this understates need exactly when need is highest. Phase 6 must use the forecast as a demand signal with that caveat, or model latent demand explicitly.
 - **Weather is assumed forecastable.** Seven-day temperature and rainfall are treated as known. Real forecasts carry error that is not represented here.
 - **The gradient booster ran on the sklearn_hist backend.** LightGBM could not load (macOS `libomp` missing), so scikit-learn's histogram booster — the same algorithm family — was used, and permutation importance substitutes for TreeSHAP. Installing `libomp` switches both automatically.
-- **No hyperparameter search.** Parameters are sensible defaults. A tuned model would likely do somewhat better; the point here is the comparison against a real baseline under honest validation, not a leaderboard score.
+- **Tuning was searched and not adopted.** A sweep over learning rate, leaf count and minimum leaf size across the same CV folds improves mean WAPE by 0.0006 at best (learning_rate=0.03); section 3 has the table. The shipped model keeps the defaults, because Phase 6 sizes safety stock from this model's error and a gain that size does not justify revaluing the downstream chain.
 
 ---
 
