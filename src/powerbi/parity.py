@@ -34,7 +34,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from powerbi.export import output_dir  # noqa: E402
 
-LOGGER = logging.getLogger("promopulse.powerbi.parity")
+LOGGER = logging.getLogger("northstar.powerbi.parity")
 
 
 def _load(name: str) -> pd.DataFrame:

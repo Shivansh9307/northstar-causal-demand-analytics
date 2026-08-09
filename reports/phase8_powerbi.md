@@ -1,4 +1,4 @@
-# PromoPulse — Phase 8: Power BI Decision Layer
+# Northstar — Phase 8: Power BI Decision Layer
 
 Rebuild with:
 

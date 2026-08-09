@@ -1,4 +1,4 @@
-# PromoPulse — Data Quality Report
+# Northstar — Data Quality Report
 
 Generated from seed 42 in DEV mode (20 stores x 150 SKUs, 2023-01-01 to 2024-12-31).
 

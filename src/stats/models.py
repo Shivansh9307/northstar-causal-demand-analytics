@@ -53,7 +53,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from data_quality import leakage  # noqa: E402
 from features import star_schema  # noqa: E402
 
-LOGGER = logging.getLogger("promopulse.stats")
+LOGGER = logging.getLogger("northstar.stats")
 
 PAIR_KEYS = ["store_id", "sku_id"]
 

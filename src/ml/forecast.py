@@ -35,7 +35,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-LOGGER = logging.getLogger("promopulse.ml.forecast")
+LOGGER = logging.getLogger("northstar.ml.forecast")
 
 
 def lightgbm_available() -> bool:

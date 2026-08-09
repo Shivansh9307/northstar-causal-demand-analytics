@@ -39,7 +39,7 @@ from optimization import inventory, monte_carlo, promo_lp  # noqa: E402
 from stats import models  # noqa: E402
 from utils import config  # noqa: E402
 
-LOGGER = logging.getLogger("promopulse.phase6")
+LOGGER = logging.getLogger("northstar.phase6")
 
 BLUE, ORANGE, AQUA = "#2a78d6", "#eb6834", "#1baf7a"
 SURFACE = "#fcfcfb"
@@ -471,7 +471,7 @@ def build_report() -> Path:
 
     rel = lambda p: f"figures/{p.name}"  # noqa: E731
     lines: List[str] = [
-        "# PromoPulse — Phase 6: Prescriptive Optimisation",
+        "# Northstar — Phase 6: Prescriptive Optimisation",
         "",
         "Regenerate with `uv run python src/optimization/phase6_report.py`.",
         "",

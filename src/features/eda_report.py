@@ -32,7 +32,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from features import star_schema  # noqa: E402
 from utils import config  # noqa: E402
 
-LOGGER = logging.getLogger("promopulse.eda")
+LOGGER = logging.getLogger("northstar.eda")
 
 # Validated categorical slots (see dataviz references/palette.md).
 # Slots 1-3 clear the all-pairs CVD and normal-vision floors on the light surface.
@@ -472,7 +472,7 @@ def build_report() -> Path:
 
         rel = lambda p: f"figures/{p.name}"  # noqa: E731
         lines: List[str] = [
-            "# PromoPulse — Phase 2 Exploratory Data Analysis",
+            "# Northstar — Phase 2 Exploratory Data Analysis",
             "",
             f"Panel: **{overview['rows']:,} rows** at date x store x SKU grain — "
             f"{overview['stores']} stores, {overview['skus']} SKUs, {overview['days']} days "

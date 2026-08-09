@@ -35,7 +35,7 @@ from optimization import inventory, monte_carlo, promo_lp  # noqa: E402
 from stats import models  # noqa: E402
 from utils import config  # noqa: E402
 
-LOGGER = logging.getLogger("promopulse.powerbi.export")
+LOGGER = logging.getLogger("northstar.powerbi.export")
 
 OUTPUT_DIRNAME = "powerbi_data"
 

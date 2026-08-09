@@ -1,4 +1,4 @@
-# PromoPulse — Phase 2 Exploratory Data Analysis
+# Northstar — Phase 2 Exploratory Data Analysis
 
 Panel: **2,193,000 rows** at date x store x SKU grain — 20 stores, 150 SKUs, 731 days (2023-01-01 to 2024-12-31).
 

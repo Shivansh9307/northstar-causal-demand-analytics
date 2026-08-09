@@ -1,4 +1,4 @@
-# PromoPulse — Phase 4: Causal Inference
+# Northstar — Phase 4: Causal Inference
 
 Regenerate with `uv run python src/causal/phase4_report.py`.
 

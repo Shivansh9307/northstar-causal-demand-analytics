@@ -50,7 +50,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from data_quality import leakage  # noqa: E402
 from utils import config  # noqa: E402
 
-LOGGER = logging.getLogger("promopulse.validation.rossmann")
+LOGGER = logging.getLogger("northstar.validation.rossmann")
 
 HORIZON = 7
 TARGET = "sales"

@@ -1,4 +1,4 @@
-# PromoPulse — Phase 6: Prescriptive Optimisation
+# Northstar — Phase 6: Prescriptive Optimisation
 
 Regenerate with `uv run python src/optimization/phase6_report.py`.
 

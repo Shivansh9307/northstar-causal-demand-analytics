@@ -35,7 +35,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from ml.forecast import lightgbm_available  # noqa: E402
 
-LOGGER = logging.getLogger("promopulse.ml.stockout")
+LOGGER = logging.getLogger("northstar.ml.stockout")
 
 TARGET = "stockout_flag"
 

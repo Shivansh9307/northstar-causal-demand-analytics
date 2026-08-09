@@ -32,7 +32,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-LOGGER = logging.getLogger("promopulse.optimization.montecarlo")
+LOGGER = logging.getLogger("northstar.optimization.montecarlo")
 
 
 def simulate_plan(

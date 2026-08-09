@@ -52,7 +52,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from data_quality import leakage  # noqa: E402
 from features import star_schema  # noqa: E402
 
-LOGGER = logging.getLogger("promopulse.ml.features")
+LOGGER = logging.getLogger("northstar.ml.features")
 
 HORIZON = 7
 

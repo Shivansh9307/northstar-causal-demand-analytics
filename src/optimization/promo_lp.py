@@ -50,7 +50,7 @@ import pulp
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-LOGGER = logging.getLogger("promopulse.optimization.promo")
+LOGGER = logging.getLogger("northstar.optimization.promo")
 
 DISCOUNT_DEPTHS = [5, 10, 15, 20, 25, 30]
 

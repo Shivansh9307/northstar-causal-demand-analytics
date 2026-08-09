@@ -48,7 +48,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from stats import models  # noqa: E402
 
-LOGGER = logging.getLogger("promopulse.did")
+LOGGER = logging.getLogger("northstar.did")
 
 
 # ---------------------------------------------------------------------------

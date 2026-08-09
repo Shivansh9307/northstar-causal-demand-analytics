@@ -39,7 +39,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from data_quality import leakage  # noqa: E402
 from utils import config  # noqa: E402
 
-LOGGER = logging.getLogger("promopulse.star_schema")
+LOGGER = logging.getLogger("northstar.star_schema")
 
 RAW_TABLES: Dict[str, str] = {
     "dim_store": "dim_store.csv",
@@ -107,7 +107,7 @@ CALENDAR_ATTRIBUTES: List[str] = [
 
 def connect(db_path: Path | None = None) -> duckdb.DuckDBPyConnection:
     """Open (creating if needed) the project DuckDB database."""
-    target = db_path or (config.path("processed") / "promopulse.duckdb")
+    target = db_path or (config.path("processed") / "northstar.duckdb")
     target.parent.mkdir(parents=True, exist_ok=True)
     return duckdb.connect(str(target))
 

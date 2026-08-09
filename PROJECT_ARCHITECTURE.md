@@ -1,4 +1,4 @@
-# PromoPulse: Causal Demand, Promotion & Inventory Intelligence for Northstar Retail Group
+# Northstar — Causal Demand, Promotion & Inventory Intelligence
 
 **Repo name:** `northstar-causal-demand-analytics`
 **Owner:** Shivansh Chauhan

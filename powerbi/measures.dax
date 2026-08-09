@@ -1,5 +1,5 @@
 // =============================================================================
-// PromoPulse — DAX measure library
+// Northstar — DAX measure library
 //
 // Every measure below is paired with the value it must return, taken from
 // powerbi_data/dax_parity.csv, which src/powerbi/parity.py computes directly

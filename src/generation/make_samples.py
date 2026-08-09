@@ -42,7 +42,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from utils import config  # noqa: E402
 
-LOGGER = logging.getLogger("promopulse.samples")
+LOGGER = logging.getLogger("northstar.samples")
 
 # Copied whole: small, and a complete dimension keeps the sample self-describing.
 WHOLE_FILES = [

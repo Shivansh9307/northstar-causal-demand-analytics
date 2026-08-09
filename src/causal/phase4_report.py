@@ -32,7 +32,7 @@ from features import star_schema  # noqa: E402
 from stats import models  # noqa: E402
 from utils import config  # noqa: E402
 
-LOGGER = logging.getLogger("promopulse.phase4")
+LOGGER = logging.getLogger("northstar.phase4")
 
 BLUE, ORANGE, AQUA = "#2a78d6", "#eb6834", "#1baf7a"
 SURFACE = "#fcfcfb"
@@ -330,7 +330,7 @@ def build_report() -> Path:
 
     rel = lambda p: f"figures/{p.name}"  # noqa: E731
     lines: List[str] = [
-        "# PromoPulse — Phase 4: Causal Inference",
+        "# Northstar — Phase 4: Causal Inference",
         "",
         "Regenerate with `uv run python src/causal/phase4_report.py`.",
         "",

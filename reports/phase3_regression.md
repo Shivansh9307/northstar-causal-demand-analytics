@@ -1,4 +1,4 @@
-# PromoPulse — Phase 3: Statistical Analysis & Regression
+# Northstar — Phase 3: Statistical Analysis & Regression
 
 Estimated on the full 2,193,000-row panel with store x SKU and date fixed effects absorbed by two-way demeaning, and standard errors clustered on 3,000 store x SKU pairs.
 

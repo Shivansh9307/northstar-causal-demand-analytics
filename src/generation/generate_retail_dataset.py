@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-PromoPulse: Causal Promotion, Demand and Inventory Optimisation
+Northstar — Causal Promotion, Demand and Inventory Optimisation
 Synthetic dataset generator for Northstar Retail Group.
 
 Dependencies:
@@ -74,7 +74,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s",
 )
-LOGGER = logging.getLogger("promopulse")
+LOGGER = logging.getLogger("northstar")
 
 
 # =============================================================================
@@ -1563,7 +1563,7 @@ def create_readme(
     calendar_df: pd.DataFrame,
     metrics: Dict[str, Any],
 ) -> str:
-    return f"""# PromoPulse: Causal Promotion, Demand and Inventory Optimisation
+    return f"""# Northstar — Causal Promotion, Demand and Inventory Optimisation
 
 ## Fictional business scenario
 Northstar Retail Group is a fictional UK mid-market grocery and convenience retailer
@@ -1871,7 +1871,7 @@ def write_quality_report(results: List[Dict[str, Any]], metrics: Dict[str, Any])
     """Persist the QA outcome to reports/data_quality_report.md (§3.1)."""
     passed = sum(1 for r in results if r["passed"])
     lines = [
-        "# PromoPulse — Data Quality Report",
+        "# Northstar — Data Quality Report",
         "",
         f"Generated from seed {SEED} in {'FULL' if FULL_MODE else 'DEV'} mode "
         f"({N_STORES} stores x {N_SKUS} SKUs, {START_DATE} to {END_DATE}).",
@@ -1947,7 +1947,7 @@ def print_summary(
 # =============================================================================
 
 def main() -> None:
-    LOGGER.info("Starting PromoPulse synthetic data generation with seed %s.", SEED)
+    LOGGER.info("Starting Northstar synthetic data generation with seed %s.", SEED)
     ensure_output_directory()
 
     stores = generate_stores(N_STORES)

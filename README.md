@@ -1,4 +1,4 @@
-# PromoPulse — Causal Demand, Promotion & Inventory Intelligence
+# Northstar — Causal Demand, Promotion & Inventory Intelligence
 
 **Northstar Retail Group** is a fictional UK grocery chain: 20 stores, 150 SKUs, two years of
 daily trading. It runs promotions constantly and has no reliable idea what they earn.

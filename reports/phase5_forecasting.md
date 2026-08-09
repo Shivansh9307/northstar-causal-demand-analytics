@@ -1,4 +1,4 @@
-# PromoPulse — Phase 5: Demand Forecasting & Stockout Risk
+# Northstar — Phase 5: Demand Forecasting & Stockout Risk
 
 Regenerate with `uv run python src/ml/phase5_report.py`.
 

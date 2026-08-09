@@ -46,7 +46,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from powerbi.export import output_dir  # noqa: E402
 from utils import config  # noqa: E402
 
-LOGGER = logging.getLogger("promopulse.powerbi.tmdl")
+LOGGER = logging.getLogger("northstar.powerbi.tmdl")
 
 PROJECT_NAME = "Northstar"
 

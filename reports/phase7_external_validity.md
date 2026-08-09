@@ -1,4 +1,4 @@
-# PromoPulse — Phase 7: External Validity on Rossmann Store Sales
+# Northstar — Phase 7: External Validity on Rossmann Store Sales
 
 Regenerate with `uv run python src/validation/phase7_report.py`.
 

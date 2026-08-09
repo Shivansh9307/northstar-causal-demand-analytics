@@ -47,7 +47,7 @@ from scipy import stats
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-LOGGER = logging.getLogger("promopulse.optimization.inventory")
+LOGGER = logging.getLogger("northstar.optimization.inventory")
 
 # Annual holding cost as a share of unit cost, a standard retail planning figure.
 ANNUAL_HOLDING_RATE = 0.25

@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from ml import features, forecast, stockout  # noqa: E402
 from utils import config  # noqa: E402
 
-LOGGER = logging.getLogger("promopulse.phase5")
+LOGGER = logging.getLogger("northstar.phase5")
 
 BLUE, ORANGE, AQUA = "#2a78d6", "#eb6834", "#1baf7a"
 SURFACE = "#fcfcfb"
@@ -349,7 +349,7 @@ def build_report() -> Path:
 
     rel = lambda p: f"figures/{p.name}"  # noqa: E731
     lines: List[str] = [
-        "# PromoPulse — Phase 5: Demand Forecasting & Stockout Risk",
+        "# Northstar — Phase 5: Demand Forecasting & Stockout Risk",
         "",
         "Regenerate with `uv run python src/ml/phase5_report.py`.",
         "",

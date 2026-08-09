@@ -1,5 +1,5 @@
 """
-Shared configuration access for PromoPulse.
+Shared configuration access for Northstar.
 
 `config/config.yaml` is the single source of truth for the seed, the dev/full
 scale toggle, every path, and the leakage rules. Nothing downstream should
