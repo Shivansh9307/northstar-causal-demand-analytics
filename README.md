@@ -1,5 +1,7 @@
 # Northstar — Causal Demand, Promotion & Inventory Intelligence
 
+[![CI](https://github.com/Shivansh9307/northstar-causal-demand-analytics/actions/workflows/ci.yml/badge.svg)](https://github.com/Shivansh9307/northstar-causal-demand-analytics/actions/workflows/ci.yml)
+
 **Northstar Retail Group** is a fictional UK grocery chain: 20 stores, 150 SKUs, two years of
 daily trading. It runs promotions constantly and has no reliable idea what they earn.
 
