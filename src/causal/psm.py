@@ -181,6 +181,166 @@ def ipw_att(
     }
 
 
+def _nearest_neighbour_pairs(
+    frame: pd.DataFrame, propensity: pd.Series, caliper_sd: float
+) -> Dict[str, object]:
+    """
+    Pair each treated row with its nearest untreated row on the propensity logit.
+
+    Matching on the logit rather than the raw score is deliberate: the score
+    compresses near 0 and 1, so a fixed caliper there spans far more covariate
+    distance than the same caliper mid-distribution.
+
+    Nearest neighbour is found by binary search on the sorted control scores.
+    Once sorted, the insertion point and the element before it are the only two
+    candidates, which turns an O(n_treated x n_control) scan into a sort plus a
+    searchsorted — the difference between seconds and hours at this row count.
+    """
+    treated_mask = frame["promo_flag"].astype(bool).to_numpy()
+    e = np.clip(propensity.to_numpy(), 1e-6, 1 - 1e-6)
+    score = np.log(e / (1 - e))
+    caliper = caliper_sd * float(score.std())
+
+    treated_idx = np.flatnonzero(treated_mask)
+    control_idx = np.flatnonzero(~treated_mask)
+    if len(treated_idx) == 0 or len(control_idx) == 0:
+        raise ValueError("matching needs both treated and untreated rows")
+
+    order = np.argsort(score[control_idx], kind="stable")
+    sorted_score = score[control_idx][order]
+    sorted_idx = control_idx[order]
+
+    positions = np.searchsorted(sorted_score, score[treated_idx])
+    left = np.clip(positions - 1, 0, len(sorted_score) - 1)
+    right = np.clip(positions, 0, len(sorted_score) - 1)
+
+    dist_left = np.abs(score[treated_idx] - sorted_score[left])
+    dist_right = np.abs(score[treated_idx] - sorted_score[right])
+    take_left = dist_left <= dist_right
+    nearest = np.where(take_left, left, right)
+    within = np.where(take_left, dist_left, dist_right) <= caliper
+
+    if not within.any():
+        raise ValueError("no treated row found a control inside the caliper")
+
+    return {
+        "treated": treated_idx[within],
+        "control": sorted_idx[nearest[within]],
+        "caliper": float(caliper),
+        "within": within,
+        "treated_mask": treated_mask,
+    }
+
+
+def match_att(
+    frame: pd.DataFrame,
+    propensity: pd.Series,
+    caliper_sd: float = 0.2,
+) -> Dict[str, float]:
+    """
+    Nearest-neighbour propensity score matching, with replacement.
+
+    §6 Phase 4.3 asks for "propensity score matching / IPW". IPW was built and
+    matching was not, and the two are not interchangeable even though both lean
+    on selection on observables:
+
+    * IPW keeps every in-support row and reweights it. One control with an
+      extreme score can carry a large share of the estimate.
+    * Matching discards controls it cannot pair, which trades sample size for a
+      comparison the reader can actually picture, and makes the failure mode
+      visible - if the caliper drops most of the treated rows, the overlap was
+      not there and no weighting scheme would have fixed it.
+
+    Matching on the score itself rather than the covariates is the standard
+    reduction: conditioning on `e(X)` is sufficient when treatment is ignorable
+    given `X`.
+
+    With replacement: treated rows outnumber usable controls in the dense part of
+    the score distribution, and matching without replacement would make the
+    estimate depend on the order rows happen to arrive in. The cost is that one
+    control can carry several treated rows, which `max_control_reuse` reports so
+    the reader can judge how thin the comparison got.
+
+    Returns the ATT with a cluster-robust CI on the matched sample. No sampling
+    is involved, so the result is deterministic.
+    """
+    pairs = _nearest_neighbour_pairs(frame, propensity, caliper_sd)
+    matched_treated, matched_control = pairs["treated"], pairs["control"]
+    outcome = frame["log_units"].to_numpy()
+
+    att = float(outcome[matched_treated].mean() - outcome[matched_control].mean())
+
+    # A matched control reused k times counts k times, so the CI is computed on
+    # the stacked matched sample rather than on unique rows. Clustering stays on
+    # the pair, as everywhere else in this phase.
+    stacked = pd.concat(
+        [frame.iloc[matched_treated], frame.iloc[matched_control]],
+        axis=0,
+    )
+    exog = sm.add_constant(stacked["promo_flag"].astype(float))
+    fitted = sm.OLS(stacked["log_units"], exog).fit(
+        cov_type="cluster", cov_kwds={"groups": stacked["pair_id"]}
+    )
+    conf = fitted.conf_int()
+
+    _, reuse_counts = np.unique(matched_control, return_counts=True)
+    within = pairs["within"]
+
+    return {
+        "att": att,
+        "att_regression": float(fitted.params["promo_flag"]),
+        "ci_low": float(conf.loc["promo_flag", 0]),
+        "ci_high": float(conf.loc["promo_flag", 1]),
+        "caliper": pairs["caliper"],
+        "n_treated_matched": int(len(matched_treated)),
+        "n_treated_dropped": int((~within).sum()),
+        "n_control_used": int(len(reuse_counts)),
+        "share_treated_matched": float(within.mean()),
+        "max_control_reuse": int(reuse_counts.max()),
+    }
+
+
+def matched_balance(
+    frame: pd.DataFrame,
+    design: pd.DataFrame,
+    propensity: pd.Series,
+    columns: Sequence[str],
+    caliper_sd: float = 0.2,
+) -> pd.DataFrame:
+    """
+    Standardised mean differences before and after matching.
+
+    The weighted equivalent of `standardised_differences`, computed on the
+    matched sample instead. Balance is the only thing that makes a matched
+    estimate credible, so reporting the estimate without it would repeat exactly
+    the omission this function exists to close.
+    """
+    pairs = _nearest_neighbour_pairs(frame, propensity, caliper_sd)
+    matched_treated, matched_control = pairs["treated"], pairs["control"]
+    treated_mask = pairs["treated_mask"]
+
+    rows: List[Dict[str, object]] = []
+    for column in columns:
+        values = design[column].to_numpy(dtype=float)
+        pooled_sd = np.sqrt(
+            (values[treated_mask].var() + values[~treated_mask].var()) / 2
+        )
+        pooled_sd = pooled_sd if pooled_sd > 1e-12 else 1.0
+        before = (values[treated_mask].mean() - values[~treated_mask].mean()) / pooled_sd
+        after = (values[matched_treated].mean() - values[matched_control].mean()) / pooled_sd
+        rows.append({
+            "covariate": column,
+            "smd_before": float(before),
+            "smd_after": float(after),
+            "balanced_after": bool(abs(after) < 0.1),
+        })
+    return (
+        pd.DataFrame(rows)
+        .sort_values("smd_before", key=abs, ascending=False)
+        .reset_index(drop=True)
+    )
+
+
 def standardised_differences(
     frame: pd.DataFrame,
     design: pd.DataFrame,

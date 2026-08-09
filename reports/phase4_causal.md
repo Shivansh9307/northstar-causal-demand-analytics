@@ -44,6 +44,8 @@ The benchmark is built row by row: without its promotion, a treated row's latent
 | DiD: uncannibalised + seasonal day effects | 0.675 | 0.666 | 0.684 | 0.082 | 96.441 | 15.416 |
 | IPW: all treated rows | 0.510 | 0.488 | 0.532 | -0.083 | 66.527 | -14.499 |
 | IPW: first promotion day only | 0.752 | 0.732 | 0.771 | 0.158 | 112.078 | 31.052 |
+| Matching: all treated rows | 0.557 | 0.538 | 0.575 | -0.037 | 74.477 | -6.548 |
+| Matching: first promotion day only | 0.695 | 0.675 | 0.714 | 0.101 | 100.311 | 19.285 |
 
 ## 3. Naive estimates and why they fail
 
@@ -115,6 +117,32 @@ Restricting to the first day of each promotion, where the history is genuinely p
 - Treated propensities span [0.0005, 0.9991], controls [0.0003, 0.9991].
 - 100.0% of control rows sit above the minimum treated propensity, so common support is wide.
 - 44,402 rows outside [0.01, 0.99] are trimmed; the largest surviving control weight is 99.
+
+### Matching, as a check on the weights
+
+§6 Phase 4.3 asks for matching as well as weighting. Both rest on selection on observables and both use the propensity model above, so they cannot disagree about whether that assumption holds. What they can disagree about is the weights: IPW keeps every in-support row and lets one extreme score carry a large share of the estimate, while matching pairs each treated row with its nearest untreated neighbour and discards what it cannot pair.
+
+Nearest neighbour on the propensity **logit**, with replacement, inside a caliper of 0.220 (0.2 pooled SDs). The logit rather than the raw score because the score compresses near 0 and 1, where a fixed caliper would span far more covariate distance than the same caliper mid-distribution.
+
+| sample | IPW | matching | matched | controls used | max reuse |
+|---|---|---|---|---|---|
+| all treated rows | 0.510 | 0.557 | 100.0% | 140,584 | 22 |
+| first promotion day only | 0.752 | 0.695 | 100.0% | 20,318 | 3 |
+
+Every treated row finds a partner inside the caliper, which is the overlap finding above restated: the common support is wide enough that matching discards nothing. On all treated rows matching lands at +0.557 against IPW's +0.510, an error of -0.037 against -0.083 — the closest any single estimator in this report gets to the truth.
+
+That is worth being careful about rather than pleased with. Matching and IPW share the bad-control problem that drags both below the target, and matching is not correcting it — it is weighting the same contaminated comparison differently, which happens to cancel more of the bias here. On the first-day sample the ordering reverses (+0.695 against IPW's +0.752), and neither is close. An estimator that wins on one sample and loses on the other is not the better estimator; it is a reminder that the ranking is not stable enough to read a winner off.
+
+| covariate | smd_before | smd_after | balanced_after |
+|---|---|---|---|
+| momentum_ratio | 1.029 | -0.002 | yes |
+| log_lag_rolling_7 | 0.692 | 0.004 | yes |
+| log_lag_rolling_28 | 0.349 | 0.010 | yes |
+| baseline_gross_margin_pct | 0.141 | 0.011 | yes |
+| is_school_holiday | 0.140 | -0.002 | yes |
+| is_bank_holiday | 0.097 | -0.014 | yes |
+
+Balance after matching: **10 of 10** covariates inside the 0.1 threshold, against 7 of 10 after weighting on the same sample.
 
 ## 7. Reconciling the two corrected estimates
 

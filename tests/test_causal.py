@@ -234,3 +234,84 @@ def test_ipw_and_did_bracket_the_truth(panel, truth):
     ipw_estimate = psm.ipw_att(panel, fitted["propensity"])["att_regression"]
 
     assert ipw_estimate < target < did_estimate
+
+
+# ---------------------------------------------------------------------------
+# Propensity score matching
+# ---------------------------------------------------------------------------
+
+
+def test_matching_pairs_treated_rows_with_nearer_controls(panel):
+    """
+    The point of matching is that the paired control is closer on the score than
+    an arbitrary control would be. If that does not hold the matcher is not
+    matching, and every downstream number is a slower way to compute the naive
+    difference.
+    """
+    fitted = psm.fit_propensity(panel, sample_size=200_000, seed=42)
+    result = psm.match_att(panel, fitted["propensity"])
+    balance = psm.matched_balance(
+        panel, fitted["design"], fitted["propensity"],
+        psm.CONTINUOUS_COVARIATES + psm.BINARY_COVARIATES,
+    )
+    assert balance["smd_after"].abs().max() < balance["smd_before"].abs().max()
+    assert result["share_treated_matched"] > 0.5
+    assert result["ci_low"] < result["att_regression"] < result["ci_high"]
+
+
+def test_matching_caliper_binds(panel):
+    """
+    A caliper that never excludes anything is not a caliper. Shrinking it must
+    drop treated rows; if it does not, the distance comparison is not being
+    applied and a treated row with no comparable control would still get one.
+    """
+    fitted = psm.fit_propensity(panel, sample_size=200_000, seed=42)
+    wide = psm.match_att(panel, fitted["propensity"], caliper_sd=0.2)
+    narrow = psm.match_att(panel, fitted["propensity"], caliper_sd=0.0005)
+
+    assert narrow["caliper"] < wide["caliper"]
+    assert narrow["n_treated_matched"] < wide["n_treated_matched"]
+    assert narrow["n_treated_dropped"] > 0
+
+
+def test_matching_recovers_a_known_effect():
+    """
+    On data where the answer is constructed, matching must return it.
+
+    Treatment is assigned by a covariate that also drives the outcome, so the
+    naive difference is biased by design and only an estimator that conditions
+    on the covariate can recover the +0.40 that was actually applied.
+    """
+    import pandas as pd
+
+    rng = np.random.default_rng(7)
+    n = 4_000
+    x = rng.normal(size=n)
+    treated = rng.random(n) < 1 / (1 + np.exp(-1.5 * x))
+    effect = 0.40
+    log_units = 0.9 * x + effect * treated + rng.normal(scale=0.25, size=n)
+
+    frame = pd.DataFrame({
+        "promo_flag": treated.astype(int),
+        "log_units": log_units,
+        "pair_id": np.arange(n) % 200,
+    })
+    propensity = pd.Series(1 / (1 + np.exp(-1.5 * x)), index=frame.index)
+
+    naive = log_units[treated].mean() - log_units[~treated].mean()
+    matched = psm.match_att(frame, propensity, caliper_sd=0.05)["att"]
+
+    assert abs(naive - effect) > 0.3, "the test data is not confounded enough to be a test"
+    assert abs(matched - effect) < 0.05, f"matching recovered {matched:.3f}, not {effect}"
+
+
+def test_matching_needs_both_arms():
+    import pandas as pd
+
+    frame = pd.DataFrame({
+        "promo_flag": [0, 0, 0],
+        "log_units": [1.0, 2.0, 3.0],
+        "pair_id": [1, 1, 2],
+    })
+    with pytest.raises(ValueError, match="treated and untreated"):
+        psm.match_att(frame, pd.Series([0.1, 0.2, 0.3], index=frame.index))

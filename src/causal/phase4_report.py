@@ -284,6 +284,18 @@ def build_report() -> Path:
         psm.CONTINUOUS_COVARIATES + psm.BINARY_COVARIATES,
     )
 
+    # §6 Phase 4.3 asks for matching as well as weighting. They share the
+    # propensity model and the identifying assumption but not the estimator, so
+    # a disagreement between them is informative about the weights rather than
+    # about selection on observables.
+    LOGGER.info("Propensity matching")
+    match_all = psm.match_att(ordered, psm_all["propensity"])
+    match_first = psm.match_att(first_day_frame, psm_first["propensity"])
+    match_balance_all = psm.matched_balance(
+        ordered, psm_all["design"], psm_all["propensity"],
+        psm.CONTINUOUS_COVARIATES + psm.BINARY_COVARIATES,
+    )
+
     # Assemble the comparison table.
     rows = []
     for record in naive.itertuples(index=False):
@@ -309,6 +321,12 @@ def build_report() -> Path:
     rows.append({"label": "IPW: first promotion day only", "kind": "psm",
                  "estimate": att_first["att_regression"],
                  "ci_low": att_first["ci_low"], "ci_high": att_first["ci_high"]})
+    rows.append({"label": "Matching: all treated rows", "kind": "psm",
+                 "estimate": match_all["att_regression"],
+                 "ci_low": match_all["ci_low"], "ci_high": match_all["ci_high"]})
+    rows.append({"label": "Matching: first promotion day only", "kind": "psm",
+                 "estimate": match_first["att_regression"],
+                 "ci_low": match_first["ci_low"], "ci_high": match_first["ci_high"]})
     comparison = pd.DataFrame(rows)
     comparison["error"] = comparison["estimate"] - target
     comparison["pct_effect"] = np.expm1(comparison["estimate"]) * 100
@@ -540,6 +558,59 @@ def build_report() -> Path:
         "minimum treated propensity, so common support is wide.",
         f"- {att_all['n_trimmed']:,} rows outside [0.01, 0.99] are trimmed; the largest surviving "
         f"control weight is {att_all['max_weight']:.0f}.",
+        "",
+        "### Matching, as a check on the weights",
+        "",
+        "§6 Phase 4.3 asks for matching as well as weighting. Both rest on selection on "
+        "observables and both use the propensity model above, so they cannot disagree about "
+        "whether that assumption holds. What they can disagree about is the weights: IPW keeps "
+        "every in-support row and lets one extreme score carry a large share of the estimate, "
+        "while matching pairs each treated row with its nearest untreated neighbour and discards "
+        "what it cannot pair.",
+        "",
+        "Nearest neighbour on the propensity **logit**, with replacement, inside a caliper of "
+        f"{match_all['caliper']:.3f} (0.2 pooled SDs). The logit rather than the raw score "
+        "because the score compresses near 0 and 1, where a fixed caliper would span far more "
+        "covariate distance than the same caliper mid-distribution.",
+        "",
+        _table(pd.DataFrame([
+            {"sample": "all treated rows",
+             "IPW": att_all["att_regression"],
+             "matching": match_all["att_regression"],
+             "matched": f"{match_all['share_treated_matched'] * 100:.1f}%",
+             "controls used": f"{match_all['n_control_used']:,}",
+             "max reuse": match_all["max_control_reuse"]},
+            {"sample": "first promotion day only",
+             "IPW": att_first["att_regression"],
+             "matching": match_first["att_regression"],
+             "matched": f"{match_first['share_treated_matched'] * 100:.1f}%",
+             "controls used": f"{match_first['n_control_used']:,}",
+             "max reuse": match_first["max_control_reuse"]},
+        ])),
+        "",
+        f"Every treated row finds a partner inside the caliper, which is the overlap finding "
+        f"above restated: the common support is wide enough that matching discards nothing. "
+        f"On all treated rows matching lands at {match_all['att_regression']:+.3f} against IPW's "
+        f"{att_all['att_regression']:+.3f}, an error of "
+        f"{match_all['att_regression'] - target:+.3f} against "
+        f"{att_all['att_regression'] - target:+.3f} — the closest any single estimator in this "
+        "report gets to the truth.",
+        "",
+        "That is worth being careful about rather than pleased with. Matching and IPW share the "
+        "bad-control problem that drags both below the target, and matching is not correcting "
+        "it — it is weighting the same contaminated comparison differently, which happens to "
+        "cancel more of the bias here. On the first-day sample the ordering reverses "
+        f"({match_first['att_regression']:+.3f} against IPW's {att_first['att_regression']:+.3f}), "
+        "and neither is close. An estimator that wins on one sample and loses on the other is "
+        "not the better estimator; it is a reminder that the ranking is not stable enough to "
+        "read a winner off.",
+        "",
+        _table(match_balance_all.head(6), floatfmt="{:.3f}"),
+        "",
+        f"Balance after matching: **{int(match_balance_all['balanced_after'].sum())} of "
+        f"{len(match_balance_all)}** covariates inside the 0.1 threshold, against "
+        f"{int(balance_all['balanced_after'].sum())} of {len(balance_all)} after weighting on the "
+        "same sample.",
         "",
         "## 7. Reconciling the two corrected estimates",
         "",
