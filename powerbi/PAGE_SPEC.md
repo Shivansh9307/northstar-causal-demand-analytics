@@ -6,17 +6,14 @@
 > were built from, kept as the record of intent. Deviations taken during the
 > build, and the defects it exposed, are in `reports/phase8_powerbi.md`.
 
-The semantic model in `Northstar.SemanticModel/` is generated and carries all 41
-measures, and `Northstar.Report/` is scaffolded with these five pages already
-named and empty. This file specifies what goes on them, precisely enough to
-assemble in Power BI Desktop.
+The semantic model in `Northstar.SemanticModel/` is generated and carries all 45
+measures, and `Northstar.Report/definition/pages/` holds the five built pages.
+This file records what each page was specified to contain, at the precision the
+build was carried out to.
 
-**Why this is a spec rather than a built report.** A PBIR visual carries both
-position and query bindings. Authoring thirty of them without being able to open
-Desktop and look at them is where blind authoring fails hardest — the likely
-outcome is a file that opens to broken or empty visuals, which is worse in a
-portfolio than an honest spec. The model and measures are the hard part and they
-are done; the pages are half an hour of drag-and-drop.
+Read it to understand what a page is for and why each visual is on it. To change
+a page, edit it in Desktop — the PBIR definition files are the artifact now, and
+this document follows them rather than the other way round.
 
 ---
 
@@ -29,12 +26,12 @@ are done; the pages are half an hour of drag-and-drop.
 
    With PBIR off, Desktop **silently ignores** `Northstar.Report/definition/`.
    There is no error — the model loads fine and you get one blank page instead
-   of five, which looks like the pages were never generated. Worse, saving in
-   that state rewrites the report in the legacy format and the five scaffolded
-   pages are gone.
+   of five, which looks like the pages were never built. Worse, saving in that
+   state rewrites the report in the legacy format and all 66 authored visuals
+   are gone.
 
-2. Open `Northstar.pbip`. It opens on **Executive Summary** with all five pages
-   present and empty.
+2. Open `Northstar.pbip`. It opens on **Executive Summary**, with all five pages
+   built and populated.
 
 3. **Repoint the data folder.** `DataFolder` is generated with an absolute path,
    so on any machine but the one that generated it, set it under
@@ -59,12 +56,13 @@ are done; the pages are half an hour of drag-and-drop.
 5. Check any measure against `powerbi_data/dax_parity.csv`. Drop it on a card
    with no filters; it should match the `expected_value` column.
 
-The **Uplift Scenario** what-if parameter Page 5 needs is generated as part of the
-model — you no longer create it by hand. It is a calculated table over
-`GENERATESERIES(0.5, 1.3, 0.05)`. Set the slicer's default to `0.88` when you
-build the page: that value is not arbitrary, as Phase 4 found the DiD estimate
-overshot the simulated truth, so the central case assumes the estimate is
-optimistic.
+The **Uplift Scenario** what-if parameter Page 5 uses is generated as part of the
+model, not created by hand. It is a calculated table over
+`SELECTCOLUMNS ( GENERATESERIES ( 50, 130, 1 ), "Value", DIVIDE ( [Value], 100 ) )`
+— integers stepped by 1 and divided down, rather than a `double` series stepped by
+0.05, which drifts and cannot land on `0.88` exactly. The slicer defaults to
+`0.88`, and that value is not arbitrary: Phase 4 found the DiD estimate overshot
+the simulated truth, so the central case assumes the estimate is optimistic.
 
 ---
 
@@ -186,3 +184,27 @@ give-away — the exact bug Phase 6 shipped and fixed.
   column to check against.
 - Keep the £ format strings the model already carries; do not override with
   percentages on currency measures.
+
+---
+
+## Superseded: the state this was written against (pre-assembly, Phase 8 build)
+
+Kept as the build trail. Everything below describes the repository **before** the
+pages were authored, and is no longer true. It is retained because the reasoning
+was sound at the time and the decision it argued against is the one that was
+eventually taken.
+
+> **Why this is a spec rather than a built report.** A PBIR visual carries both
+> position and query bindings. Authoring thirty of them without being able to open
+> Desktop and look at them is where blind authoring fails hardest — the likely
+> outcome is a file that opens to broken or empty visuals, which is worse in a
+> portfolio than an honest spec. The model and measures are the hard part and they
+> are done; the pages are half an hour of drag-and-drop.
+
+What changed: the pages were authored as PBIR definition files anyway, then opened
+in Desktop 2.155 to find out whether the prediction held. It partly did — the
+first attempt opened to a single blank page, and four separate defects had to be
+found one at a time, each needing another round trip to a Windows machine. Those
+are written up in `reports/phase8_powerbi.md`. The conclusion to draw is not that
+blind authoring is safe, but that it is checkable: 66 visuals now exist and every
+figure on them reconciles against `dax_parity.csv`.

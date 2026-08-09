@@ -217,25 +217,69 @@ The specification includes two things a bare field list would not:
   on real data there is no truth column to check against, so those visuals need
   marking or a reader will take them for a live capability.
 
-## 5. What still needs a human
+## 5. What a human did
 
-1. Open `Northstar.pbip` in Desktop and confirm the model loads. If it does not,
-   the fix is likely in `expressions.tmdl` (the data path) or a type inference in
-   `tmdl.py::infer_types`.
-2. Create the `Uplift Scenario` what-if parameter — it cannot be declared in
-   TMDL, only in Desktop.
-3. Build the five pages from `PAGE_SPEC.md`.
-4. Tick each measure off against `dax_parity.csv`.
-5. Screenshot to `powerbi/screenshots/` for the README.
+Each of these was carried out on a Windows machine running Desktop 2.155.756.0,
+and the results are what the tables above record.
+
+1. Opened `Northstar.pbip` and loaded the model. It did not work first time; the
+   four defects in "What the build exposed" are what stood between the generated
+   project and a model that loads, and each needed its own round trip because
+   Desktop reports only the first failure.
+2. The `Uplift Scenario` what-if parameter is **generated in TMDL**, so nothing
+   was created by hand. An earlier draft of this report claimed it could only be
+   made in Desktop; that was wrong. Desktop's Modeling → New parameter builds a
+   calculated table over `GENERATESERIES` and nothing else, which TMDL expresses
+   directly.
+3. Built the five pages from `PAGE_SPEC.md` as PBIR definition files — 66 visuals
+   under `Northstar.Report/definition/pages/`.
+4. Ticked every measure against `dax_parity.csv`. The parity table above is that
+   pass, including both what-if multipliers.
+5. Screenshotted all five pages to `powerbi/screenshots/`, where the README
+   embeds them.
 
 ---
 
 ## Honest summary
 
-The analytical substance of this phase — a curated decision layer, 41 measures,
+The analytical substance of this phase — a curated decision layer, 45 measures,
 and a machine-checked set of expected values tying the dashboard to the written
-analysis — is done and tested. The assembly is not, and cannot be from here.
+analysis — is done and tested. So is the assembly: five pages, 66 visuals, opened
+and refreshed, every headline figure read off the rendered report and reconciled.
 
-A reviewer should read `measures.dax` and `PAGE_SPEC.md` as the deliverable and
-`dax_parity.csv` as the proof that the numbers behind them are real, while
-treating the `.pbip` as an unopened draft until someone opens it.
+`dax_parity.csv` remains the proof that the numbers are real, and it is worth
+being precise about what it proves. It is computed in pandas, so it pins the
+values; it does not execute DAX, so it cannot show that these expressions return
+them. Only Desktop can, which is why the figures in the parity table above were
+read off the rendered report rather than trusted from the CSV. The gap between
+those two things is the whole reason this phase needed a human at all.
+
+---
+
+## Superseded: the state this was written against (pre-assembly, Phase 8 build)
+
+Kept as the build trail. This was the summary while the semantic model was
+generated but no page had been authored, and it is no longer true.
+
+> The analytical substance of this phase — a curated decision layer, 41 measures,
+> and a machine-checked set of expected values tying the dashboard to the written
+> analysis — is done and tested. The assembly is not, and cannot be from here.
+>
+> A reviewer should read `measures.dax` and `PAGE_SPEC.md` as the deliverable and
+> `dax_parity.csv` as the proof that the numbers behind them are real, while
+> treating the `.pbip` as an unopened draft until someone opens it.
+>
+> **What still needs a human**
+>
+> 1. Open `Northstar.pbip` in Desktop and confirm the model loads.
+> 2. Create the `Uplift Scenario` what-if parameter — it cannot be declared in
+>    TMDL, only in Desktop.
+> 3. Build the five pages from `PAGE_SPEC.md`.
+> 4. Tick each measure off against `dax_parity.csv`.
+> 5. Screenshot to `powerbi/screenshots/` for the README.
+
+Two things in that block were wrong rather than merely out of date, and both are
+worth keeping visible. The measure count was 45, not 41. And item 2 was a factual
+error about TMDL's capabilities, not a scheduling note — the parameter is
+generated, and believing otherwise would have meant a hand-built object that no
+test could reach.

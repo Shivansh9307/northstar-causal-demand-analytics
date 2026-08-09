@@ -23,13 +23,21 @@ import pytest
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
+from powerbi import tmdl  # noqa: E402
 from powerbi.export import output_dir  # noqa: E402
 
 DATA = output_dir()
 README = PROJECT_ROOT / "README.md"
 CASE_STUDY = PROJECT_ROOT / "reports" / "case_study.md"
+PAGE_SPEC = PROJECT_ROOT / "powerbi" / "PAGE_SPEC.md"
+PHASE8 = PROJECT_ROOT / "reports" / "phase8_powerbi.md"
+REPORT_PAGES = PROJECT_ROOT / "powerbi" / "Northstar.Report" / "definition" / "pages"
 
-pytestmark = pytest.mark.skipif(
+# Only the tests that read the exported CSVs need the export. The rest compare
+# committed documents against committed files, and were being skipped in CI for
+# no reason — CI generates the dataset but does not run src/powerbi/export.py,
+# so a module-level skip took the whole file with it.
+needs_export = pytest.mark.skipif(
     not (DATA / "dax_parity.csv").exists(),
     reason="Power BI export not present; run src/powerbi/export.py first.",
 )
@@ -47,6 +55,7 @@ def _text(path: Path) -> str:
 # The numbers
 # ---------------------------------------------------------------------------
 
+@needs_export
 @pytest.mark.parametrize(
     "measure, quoted",
     [
@@ -67,6 +76,7 @@ def test_readme_headline_figures_match_the_parity_table(measure, quoted):
     assert abs(round(expected, len(quoted.split(".")[-1]) if "." in quoted else 0) - numeric) < 1.0
 
 
+@needs_export
 def test_monte_carlo_range_is_quoted_consistently():
     """
     The £337 plan figure and the negative median must always appear together.
@@ -84,6 +94,7 @@ def test_monte_carlo_range_is_quoted_consistently():
     assert parity["Probability of Loss %"] == pytest.approx(74.2, abs=0.1)
 
 
+@needs_export
 def test_service_levels_quoted_match_the_export():
     levels = pd.read_csv(DATA / "service_levels.csv").set_index("category")
     fresh = levels.loc["Fresh Produce", "median_service_level"] * 100
@@ -92,6 +103,7 @@ def test_service_levels_quoted_match_the_export():
         assert "52%" in _text(document), "the Fresh Produce finding is the memorable one"
 
 
+@needs_export
 def test_plan_size_matches_the_optimiser_output():
     plan = pd.read_csv(DATA / "promo_plan.csv")
     assert len(plan) == 10
@@ -168,3 +180,88 @@ def test_readme_stays_a_five_minute_read():
     """
     words = len(re.findall(r"\S+", _text(README)))
     assert words < 1700, f"README is {words} words — past a five-minute read"
+
+
+# ---------------------------------------------------------------------------
+# The build state
+# ---------------------------------------------------------------------------
+
+SUPERSEDED_HEADING = "## Superseded:"
+
+# Phrases that were true while the report was a scaffold and are false now.
+# Each one, left in the live text, tells a reader to produce something the
+# repository already contains.
+STALE_BUILD_INSTRUCTIONS = [
+    "Build the five pages",
+    "cannot be declared in TMDL",
+    "unopened draft",
+    "already\nnamed and empty",
+    "present and empty",
+    "still needs a human",
+    "rather than a built report",
+]
+
+
+def _live_text(path: Path) -> str:
+    """The document above its superseded block, which is history, not instruction."""
+    return _text(path).split(SUPERSEDED_HEADING, 1)[0]
+
+
+def _built_pages() -> list[str]:
+    return sorted(p.name for p in REPORT_PAGES.iterdir() if p.is_dir())
+
+
+@pytest.mark.parametrize("document", [PAGE_SPEC, PHASE8], ids=lambda p: p.name)
+def test_no_document_asks_for_work_the_repo_already_contains(document):
+    """
+    Both documents once described a report that had not been assembled, and both
+    kept saying so after 66 visuals landed. A reader following either would have
+    rebuilt five finished pages, and the second-order cost is worse: a document
+    that is wrong about the thing it is nearest to stops being worth trusting on
+    anything else.
+
+    Superseded blocks are exempt by design. The build trail is worth keeping;
+    what must not survive is an instruction presented as current.
+    """
+    live = _live_text(document)
+    found = [phrase for phrase in STALE_BUILD_INSTRUCTIONS if phrase in live]
+    assert not found, (
+        f"{document.name} still instructs work the repo already contains: {found}. "
+        f"Move it under '{SUPERSEDED_HEADING}' if it is build history."
+    )
+
+
+@pytest.mark.parametrize("document", [PAGE_SPEC, PHASE8], ids=lambda p: p.name)
+def test_documents_claim_the_page_and_visual_counts_that_exist(document):
+    """
+    The counts are the load-bearing part of the claim "these pages are built".
+    Prose saying five pages and 66 visuals is only worth anything if the
+    definition folder still holds five pages and 66 visuals.
+    """
+    pages = _built_pages()
+    visuals = list(REPORT_PAGES.rglob("visual.json"))
+    live = _live_text(document)
+
+    assert len(pages) == 5, f"expected 5 page directories, found {pages}"
+    assert str(len(visuals)) in live, (
+        f"{document.name} does not state the visual count; the repo has {len(visuals)}"
+    )
+    assert "five pages" in live or "all five" in live, (
+        f"{document.name} no longer claims the five pages that exist"
+    )
+
+
+def test_measure_count_in_prose_matches_the_library():
+    """
+    Three documents quoted three different numbers, none of which was 45. A
+    count is the cheapest possible claim to check and the easiest to leave
+    behind when measures are added.
+    """
+    actual = len(tmdl.parse_measures(PROJECT_ROOT / "powerbi" / "measures.dax"))
+    for document in (PAGE_SPEC, PHASE8):
+        quoted = re.findall(r"(\d+)\s+measures", _live_text(document))
+        assert quoted, f"{document.name} no longer states a measure count"
+        for number in quoted:
+            assert int(number) == actual, (
+                f"{document.name} claims {number} measures; measures.dax defines {actual}"
+            )
