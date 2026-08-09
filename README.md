@@ -191,4 +191,14 @@ They are not redistributed here, and those tests skip cleanly without them.
 
 ---
 
+## How this was built
+
+Implementation used Claude Code. The architecture, methodology and validation strategy are mine —
+the phase structure, the decision to generate synthetic data with recoverable ground truth, and
+what each estimate is validated against. Insisting the Power BI model be opened in Desktop rather
+than trusted as generated surfaced four defects no test had caught; they are written up in
+[reports/phase8_powerbi.md](reports/phase8_powerbi.md).
+
+---
+
 Licensed under the [MIT License](LICENSE).
