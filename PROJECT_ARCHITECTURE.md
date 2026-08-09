@@ -2,26 +2,25 @@
 
 **Repo name:** `northstar-causal-demand-analytics`
 **Owner:** Shivansh Chauhan
-**Purpose:** Flagship portfolio project demonstrating statistical analysis, regression, causal inference, machine learning, and prescriptive optimization for a UK multi-store retailer — built to be read closely by a Fortune 500 hiring manager screening for a Data Analyst / BI Analyst role.
+**Scope:** Statistical analysis, regression, causal inference, machine learning and prescriptive optimization for a UK multi-store retailer.
 
 This document is the **architecture plan**. Read it in full before writing any code, confirm the build order, and work phase by phase rather than attempting the whole repo in one pass.
 
 ---
 
-## 1. Why This Project Exists (hiring-manager lens)
+## 1. Purpose
 
-Most "data analyst portfolio" repos fail for the same three reasons:
+Northstar Retail Group is a fictional UK grocery chain that promotes constantly and cannot say what those promotions earn. The project answers that question end to end: data generation, regression, causal estimation, forecasting, prescriptive optimization, and a BI layer that carries the answer to whoever has to act on it.
 
-1. **They stop at prediction.** A forecast with an R² score doesn't tell a hiring manager you can make a decision — it tells them you can call `.fit()`.
-2. **They confuse correlation with causation.** "Sales went up during the promotion" is not the same claim as "the promotion caused sales to go up," and most portfolios don't know the difference.
-3. **They're generic.** Titanic, Iris, a Kaggle churn set with an XGBoost model and a confusion matrix — a hiring manager has seen this exact repo two hundred times this year.
+Four design decisions shape everything downstream.
 
-This project is designed to avoid all three. It:
+**The dataset is synthetic and records its own ground truth.** On real retail data a causal estimate can only be judged on whether it looks plausible, because the true effect is never observed. Here the generator writes down the effect it applied, so every estimate has a computable recovery error against a known answer. That is the reason for building the data rather than downloading it.
 
-- Uses a **synthetic dataset with known ground truth**, so causal and forecasting claims can be validated against the actual simulated answer — not just judged by "does the number look reasonable."
-- Goes **predictive → prescriptive**: the final output isn't a forecast, it's a promotion budget allocation and reorder-point recommendation with a profit range attached.
-- Is **cross-validated against real public retail data** (Rossmann Store Sales), so the methodology isn't only proven to work on data built to be solvable.
-- Ends in a **Power BI decision layer**, not just a Jupyter notebook — because that combination (rigorous Python-side causal inference + a polished BI front end) is rare and plays directly to your existing strengths.
+**The output is prescriptive, not predictive.** The final artifact is a promotion allocation and a set of reorder points with a profit range attached, not a forecast with an accuracy score. A forecast does not say what to do with itself.
+
+**The method is re-run against real data.** A generator and an estimator written by the same person can quietly share an assumption. Phase 7 puts the pipeline in front of Rossmann Store Sales, which was not built to satisfy anything.
+
+**The result lands in Power BI.** A recommendation that exists only in a notebook does not reach the person who makes the decision it describes.
 
 ---
 
@@ -29,7 +28,7 @@ This project is designed to avoid all three. It:
 
 > **Northstar Retail Group runs promotions across 60 stores and 500 SKUs, but nobody can confidently say which promotions actually drove incremental profit versus which ones would have sold anyway — and stockouts during promotions are quietly destroying the upside. Which products and stores should receive promotional investment next quarter, and how should replenishment be adjusted to avoid losing the sales the promotion was meant to capture?**
 
-Every phase of this project answers a piece of that question. If a piece of analysis doesn't move you closer to answering it, it doesn't belong in the flagship repo.
+Every phase of this project answers a piece of that question. If a piece of analysis doesn't move you closer to answering it, it doesn't belong in this repo.
 
 ---
 
@@ -39,24 +38,24 @@ Every phase of this project answers a piece of that question. If a piece of anal
 
 Use the `generate_retail_dataset.py` specification already drafted (Northstar Retail Group, 60 stores / 500 SKUs / 3 years in `FULL_MODE=True`, reduced 20/150/2yr in dev mode). Key non-negotiables carried over from that spec:
 
-- Promotion assignment is **deliberately biased** (weakening sales, high margin, high footfall, seasonal clustering) — never randomly assigned. This is what makes the causal inference phase meaningful.
+- Promotion assignment is **deliberately biased** toward weakening sales, high margin, high footfall and seasonal clustering. It is never randomly assigned. This bias is the whole reason the causal inference phase has anything to correct.
 - Staggered store rollouts are included specifically to enable difference-in-differences.
-- Stockouts censor observed sales; `potential_demand_units` (uncensored latent demand) is generated but must **never** be used as a model feature.
+- Stockouts censor observed sales. `potential_demand_units` holds the uncensored latent demand and must **never** be used as a model feature.
 - `ground_truth_simulation_parameters.csv` holds the true elasticity, true promo uplift, true cannibalisation factor, etc. This file is a **validation-only** artifact. Any pipeline step that touches it for training must fail a leakage check (see §7).
 - Seed fixed at 42 throughout for reproducibility.
-- Automated data-quality checks (no negative inventory, no duplicate keys, discount range 0–30%, unit cost < price, inventory reconciliation identity holds, etc.) must all pass before EDA begins, and their output should be printed and saved to `reports/data_quality_report.md`.
+- Automated data-quality checks must all pass before EDA begins: no negative inventory, no duplicate keys, discount range 0–30%, unit cost below price, the inventory reconciliation identity holding, and so on. Print their output and save it to `reports/data_quality_report.md`.
 
 ### 3.2 Secondary dataset — real data for external validation (build later, Phase 7)
 
-**Rossmann Store Sales** (Kaggle) — real daily store-level sales, promotions, holidays, competitor distance. Used only to re-run the **elasticity regression and demand forecasting pipeline** (not the full causal/optimization stack, since Rossmann lacks the staggered-rollout structure) against real-world data, to demonstrate the method isn't just solving a puzzle you built yourself.
+**Rossmann Store Sales** (Kaggle) — real daily store-level sales, promotions, holidays, competitor distance. Used only to re-run the **elasticity regression and demand forecasting pipeline** (not the full causal/optimization stack, since Rossmann lacks the staggered-rollout structure) against real-world data.
 
-This phase is what lets your README say, credibly: *"the same feature engineering and model architecture were validated on an independent real-world dataset."* That sentence is worth more than another 10% of model accuracy.
+The point of the exercise is that synthetic data can flatter a method. When the same person writes the generator and the estimator, an assumption shared by both is invisible: the pipeline recovers the answer because both halves agree on how the world works, not because the method is sound. Running it against data nobody shaped for the purpose is what separates those two cases. It also establishes which findings depend on the simulation and which survive contact with a real dataset.
 
 ---
 
-## 4. Method Stack (mapped explicitly to target JD language)
+## 4. Method Stack
 
-| JD skill | Where it shows up |
+| Capability | Where it shows up |
 |---|---|
 | Statistical analysis | EDA, hypothesis testing (promo effect significance, seasonal ANOVA), distribution diagnostics, VIF/multicollinearity checks |
 | Regression | OLS log-log elasticity regression, Poisson/Negative Binomial regression for count demand, logistic regression for stockout risk, DiD as a regression specification |
@@ -123,16 +122,16 @@ Log-log OLS elasticity regression by price-elasticity segment. Poisson/Negative 
 1. Compute the **naive** promotion effect (simple before/after or treated/untreated comparison) and show it's biased.
 2. Correct it with **difference-in-differences** using the staggered rollout stores.
 3. Cross-check with **propensity score matching / IPW** to adjust for the deliberate assignment bias built into Phase 1's data.
-4. **Validate**: compare your recovered treatment effect against `true_promo_uplift_pct` in the ground truth file and report the recovery error explicitly, e.g. *"DiD estimate: 14.2% uplift vs true simulated uplift: 15.0% (0.8pp error, 95% CI covers true value)."* This single comparison is the strongest artifact in the whole repo — it proves the method works, not just that it produces a plausible-looking number.
+4. **Validate**: compare your recovered treatment effect against `true_promo_uplift_pct` in the ground truth file and report the recovery error explicitly, e.g. *"DiD estimate: 14.2% uplift vs true simulated uplift: 15.0% (0.8pp error, 95% CI covers true value)."* This comparison is what confirms the method is recovering something real, rather than producing a plausible-looking number that happens to fit the noise.
 
 **Phase 5 — Machine Learning Demand Forecasting**
-Seasonal-naive baseline → regularized regression (Ridge/Lasso) on leakage-safe features → gradient boosted forecast (LightGBM/XGBoost) with **time-based** cross-validation (never randomly shuffled). Separate stockout-risk classifier with precision/recall reported given class imbalance (stockouts are rare events — accuracy is a meaningless metric here). SHAP importance, cross-checked for consistency against the Phase 3 elasticity findings.
+Seasonal-naive baseline → regularized regression (Ridge/Lasso) on leakage-safe features → gradient boosted forecast (LightGBM/XGBoost) with **time-based** cross-validation (never randomly shuffled). Separate stockout-risk classifier with precision/recall reported given class imbalance (stockouts are rare events, so accuracy is a meaningless metric here). SHAP importance, cross-checked for consistency against the Phase 3 elasticity findings.
 
 **Phase 6 — Prescriptive Optimization**
 Reorder point / safety stock optimization using forecast uncertainty, not just the point forecast. Promotion budget allocation formulated as an LP/ILP (maximize incremental profit subject to budget and inventory constraints, using PuLP or similar). Monte Carlo simulation to express the recommendation as a profit **range**, not a single number.
 
 **Phase 7 — External Validity Check**
-Re-run the elasticity regression and demand forecasting pipeline (same code path, swapped data loader) against Rossmann Store Sales. Report honestly where the method held up and where it didn't — that honesty is itself a signal of seniority.
+Re-run the elasticity regression and demand forecasting pipeline (same code path, swapped data loader) against Rossmann Store Sales. Report where the method held up and where it didn't. A pipeline that performs identically on synthetic and real data would be unusual and worth checking rather than assuming it's simply correct.
 
 **Phase 8 — Power BI Decision Layer**
 PBIP/TMDL semantic model. Pages: Executive Summary, Promotion ROI (naive vs causal-corrected side by side), Elasticity Explorer, Stockout Risk & Replenishment, What-If Promotion Simulator (driven by Phase 6 optimization output). DAX measures should reproduce the Python-calculated figures as a parity check.
@@ -145,14 +144,14 @@ Tests, basic CI (lint + test on push), pinned dependencies, `.gitignore` for lar
 
 ---
 
-## 7. Non-Negotiable Rules (statistical maturity signals)
+## 7. Modelling Standards
 
-- **Never** let `potential_demand_units` or any `ground_truth_simulation_parameters.csv` column enter a model's feature set. Build an automated leakage checker in `src/data_quality/` that fails the pipeline if it detects this.
-- **Always** report the naive/biased estimate next to the corrected causal estimate — showing you know the difference is worth more than the corrected number alone.
-- **Always** report confidence intervals or uncertainty ranges. A point estimate with no uncertainty reads as junior.
-- **Time-based** train/test splits only for anything sequential. Random shuffling on time series data is an instant credibility loss with a technical reviewer.
-- Report **business-relevant** metrics (MAPE, £ profit impact, stockout-driven lost sales) alongside — not instead of — standard ML metrics. Accuracy alone means nothing to a commercial stakeholder.
-- The README must contain an explicit **"What I would not claim"** section — e.g., stating clearly that the DiD design assumes parallel trends and naming what could violate it. This is the single highest-leverage sentence type for signalling seniority to an experienced reviewer.
+- **Never** let `potential_demand_units` or any `ground_truth_simulation_parameters.csv` column enter a model's feature set. Training on the latent demand the simulation generated makes the validation circular: the model is scored against a quantity it was handed. The failure is also silent, because every metric improves and nothing looks wrong, while the recovery error quietly stops testing anything at all. Build an automated leakage checker in `src/data_quality/` that fails the pipeline rather than warning.
+- **Always** report the naive or biased estimate next to the corrected causal one. A corrected number on its own gives a reader no way to tell whether the correction changed anything, and the size of the gap between them is itself a result.
+- **Always** report confidence intervals or uncertainty ranges. An estimate of 15% with an interval of ±2pp supports a decision that the same 15% with ±30pp does not, and a bare point estimate hides which of the two you are holding.
+- Use **time-based** train/test splits for anything sequential. Random shuffling scatters rows from the test period into training, so the holdout score measures partial memorisation of the window it was supposed to hold out. What you get is a model that validates well and degrades on arrival.
+- Report **business-relevant** metrics (MAPE, £ profit impact, stockout-driven lost sales) alongside, not instead of, the standard ML metrics. An accuracy figure does not convert into a reorder quantity or a promotional budget, so on its own there is nothing to act on.
+- The README must contain an explicit **"What I would not claim"** section, naming the assumptions whose violation would change the conclusions. DiD assumes parallel trends, so state that and state what could break it. Without that section a reader cannot separate the results that are conditional from the ones that hold regardless.
 
 ---
 
@@ -174,8 +173,8 @@ Tests, basic CI (lint + test on push), pinned dependencies, `.gitignore` for lar
 
 ## 9. Build Discipline
 
-- Work through the phases **in order**. Do not attempt to generate the full `FULL_MODE=True` dataset (~30M rows) until the entire pipeline has been proven correct in dev mode on the smaller synthetic dataset — this avoids burning time regenerating a huge dataset after finding a bug in Phase 4 or 5.
+- Work through the phases **in order**. Do not attempt to generate the full `FULL_MODE=True` dataset (~30M rows) until the entire pipeline has been proven correct in dev mode on the smaller synthetic dataset. Regenerating a dataset that size after finding a Phase 4 or Phase 5 bug costs hours that dev mode would have saved.
 - Weigh non-trivial dependencies (EconML, DoWhy, PuLP, LightGBM/XGBoost, great_expectations, etc.) before adding them rather than pulling them in by reflex.
-- Commit at the end of each phase with a clear message, so the repo history itself tells the story of the build (useful for a hiring manager who checks commit history).
-- If a phase's output contradicts the ground truth in a way that can't be explained (e.g., DiD recovery error is large), stop and flag it rather than silently adjusting the model until numbers look right — that would defeat the entire point of the validation design.
-- Ask before scope-creeping in extras (e.g., double/debiased ML via EconML) — they're valuable stretch goals but the core Definition of Done in §8 is the actual bar for "flagship" status.
+- Commit at the end of each phase with a message describing what changed and why, so the history reflects the actual build order rather than one squashed commit at the end.
+- If a phase's output contradicts the ground truth in a way that can't be explained (e.g., DiD recovery error is large), stop and flag it rather than silently adjusting the model until numbers look right. Tuning until the answer matches defeats the entire point of the validation design.
+- Ask before scope-creeping in extras (e.g., double/debiased ML via EconML). They're valuable stretch goals, but the Definition of Done in §8 is the bar.
