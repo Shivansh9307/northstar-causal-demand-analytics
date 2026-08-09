@@ -131,7 +131,9 @@ def test_deeper_discounts_need_more_uplift_to_break_even(simple_inputs):
     """At a fixed uplift, profit must fall as the discount deepens."""
     pairs, category_baseline = simple_inputs
     curve = {"Medium": {depth: float(np.log(1.5)) for depth in promo_lp.DISCOUNT_DEPTHS}}
-    candidates = promo_lp.build_candidates(pairs, curve, category_baseline).sort_values("discount_pct")
+    candidates = promo_lp.build_candidates(
+        pairs, curve, category_baseline
+    ).sort_values("discount_pct")
     assert candidates["incremental_profit"].is_monotonic_decreasing
 
 
@@ -211,7 +213,12 @@ def test_at_most_one_depth_per_store_sku(many_candidates):
 
 
 def test_store_category_cap_is_enforced(many_candidates):
-    solution = promo_lp.solve(many_candidates, budget=100_000.0, max_per_store_category=2, time_limit_seconds=SOLVE_LIMIT)
+    solution = promo_lp.solve(
+        many_candidates,
+        budget=100_000.0,
+        max_per_store_category=2,
+        time_limit_seconds=SOLVE_LIMIT,
+    )
     counts = solution["plan"].groupby(["store_id", "category"]).size()
     assert (counts <= 2).all()
 
@@ -241,7 +248,9 @@ def test_simulation_produces_a_distribution(many_candidates):
 def test_summary_percentiles_are_ordered(many_candidates):
     plan = promo_lp.solve(many_candidates, budget=5000.0, time_limit_seconds=SOLVE_LIMIT)["plan"]
     draws = monte_carlo.simulate_plan(plan, n_draws=600, seed=1)
-    summary = monte_carlo.summarise(draws, deterministic_profit=float(plan["incremental_profit"].sum()))
+    summary = monte_carlo.summarise(
+        draws, deterministic_profit=float(plan["incremental_profit"].sum())
+    )
     assert summary["p10"] <= summary["p50"] <= summary["p90"]
 
 

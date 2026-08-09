@@ -1,0 +1,100 @@
+promotion_id,campaign_id,campaign_wave_days,store_id,sku_id,promo_start_date,promo_end_date,promo_type,discount_pct,display_support_flag,email_or_app_support_flag,leaflet_support_flag,campaign_theme,promotion_cost_gbp,vendor_funded_pct,promotion_planned_flag
+PRM0000191,CMP00017,21,STR002,SKU0004,2024-01-22,2024-01-31,Display-only,0,True,False,False,Everyday Value,5.0,60.0,True
+PRM0000196,CMP00017,42,STR001,SKU0004,2024-02-12,2024-02-15,Display-only,0,True,False,False,Everyday Value,5.0,50.0,True
+PRM0000331,CMP00031,21,STR002,SKU0001,2023-10-28,2023-11-09,Percent Off,20,True,False,False,Payday Offers,28.14,75.0,True
+PRM0000339,CMP00031,42,STR001,SKU0001,2023-11-18,2023-11-22,Percent Off,20,False,False,False,Everyday Value,11.61,40.0,True
+PRM0000497,CMP00046,21,STR002,SKU0001,2023-12-30,2024-01-11,Clubcard-style Price,10,True,False,False,Festive Favourites,13.67,40.0,True
+PRM0000498,CMP00046,42,STR001,SKU0001,2024-01-20,2024-01-31,Clubcard-style Price,10,False,True,True,Everyday Value,11.02,75.0,True
+PRM0000718,CMP00065,21,STR002,SKU0004,2024-11-23,2024-12-03,Multi-buy,20,False,False,False,Everyday Value,69.41,40.0,True
+PRM0000725,CMP00065,42,STR001,SKU0004,2024-12-14,2024-12-26,Multi-buy,30,False,False,False,Festive Favourites,219.87,0.0,True
+PRM0001252,CMP00111,42,STR001,SKU0002,2024-06-09,2024-06-21,Percent Off,5,False,False,False,Everyday Value,6.94,25.0,True
+PRM0001303,CMP00116,42,STR001,SKU0004,2024-10-07,2024-10-16,Display-only,0,True,False,False,Everyday Value,5.0,75.0,True
+PRM0001352,CMP00121,21,STR002,SKU0001,2024-07-07,2024-07-20,Multi-buy,25,False,True,False,Everyday Value,34.83,75.0,True
+PRM0001520,CMP00137,21,STR002,SKU0003,2024-04-15,2024-04-25,Clubcard-style Price,10,True,False,False,Everyday Value,8.1,60.0,True
+PRM0001816,CMP00162,21,STR002,SKU0001,2024-01-02,2024-01-05,Percent Off,20,False,False,False,Festive Favourites,8.97,60.0,True
+PRM0001822,CMP00162,42,STR001,SKU0001,2024-01-23,2024-01-28,Clubcard-style Price,10,False,False,False,Everyday Value,9.27,0.0,True
+PRM0001987,CMP00180,21,STR002,SKU0005,2023-05-18,2023-05-22,Display-only,0,True,True,False,Everyday Value,5.0,0.0,True
+PRM0001990,CMP00180,42,STR001,SKU0005,2023-06-08,2023-06-10,Percent Off,30,False,False,False,Everyday Value,6.55,75.0,True
+PRM0002124,CMP00191,21,STR002,SKU0004,2023-09-08,2023-09-21,Clubcard-style Price,20,False,False,False,Everyday Value,84.84,0.0,True
+PRM0002608,CMP00237,21,STR002,SKU0004,2024-01-09,2024-01-17,Percent Off,30,False,False,False,Everyday Value,92.91,75.0,True
+PRM0002610,CMP00237,42,STR001,SKU0004,2024-01-30,2024-02-12,Multi-buy,20,False,False,False,Payday Offers,83.13,40.0,True
+PRM0002773,CMP00252,21,STR002,SKU0004,2023-02-13,2023-02-16,Clubcard-style Price,20,True,False,False,Everyday Value,23.51,25.0,True
+PRM0003178,CMP00293,42,STR001,SKU0001,2024-11-18,2024-11-30,Percent Off,10,True,True,False,Everyday Value,22.59,25.0,True
+PRM0003343,CMP00307,21,STR002,SKU0001,2023-09-11,2023-09-18,Multi-buy,5,False,False,False,Everyday Value,5.64,25.0,True
+PRM0003348,CMP00307,42,STR001,SKU0001,2023-10-02,2023-10-05,Percent Off,30,False,False,False,Payday Offers,16.56,0.0,True
+PRM0003415,CMP00313,21,STR002,SKU0002,2023-04-19,2023-04-23,Percent Off,5,False,False,False,Easter Treats,5.0,0.0,True
+PRM0003424,CMP00313,42,STR001,SKU0002,2023-05-10,2023-05-16,Bundle,25,False,False,False,Everyday Value,20.77,50.0,True
+PRM0004619,CMP00422,42,STR001,SKU0004,2024-02-22,2024-03-02,Display-only,0,True,True,False,Everyday Value,5.0,60.0,True
+PRM0005390,CMP00491,21,STR002,SKU0003,2024-08-08,2024-08-17,Display-only,0,True,True,False,Everyday Value,5.0,50.0,True
+PRM0006143,CMP00557,42,STR001,SKU0005,2024-05-07,2024-05-09,Percent Off,10,False,False,False,Everyday Value,5.0,0.0,True
+PRM0006526,CMP00592,42,STR001,SKU0001,2024-11-14,2024-11-25,Percent Off,20,True,True,False,Everyday Value,45.79,25.0,True
+PRM0006634,CMP00603,42,STR001,SKU0003,2023-09-06,2023-09-19,Percent Off,25,True,False,False,Everyday Value,30.86,25.0,True
+PRM0006917,CMP00631,21,STR002,SKU0005,2023-08-30,2023-09-03,Multi-buy,30,False,False,False,Payday Offers,6.12,0.0,True
+PRM0006924,CMP00631,42,STR001,SKU0005,2023-09-20,2023-10-02,Percent Off,5,False,True,False,Everyday Value,5.0,40.0,True
+PRM0007094,CMP00649,21,STR002,SKU0004,2024-09-21,2024-09-23,Percent Off,10,True,True,True,Everyday Value,11.44,50.0,True
+PRM0007099,CMP00649,42,STR001,SKU0004,2024-10-12,2024-10-17,Display-only,0,True,False,True,Everyday Value,5.0,0.0,True
+PRM0007203,CMP00657,21,STR002,SKU0003,2024-10-23,2024-10-28,Percent Off,25,False,False,False,Everyday Value,7.2,60.0,True
+PRM0007206,CMP00657,42,STR001,SKU0003,2024-11-13,2024-11-23,Percent Off,10,False,False,True,Everyday Value,7.6,25.0,True
+PRM0008282,CMP00750,21,STR002,SKU0002,2024-01-19,2024-01-27,Percent Off,30,False,True,False,Everyday Value,36.01,0.0,True
+PRM0008285,CMP00750,42,STR001,SKU0002,2024-02-09,2024-02-12,Percent Off,25,False,False,False,Everyday Value,9.64,0.0,True
+PRM0008710,CMP00788,42,STR001,SKU0004,2024-07-06,2024-07-18,Percent Off,5,True,False,False,Everyday Value,20.65,50.0,True
+PRM0008878,CMP00801,42,STR001,SKU0005,2023-05-14,2023-05-19,Percent Off,10,True,False,False,Everyday Value,5.0,25.0,True
+PRM0009071,CMP00821,21,STR002,SKU0003,2024-02-01,2024-02-06,Percent Off,5,True,False,True,Payday Offers,5.0,50.0,True
+PRM0009078,CMP00821,42,STR001,SKU0003,2024-02-22,2024-02-27,Multi-buy,10,False,False,False,Everyday Value,5.0,50.0,True
+PRM0009564,CMP00867,21,STR002,SKU0005,2023-03-18,2023-03-30,Display-only,0,True,False,False,Everyday Value,5.0,75.0,True
+PRM0009575,CMP00867,42,STR001,SKU0005,2023-04-08,2023-04-15,Bundle,5,False,True,False,Easter Treats,5.0,60.0,True
+PRM0009606,CMP00870,21,STR002,SKU0005,2024-12-11,2024-12-19,Percent Off,20,True,True,False,Festive Favourites,7.52,25.0,True
+PRM0009690,CMP00879,21,STR002,SKU0001,2023-05-03,2023-05-08,Percent Off,10,False,False,False,Payday Offers,7.34,25.0,True
+PRM0009699,CMP00879,42,STR001,SKU0001,2023-05-24,2023-05-29,Clubcard-style Price,30,True,False,False,Everyday Value,21.2,75.0,True
+PRM0009805,CMP00891,42,STR001,SKU0001,2024-05-07,2024-05-13,Bundle,20,True,False,False,Everyday Value,20.28,50.0,True
+PRM0010160,CMP00924,21,STR002,SKU0005,2023-08-05,2023-08-09,Percent Off,20,False,False,False,Everyday Value,5.0,25.0,True
+PRM0010163,CMP00924,42,STR001,SKU0005,2023-08-26,2023-08-29,Percent Off,10,False,False,False,Payday Offers,5.0,0.0,True
+PRM0010445,CMP00949,42,STR001,SKU0002,2024-01-23,2024-01-25,Percent Off,5,True,False,False,Everyday Value,5.0,50.0,True
+PRM0011320,CMP01026,21,STR002,SKU0004,2023-04-28,2023-05-03,Bundle,15,False,False,False,Payday Offers,26.44,75.0,True
+PRM0011325,CMP01026,42,STR001,SKU0004,2023-05-19,2023-05-27,Clubcard-style Price,20,False,False,False,Everyday Value,59.98,0.0,True
+PRM0011457,CMP01036,42,STR001,SKU0005,2023-05-30,2023-06-12,Percent Off,30,False,False,False,Payday Offers,24.62,25.0,True
+PRM0011672,CMP01053,21,STR002,SKU0005,2023-05-14,2023-05-18,Percent Off,10,True,False,False,Everyday Value,5.0,60.0,True
+PRM0011677,CMP01053,42,STR001,SKU0005,2023-06-04,2023-06-06,Percent Off,10,False,False,False,Everyday Value,5.0,25.0,True
+PRM0011814,CMP01066,21,STR002,SKU0002,2024-06-09,2024-06-13,Percent Off,15,False,False,True,Everyday Value,7.76,75.0,True
+PRM0011916,CMP01076,21,STR002,SKU0001,2023-08-11,2023-08-21,Percent Off,5,True,False,True,Everyday Value,5.58,25.0,True
+PRM0011920,CMP01076,42,STR001,SKU0001,2023-09-01,2023-09-05,Bundle,15,False,False,False,Payday Offers,7.7,40.0,True
+PRM0012951,CMP01170,21,STR002,SKU0001,2024-01-13,2024-01-19,Clubcard-style Price,15,True,True,True,Everyday Value,14.55,25.0,True
+PRM0013045,CMP01179,42,STR001,SKU0001,2024-10-08,2024-10-21,Display-only,0,True,False,False,Everyday Value,5.0,40.0,True
+PRM0013064,CMP01181,42,STR001,SKU0005,2024-02-03,2024-02-13,Percent Off,10,False,False,False,Payday Offers,7.68,25.0,True
+PRM0013149,CMP01188,21,STR002,SKU0003,2024-01-03,2024-01-09,Bundle,10,False,False,False,Payday Offers,5.0,40.0,True
+PRM0013155,CMP01188,42,STR001,SKU0003,2024-01-24,2024-02-04,Display-only,0,True,False,False,Everyday Value,5.0,60.0,True
+PRM0013197,CMP01192,21,STR002,SKU0004,2023-11-24,2023-11-29,Percent Off,5,False,False,False,Everyday Value,9.71,40.0,True
+PRM0013207,CMP01192,42,STR001,SKU0004,2023-12-15,2023-12-25,Percent Off,20,False,True,True,Festive Favourites,67.68,75.0,True
+PRM0013324,CMP01201,42,STR001,SKU0002,2023-08-13,2023-08-21,Percent Off,15,True,False,False,Everyday Value,14.84,60.0,True
+PRM0013385,CMP01205,21,STR002,SKU0005,2024-10-20,2024-10-24,Display-only,0,True,False,True,Everyday Value,5.0,25.0,True
+PRM0014618,,0,STR002,SKU0001,2023-12-22,2023-12-25,Percent Off,20,False,False,True,Festive Favourites,6.08,75.0,False
+PRM0015857,,0,STR002,SKU0003,2024-01-01,2024-01-10,Display-only,0,True,True,False,Festive Favourites,5.0,40.0,False
+PRM0015929,,0,STR002,SKU0001,2024-11-07,2024-11-20,Clubcard-style Price,20,False,False,False,Everyday Value,43.08,25.0,False
+PRM0016555,,0,STR001,SKU0005,2024-12-28,2024-12-31,Clubcard-style Price,20,False,False,False,Festive Favourites,14.11,60.0,False
+PRM0016816,,0,STR002,SKU0002,2024-04-05,2024-04-09,Percent Off,25,True,True,False,Easter Treats,14.83,60.0,False
+PRM0017092,,0,STR002,SKU0004,2023-12-18,2023-12-24,Multi-buy,5,False,False,True,Festive Favourites,11.86,75.0,False
+PRM0017244,,0,STR002,SKU0001,2023-05-26,2023-05-29,Percent Off,30,False,True,False,Payday Offers,15.5,75.0,False
+PRM0017361,,0,STR001,SKU0001,2024-12-20,2024-12-31,Percent Off,25,True,False,True,Festive Favourites,33.33,75.0,False
+PRM0017487,,0,STR001,SKU0002,2023-11-11,2023-11-17,Multi-buy,10,True,False,False,Everyday Value,6.91,0.0,False
+PRM0018355,,0,STR001,SKU0001,2024-02-05,2024-02-11,Bundle,25,True,False,False,Everyday Value,22.75,0.0,False
+PRM0018624,,0,STR001,SKU0002,2024-10-15,2024-10-22,Percent Off,20,False,False,False,Everyday Value,27.52,25.0,False
+PRM0018902,,0,STR002,SKU0001,2024-11-10,2024-11-23,Percent Off,30,True,False,True,Everyday Value,53.37,50.0,False
+PRM0020115,,0,STR002,SKU0002,2024-09-28,2024-09-30,Clubcard-style Price,30,False,False,True,Payday Offers,8.58,25.0,False
+PRM0020129,,0,STR001,SKU0003,2023-02-19,2023-02-21,Percent Off,5,False,False,False,Everyday Value,5.0,0.0,False
+PRM0020269,,0,STR001,SKU0002,2023-09-01,2023-09-11,Multi-buy,15,False,False,False,Payday Offers,27.55,75.0,False
+PRM0020540,,0,STR001,SKU0003,2024-12-14,2024-12-18,Display-only,0,True,False,False,Festive Favourites,5.0,75.0,False
+PRM0020869,,0,STR001,SKU0002,2024-09-01,2024-09-04,Bundle,5,False,False,False,Payday Offers,5.0,40.0,False
+PRM0020880,,0,STR001,SKU0001,2023-04-08,2023-04-13,Percent Off,30,False,True,False,Easter Treats,37.49,60.0,False
+PRM0020981,,0,STR002,SKU0004,2024-10-30,2024-11-10,Bundle,5,True,False,True,Payday Offers,14.97,25.0,False
+PRM0021403,,0,STR001,SKU0002,2023-07-29,2023-08-10,Percent Off,5,False,False,False,Payday Offers,6.98,75.0,False
+PRM0021540,,0,STR002,SKU0003,2024-09-28,2024-10-11,Percent Off,30,True,True,False,Payday Offers,20.91,50.0,False
+PRM0021666,,0,STR002,SKU0005,2023-12-21,2023-12-23,Percent Off,30,False,False,True,Festive Favourites,5.2,0.0,False
+PRM0021744,,0,STR001,SKU0004,2023-04-11,2023-04-18,Display-only,0,True,True,False,Easter Treats,5.0,75.0,False
+PRM0021749,,0,STR002,SKU0005,2024-08-06,2024-08-15,Clubcard-style Price,15,True,False,False,Everyday Value,8.6,25.0,False
+PRM0021855,,0,STR001,SKU0003,2023-05-19,2023-05-27,Percent Off,30,False,False,False,Everyday Value,9.88,25.0,False
+PRM0022610,,0,STR002,SKU0004,2024-12-15,2024-12-18,Multi-buy,10,True,False,False,Festive Favourites,8.2,0.0,False
+PRM0022647,,0,STR001,SKU0003,2023-04-02,2023-04-15,Multi-buy,10,False,True,True,Easter Treats,13.38,75.0,False
+PRM0022762,,0,STR001,SKU0002,2023-12-22,2023-12-29,Percent Off,5,False,False,False,Festive Favourites,6.59,40.0,False
+PRM0023225,,0,STR001,SKU0004,2024-04-22,2024-04-26,Percent Off,20,False,False,False,Everyday Value,26.07,75.0,False
+PRM0023643,,0,STR001,SKU0004,2023-12-18,2023-12-24,Bundle,25,True,False,False,Festive Favourites,70.0,75.0,False
+PRM0024200,,0,STR002,SKU0004,2024-06-28,2024-07-03,Bundle,25,True,False,False,Payday Offers,37.18,60.0,False

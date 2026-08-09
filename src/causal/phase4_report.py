@@ -155,7 +155,8 @@ def figure_event_study(events: pd.DataFrame, target: float, figures: Path) -> Pa
     ax.fill_between(events["event_time"], events["ci_low"], events["ci_high"],
                     color=BLUE, alpha=0.16, linewidth=0)
     ax.plot(pre["event_time"], pre["estimate"], color=MUTED, marker="o", markersize=5,
-            markeredgecolor=SURFACE, markeredgewidth=1, label="Pre-promotion (parallel-trends test)")
+            markeredgecolor=SURFACE, markeredgewidth=1,
+        label="Pre-promotion (parallel-trends test)")
     ax.plot(post["event_time"], post["estimate"], color=BLUE, marker="o", markersize=5,
             markeredgecolor=SURFACE, markeredgewidth=1, label="Promotion window")
     ax.axhline(0, color=BASELINE, linewidth=1.2)
@@ -389,7 +390,9 @@ def build_report() -> Path:
         "",
         f"![Estimator comparison]({rel(fig_compare)})",
         "",
-        _table(comparison[["label", "estimate", "ci_low", "ci_high", "error", "pct_effect", "error_pp"]]
+        _table(comparison[[
+            "label", "estimate", "ci_low", "ci_high", "error", "pct_effect", "error_pp",
+        ]]
                .rename(columns={"label": "estimator", "estimate": "log effect",
                                 "ci_low": "CI low", "ci_high": "CI high", "error": "error",
                                 "pct_effect": "as %", "error_pp": "error (pp)"})),
@@ -495,12 +498,16 @@ def build_report() -> Path:
         _table(pd.DataFrame([
             {"sample": "All treated rows", "ATT": att_all["att_regression"],
              "error": att_all["att_regression"] - target,
-             "covariates balanced": f"{int(balance_all['balanced_after'].sum())}/{len(balance_all)}",
-             "momentum SMD after": balance_all.set_index('covariate').loc['momentum_ratio', 'smd_after']},
+             "covariates balanced":
+                 f"{int(balance_all['balanced_after'].sum())}/{len(balance_all)}",
+             "momentum SMD after":
+                 balance_all.set_index('covariate').loc['momentum_ratio', 'smd_after']},
             {"sample": "First promotion day only", "ATT": att_first["att_regression"],
              "error": att_first["att_regression"] - target,
-             "covariates balanced": f"{int(balance_first['balanced_after'].sum())}/{len(balance_first)}",
-             "momentum SMD after": balance_first.set_index('covariate').loc['momentum_ratio', 'smd_after']},
+             "covariates balanced":
+                 f"{int(balance_first['balanced_after'].sum())}/{len(balance_first)}",
+             "momentum SMD after":
+                 balance_first.set_index('covariate').loc['momentum_ratio', 'smd_after']},
         ])),
         "",
         "On all treated rows the weighting **overshoots** on the demand-history covariates — "
@@ -526,7 +533,8 @@ def build_report() -> Path:
         "",
         "### Overlap",
         "",
-        f"- Treated propensities span [{overlap['treated_min']:.4f}, {overlap['treated_max']:.4f}], "
+        f"- Treated propensities span "
+        f"[{overlap['treated_min']:.4f}, {overlap['treated_max']:.4f}], "
         f"controls [{overlap['control_min']:.4f}, {overlap['control_max']:.4f}].",
         f"- {overlap['share_control_above_treated_min'] * 100:.1f}% of control rows sit above the "
         "minimum treated propensity, so common support is wide.",

@@ -14,7 +14,7 @@ from __future__ import annotations
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, List
+from typing import List
 
 import matplotlib
 
@@ -280,7 +280,9 @@ def build_report() -> Path:
     ) / NORTHSTAR_HOLDOUT["Seasonal naive"]
 
     adopters_in_window = int(
-        frame.groupby("store_id")["promo2_active"].agg(lambda s: s.min() == 0 and s.max() == 1).sum()
+        frame.groupby("store_id")["promo2_active"]
+        .agg(lambda s: s.min() == 0 and s.max() == 1)
+        .sum()
     )
     never_adopters = int((frame.groupby("store_id")["promo2_active"].max() == 0).sum())
 
@@ -465,7 +467,8 @@ def build_report() -> Path:
                                              "ci_low": "CI low", "ci_high": "CI high",
                                              "as_pct": "as %"})),
         "",
-        f"**The naive estimate is {promo_effects.iloc[0]['estimate'] / max(promo_effects.iloc[1]['estimate'], 1e-9):.1f}x "
+        f"**The naive estimate is "
+        f"{promo_effects.iloc[0]['estimate'] / max(promo_effects.iloc[1]['estimate'], 1e-9):.1f}x "
         "the fixed-effects one** — Phase 4's central lesson, reproduced on real data where "
         "nobody designed the confounding in.",
         "",

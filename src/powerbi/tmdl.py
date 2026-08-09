@@ -600,7 +600,7 @@ def build(
         encoding="utf-8",
     )
     (definition / "database.tmdl").write_text(
-        f"database\n\tcompatibilityLevel: 1567\n", encoding="utf-8"
+        "database\n\tcompatibilityLevel: 1567\n", encoding="utf-8"
     )
     (model_root / "definition.pbism").write_text(
         '{\n  "version": "4.0",\n  "settings": {}\n}\n', encoding="utf-8"

@@ -230,7 +230,9 @@ def build_report() -> Path:
     true_elasticity = float(ground_truth["true_price_elasticity"].mean())
 
     mech = [f"mech_{models._slug(m)}" for m in models.PROMO_MECHANICS]
-    controlled_spec = ["log_price_ratio", "promo_flag", *mech, *models.SUPPORT_FLAGS, "log_footfall"]
+    controlled_spec = [
+        "log_price_ratio", "promo_flag", *mech, *models.SUPPORT_FLAGS, "log_footfall",
+    ]
 
     LOGGER.info("Fitting elasticity specifications")
     naive_fit = models.fit_within_ols(frame, "log_units", ["log_price_ratio"], "naive")
@@ -245,7 +247,10 @@ def build_report() -> Path:
 
     specs = pd.DataFrame([
         {"specification": "Naive: log(price) only", **naive_fit.row("log_price_ratio")},
-        {"specification": "+ promotion mechanism & support", **controlled_fit.row("log_price_ratio")},
+        {
+            "specification": "+ promotion mechanism & support",
+            **controlled_fit.row("log_price_ratio"),
+        },
         {"specification": "+ separate discount-dose term", **both_fit.row("log_price_ratio")},
     ])
     specs["true_value"] = true_elasticity
@@ -280,7 +285,9 @@ def build_report() -> Path:
     exposure["exposure"] = (
         exposure["true_cannibalisation_factor"] * exposure["promo_rate"] * exposure["skus"]
     )
-    exposure["error"] = by_category[by_category["discount_pct"] == 20].set_index("category")["error"]
+    exposure["error"] = by_category[
+        by_category["discount_pct"] == 20
+    ].set_index("category")["error"]
     spill_corr = float(exposure["error"].corr(exposure["exposure"]))
 
     # Naive log-log elasticity by segment, with the true segment value alongside.
@@ -291,7 +298,9 @@ def build_report() -> Path:
     naive_by_segment = models.elasticity_by_group(
         frame, "price_elasticity_segment", controlled_spec, "elasticity_by_segment"
     )
-    naive_by_segment["true_elasticity"] = naive_by_segment["price_elasticity_segment"].map(seg_truth)
+    naive_by_segment["true_elasticity"] = naive_by_segment[
+        "price_elasticity_segment"
+    ].map(seg_truth)
     naive_by_segment["error"] = naive_by_segment["estimate"] - naive_by_segment["true_elasticity"]
 
     LOGGER.info("Rendering figures")
@@ -396,7 +405,10 @@ def build_report() -> Path:
         "",
         "## 3. Non-price promotional channels",
         "",
-        _table(support[["channel", "estimate", "ci_low", "ci_high", "true_effect", "error", "ci_covers_truth"]]
+        _table(support[[
+            "channel", "estimate", "ci_low", "ci_high", "true_effect", "error",
+            "ci_covers_truth",
+        ]]
                .rename(columns={"estimate": "estimate", "ci_low": "CI low", "ci_high": "CI high",
                                 "true_effect": "truth", "error": "error",
                                 "ci_covers_truth": "CI covers truth"}), "{:.4f}"),
@@ -493,7 +505,10 @@ def build_report() -> Path:
         "- The generator applies two effects to the same discount: a price response "
         "`(1 - d/100)^elasticity` and a dose-dependent uplift `1 + uplift * d/10`.",
         f"- Across promoted rows those two functions of `d` correlate at "
-        f"**{np.corrcoef(frame.loc[frame.promo_flag == 1, 'log_price_ratio'], frame.loc[frame.promo_flag == 1, 'discount_dose'])[0, 1]:.4f}**.",
+        f"**{np.corrcoef(
+            frame.loc[frame.promo_flag == 1, 'log_price_ratio'],
+            frame.loc[frame.promo_flag == 1, 'discount_dose'],
+        )[0, 1]:.4f}**.",
         "",
         "Variance inflation factors make the consequence explicit:",
         "",
@@ -510,7 +525,8 @@ def build_report() -> Path:
         "",
         _table(naive_by_segment[[
             "price_elasticity_segment", "estimate", "ci_low", "ci_high", "true_elasticity", "error",
-        ]].rename(columns={"price_elasticity_segment": "segment", "estimate": "estimated elasticity",
+        ]].rename(columns={"price_elasticity_segment": "segment",
+                      "estimate": "estimated elasticity",
                            "ci_low": "CI low", "ci_high": "CI high",
                            "true_elasticity": "true elasticity", "error": "error"})),
         "",

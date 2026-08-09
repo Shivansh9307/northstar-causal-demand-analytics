@@ -209,7 +209,11 @@ def validate_schema(con: duckdb.DuckDBPyConnection) -> List[Dict[str, object]]:
     def check(name: str, sql: str, expected: int = 0) -> None:
         actual = con.execute(sql).fetchone()[0]
         results.append(
-            {"check": name, "passed": actual == expected, "detail": f"{actual:,} (expected {expected:,})"}
+            {
+            "check": name,
+            "passed": actual == expected,
+            "detail": f"{actual:,} (expected {expected:,})",
+        }
         )
 
     fact_rows = con.execute("SELECT COUNT(*) FROM fact_daily_store_sku").fetchone()[0]

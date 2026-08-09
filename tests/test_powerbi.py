@@ -525,7 +525,9 @@ def test_every_query_group_reference_is_declared():
             re.findall(r"^queryGroup '?([^'\n]+?)'?$", path.read_text(encoding="utf-8"), re.M)
         )
     for path in _tmdl_files():
-        used = re.findall(r"^\s*queryGroup: '?([^'\n]+?)'?$", path.read_text(encoding="utf-8"), re.M)
+        used = re.findall(
+            r"^\s*queryGroup: '?([^'\n]+?)'?$", path.read_text(encoding="utf-8"), re.M
+        )
         for group in used:
             assert group in declared, (
                 f"{path.name} references query group {group!r}, which no TMDL declares. "

@@ -66,7 +66,10 @@ def naive_estimates(frame: pd.DataFrame) -> pd.DataFrame:
     # Cross-sectional: promoted rows vs everything else.
     rows.append({
         "estimator": "Naive: promoted rows vs all others",
-        "estimate": float(frame.loc[treated, "log_units"].mean() - frame.loc[~treated, "log_units"].mean()),
+        "estimate": float(
+            frame.loc[treated, "log_units"].mean()
+            - frame.loc[~treated, "log_units"].mean()
+        ),
     })
 
     # Within-pair before/after: holds product and store identity fixed, but not time.
@@ -81,7 +84,9 @@ def naive_estimates(frame: pd.DataFrame) -> pd.DataFrame:
     ever = frame.groupby("pair_id")["promo_flag"].transform("max") == 1
     rows.append({
         "estimator": "Naive: ever-promoted vs never-promoted pairs",
-        "estimate": float(frame.loc[ever, "log_units"].mean() - frame.loc[~ever, "log_units"].mean()),
+        "estimate": float(
+            frame.loc[ever, "log_units"].mean() - frame.loc[~ever, "log_units"].mean()
+        ),
     })
     return pd.DataFrame(rows)
 

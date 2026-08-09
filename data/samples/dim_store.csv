@@ -1,0 +1,21 @@
+store_id,store_name,city,region,country,postcode_district,store_format,opening_date,floor_area_sqm,local_deprivation_decile,competition_intensity_score,average_daily_footfall,store_income_index,latitude,longitude,is_active,rollout_cohort
+STR001,Northstar London Suburban Supermarket,London,London,England,LO2,Suburban Supermarket,2008-02-15,4136,5,7,1536,111.3,51.51507,-0.1531,True,2
+STR002,Northstar Birmingham High Street,Birmingham,West Midlands,England,BI15,High Street,2012-10-15,782,4,6,900,111.7,52.43464,-1.8609,True,1
+STR003,Northstar Manchester Suburban Supermarket,Manchester,North West,England,MA14,Suburban Supermarket,2006-12-13,3922,7,4,1181,97.2,53.4551,-2.27077,True,0
+STR004,Northstar Liverpool City Convenience,Liverpool,North West,England,LI18,City Convenience,2011-12-12,211,2,6,1256,106.5,53.35957,-2.94232,True,1
+STR005,Northstar Leeds City Convenience,Leeds,Yorkshire and the Humber,England,LE11,City Convenience,2021-06-05,338,5,8,1164,87.6,53.73053,-1.50565,True,1
+STR006,Northstar Sheffield Suburban Supermarket,Sheffield,Yorkshire and the Humber,England,SH5,Suburban Supermarket,2016-02-23,2119,4,9,1505,103.3,53.38515,-1.44697,True,0
+STR007,Northstar Newcastle Suburban Supermarket,Newcastle,North East,England,NE10,Suburban Supermarket,2005-02-07,1897,8,4,1375,92.9,54.92635,-1.54034,True,0
+STR008,Northstar Bristol Suburban Supermarket,Bristol,South West,England,BR2,Suburban Supermarket,2019-04-17,1680,7,7,1398,108.8,51.42676,-2.51926,True,2
+STR009,Northstar Nottingham Retail Park Superstore,Nottingham,East Midlands,England,NO17,Retail Park Superstore,2021-04-12,8971,3,2,1742,86.2,52.92916,-1.14542,True,0
+STR010,Northstar Leicester High Street,Leicester,East Midlands,England,LE7,High Street,2006-02-21,991,9,5,505,90.1,52.66612,-1.17735,True,1
+STR011,Northstar Northampton City Convenience,Northampton,East Midlands,England,NO4,City Convenience,2009-04-19,287,7,6,967,110.0,52.13926,-1.01847,True,2
+STR012,Northstar Reading Retail Park Superstore,Reading,South East,England,RE9,Retail Park Superstore,2018-12-08,9672,10,5,1716,86.4,51.49855,-1.05279,True,1
+STR013,Northstar Southampton City Convenience,Southampton,South East,England,SO14,City Convenience,2017-04-22,274,10,6,825,112.6,50.87405,-1.52008,True,0
+STR014,Northstar Cardiff Suburban Supermarket,Cardiff,South Wales,Wales,CA3,Suburban Supermarket,2006-08-17,1819,5,7,1404,100.3,51.49236,-3.1615,True,1
+STR015,Northstar Swansea High Street,Swansea,South Wales,Wales,SW4,High Street,2019-03-09,1143,2,7,878,121.9,51.59801,-4.05373,True,2
+STR016,Northstar Edinburgh City Convenience,Edinburgh,Scotland,Scotland,ED9,City Convenience,2006-01-08,251,10,3,1248,84.8,56.12813,-3.15515,True,2
+STR017,Northstar Glasgow High Street,Glasgow,Scotland,Scotland,GL11,High Street,2020-06-08,466,3,9,797,87.8,55.92816,-4.23924,True,1
+STR018,Northstar Aberdeen High Street,Aberdeen,Scotland,Scotland,AB3,High Street,2009-08-20,995,2,4,661,92.7,57.15752,-2.01568,True,2
+STR019,Northstar Dundee City Convenience,Dundee,Scotland,Scotland,DU11,City Convenience,2010-10-13,332,1,4,931,89.1,56.40782,-2.89617,True,0
+STR020,Northstar Cambridge High Street,Cambridge,East of England,England,CA4,High Street,2014-01-09,776,3,10,589,90.2,52.12862,0.13561,True,0

@@ -378,7 +378,10 @@ def build_report() -> Path:
     for rate, label in (
         (0.0, "Ignored (0%)"),
         (0.02, "Conservative (2%)"),
-        (promo_lp.CANNIBALISATION_FIRST_PROMO, f"Measured in Phase 3 ({promo_lp.CANNIBALISATION_FIRST_PROMO:.1%})"),
+        (
+            promo_lp.CANNIBALISATION_FIRST_PROMO,
+            f"Measured in Phase 3 ({promo_lp.CANNIBALISATION_FIRST_PROMO:.1%})",
+        ),
     ):
         swept = promo_lp.build_candidates(
             pairs, causal_curve, category_baseline, cannibalisation_rate=rate
@@ -413,7 +416,10 @@ def build_report() -> Path:
         .groupby("discount_pct")["gross"]
         .apply(lambda s: float((s > 0).mean()) * 100)
         .reset_index()
-        .rename(columns={"discount_pct": "discount %", "gross": "% profitable before cannibalisation"})
+        .rename(columns={
+            "discount_pct": "discount %",
+            "gross": "% profitable before cannibalisation",
+        })
     )
 
     # ---- estimate-quality experiment -------------------------------------
@@ -450,6 +456,9 @@ def build_report() -> Path:
 
     LOGGER.info("Rendering figures")
     fig_service = figure_service_levels(optimal_policy, figures)
+    perishable = optimal_policy["is_perishable"]
+    perishable_service_level = optimal_policy.loc[perishable, "service_level"].median() * 100
+    ambient_service_level = optimal_policy.loc[~perishable, "service_level"].median() * 100
     fig_experiment = figure_estimate_quality(experiment, figures)
     fig_mc = figure_monte_carlo(draws, mc_summary, mc_sensitivity, figures)
 
@@ -493,7 +502,7 @@ def build_report() -> Path:
         f"£{mc_summary['p50']:,.0f}, against the optimiser's deterministic "
         f"£{mc_summary['deterministic']:,.0f} — a figure exceeded in only "
         f"{100 - mc_summary['probability_below_deterministic'] * 100:.0f}% of draws.",
-        f"- **The promotional pound figures are small on purpose, and section 2 explains why**: "
+        "- **The promotional pound figures are small on purpose, and section 2 explains why**: "
         "this simulation gives promotions no traffic-building effect, so every unit they "
         "generate is either own-SKU uplift or volume taken from a neighbour. The transferable "
         "result is the method and the relative comparison, not the absolute level.",
@@ -528,8 +537,8 @@ def build_report() -> Path:
         f"![Service levels]({rel(fig_service)})",
         "",
         "This produces a result that a flat policy cannot: **perishables optimally run lower "
-        f"service levels** (median {optimal_policy.loc[optimal_policy['is_perishable'], 'service_level'].median() * 100:.1f}% "
-        f"against {optimal_policy.loc[~optimal_policy['is_perishable'], 'service_level'].median() * 100:.1f}% "
+        f"service levels** (median {perishable_service_level:.1f}% "
+        f"against {ambient_service_level:.1f}% "
         "for ambient lines). Holding an extra unit of salad that will be thrown away costs the "
         "full unit cost; holding an extra tin costs a few pence of capital. Chasing 98% "
         "availability on fresh produce destroys margin.",
@@ -680,7 +689,8 @@ def build_report() -> Path:
         "",
         _table(curve_comparison, "{:.3f}"),
         "",
-        f"The causal plan captures **{causal_row['realised_profit'] / max(truth_row['realised_profit'], 1e-9) * 100:.1f}%** "
+        f"The causal plan captures "
+        f"**{causal_row['realised_profit'] / max(truth_row['realised_profit'], 1e-9) * 100:.1f}%** "
         "of what perfect knowledge would have delivered. The remaining gap is the price of "
         "estimation error that Phase 4 was explicit about — the DiD estimate is an upper bound, "
         "and an upper bound over-allocates.",

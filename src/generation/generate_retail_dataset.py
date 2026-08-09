@@ -22,7 +22,7 @@ import shutil
 from collections import Counter, defaultdict
 from datetime import date, timedelta
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -285,7 +285,14 @@ def ensure_output_directory() -> None:
 
 
 def easter_sunday(year: int) -> date:
-    """Return Gregorian Easter Sunday using the Meeus/Jones/Butcher algorithm."""
+    """
+    Return Gregorian Easter Sunday using the Meeus/Jones/Butcher algorithm.
+
+    The single-letter names are the algorithm's own, kept verbatim so this can be
+    checked line by line against the published form. `l` is flagged as ambiguous
+    by convention; renaming it would make the correspondence harder to verify,
+    which matters more here than the letter's shape.
+    """
     a = year % 19
     b = year // 100
     c = year % 100
@@ -296,7 +303,7 @@ def easter_sunday(year: int) -> date:
     h = (19 * a + b - d - g + 15) % 30
     i = c // 4
     k = c % 4
-    l = (32 + 2 * e + 2 * i - h - k) % 7
+    l = (32 + 2 * e + 2 * i - h - k) % 7  # noqa: E741 — the algorithm's own name
     m = (a + 11 * h + 22 * l) // 451
     month = (h + l - 7 * m + 114) // 31
     day_value = ((h + l - 7 * m + 114) % 31) + 1
@@ -330,7 +337,8 @@ def scotland_holidays(year: int) -> Dict[date, str]:
     holidays = england_wales_holidays(year)
     holidays[date(year, 1, 2)] = "2 January Holiday"
     aug_first = date(year, 8, 1)
-    holidays[aug_first + timedelta(days=(7 - aug_first.weekday()) % 7)] = "Scottish Summer Bank Holiday"
+    scottish_august = aug_first + timedelta(days=(7 - aug_first.weekday()) % 7)
+    holidays[scottish_august] = "Scottish Summer Bank Holiday"
     return holidays
 
 
@@ -359,12 +367,20 @@ def product_name(category: str, subcategory: str, brand_type: str, unit_size: st
     """Create plausible UK grocery product names."""
     prefixes = {
         "Own Label": "Northstar",
-        "Branded": RNG.choice(["Britannia", "Harbour", "Yorkshire", "Oakfield", "Crown", "Greenfield"]),
+        "Branded": RNG.choice(
+            ["Britannia", "Harbour", "Yorkshire", "Oakfield", "Crown", "Greenfield"]
+        ),
         "Premium": "Northstar Finest",
     }
     nouns = {
-        "Fruit": ["British Strawberries", "Easy Peeler Oranges", "Pink Lady Apples", "Seedless Grapes"],
-        "Vegetables": ["British Carrots", "Maris Piper Potatoes", "Tenderstem Broccoli", "Baby Spinach"],
+        "Fruit": [
+            "British Strawberries", "Easy Peeler Oranges", "Pink Lady Apples",
+            "Seedless Grapes",
+        ],
+        "Vegetables": [
+            "British Carrots", "Maris Piper Potatoes", "Tenderstem Broccoli",
+            "Baby Spinach",
+        ],
         "Salads": ["Mixed Leaf Salad", "Classic Coleslaw", "Sweetcorn Salad"],
         "Fresh Herbs": ["Fresh Basil", "Fresh Coriander", "Fresh Parsley"],
         "Bread": ["White Farmhouse Loaf", "Wholemeal Bread", "Sourdough Loaf"],
@@ -447,7 +463,9 @@ def generate_stores(n_stores: int) -> pd.DataFrame:
                 "country": country,
                 "postcode_district": postcode_district,
                 "store_format": store_format,
-                "opening_date": date(opening_year, int(RNG.integers(1, 13)), int(RNG.integers(1, 28))).isoformat(),
+                "opening_date": date(
+                    opening_year, int(RNG.integers(1, 13)), int(RNG.integers(1, 28))
+                ).isoformat(),
                 "floor_area_sqm": int(RNG.integers(*params["area"])),
                 "local_deprivation_decile": deprivation,
                 "competition_intensity_score": competition,
@@ -643,8 +661,13 @@ def generate_ground_truth(products: pd.DataFrame) -> pd.DataFrame:
     volatility_map = {"Low": 0.07, "Medium": 0.14, "High": 0.24}
 
     for product in products.itertuples(index=False):
-        elasticity = elasticity_map[product.price_elasticity_segment] * float(RNG.uniform(0.82, 1.18))
-        promo_uplift = sensitivity_map[product.promotion_sensitivity_segment] * float(RNG.uniform(0.80, 1.30))
+        elasticity = (
+            elasticity_map[product.price_elasticity_segment] * float(RNG.uniform(0.82, 1.18))
+        )
+        promo_uplift = (
+            sensitivity_map[product.promotion_sensitivity_segment]
+            * float(RNG.uniform(0.80, 1.30))
+        )
         rows.append(
             {
                 "sku_id": product.sku_id,
@@ -654,7 +677,9 @@ def generate_ground_truth(products: pd.DataFrame) -> pd.DataFrame:
                 "true_promo_uplift_pct": round(promo_uplift * 100, 2),
                 "true_display_uplift_pct": round(float(RNG.uniform(6, 18)), 2),
                 "true_email_app_uplift_pct": round(float(RNG.uniform(3, 11)), 2),
-                "true_seasonality_strength": round(volatility_map[product.demand_volatility_segment], 4),
+                "true_seasonality_strength": round(
+                    volatility_map[product.demand_volatility_segment], 4
+                ),
                 "true_weekend_effect_pct": round(float(RNG.uniform(3, 18)), 2),
                 "true_stockout_lost_sales_factor": round(float(RNG.uniform(0.70, 1.00)), 3),
                 "true_cannibalisation_factor": round(float(RNG.uniform(0.02, 0.10)), 3),
@@ -885,7 +910,9 @@ def generate_promotions(
     return promotions.reset_index(drop=True)
 
 
-def build_promo_lookup(promotions: pd.DataFrame) -> Dict[str, Dict[Tuple[str, str], Dict[str, Any]]]:
+def build_promo_lookup(
+    promotions: pd.DataFrame,
+) -> Dict[str, Dict[Tuple[str, str], Dict[str, Any]]]:
     lookup: Dict[str, Dict[Tuple[str, str], Dict[str, Any]]] = defaultdict(dict)
 
     for row in promotions.itertuples(index=False):
@@ -903,7 +930,10 @@ def build_promo_lookup(promotions: pd.DataFrame) -> Dict[str, Dict[Tuple[str, st
                     "vendor_funded_pct": row.vendor_funded_pct,
                     "duration_days": max(
                         1,
-                        (pd.Timestamp(row.promo_end_date) - pd.Timestamp(row.promo_start_date)).days + 1,
+                        (
+                            pd.Timestamp(row.promo_end_date)
+                            - pd.Timestamp(row.promo_start_date)
+                        ).days + 1,
                     ),
                 }
     return lookup
@@ -990,7 +1020,8 @@ def generate_facts(
     base_demand = product_index["base_demand_units"].to_numpy(dtype=float)
     regular_price = product_index["regular_unit_price_gbp"].to_numpy(dtype=float)
     unit_cost = product_index["unit_cost_gbp"].to_numpy(dtype=float)
-    shelf_life = product_index["shelf_life_days"].to_numpy(dtype=int)
+    # `shelf_life_days` is deliberately not pulled here: waste is driven by
+    # `is_perishable` below, and the unused array only looked like an input.
     minimum_display = product_index["minimum_display_stock"].to_numpy(dtype=int)
     lead_time = product_index["reorder_lead_time_days"].to_numpy(dtype=int)
     is_perishable = product_index["is_perishable"].to_numpy(dtype=bool)
@@ -1110,10 +1141,15 @@ def generate_facts(
         supplier_disruption = RNG.random(n_pairs) < 0.0025
         closure_store = RNG.random(n_stores) < 0.00065
         closure_flag = closure_store[pair_store_idx]
-        extreme_weather_flag = bool(cal["weather_condition"] == "Heavy Rain" and RNG.random() < 0.08)
+        extreme_weather_flag = bool(
+            cal["weather_condition"] == "Heavy Rain" and RNG.random() < 0.08
+        )
         unusual_spike = RNG.random(n_pairs) < 0.0008
         data_entry_error = RNG.random(n_pairs) < 0.00025
-        anomaly_flag = closure_flag | supplier_disruption | unusual_spike | data_entry_error | extreme_weather_flag
+        anomaly_flag = (
+            closure_flag | supplier_disruption | unusual_spike | data_entry_error
+            | extreme_weather_flag
+        )
 
         scheduled = ((day_idx + pair_sku_idx) % np.maximum(pair_lead_time + 1, 2) == 0)
         reorder_point = np.ceil(
@@ -1125,7 +1161,9 @@ def generate_facts(
             (RNG.random(n_pairs) < 0.035) | supplier_disruption
         )
 
-        target_stock = np.ceil(pair_base * RNG.integers(6, 12, size=n_pairs) + pair_min_display).astype(int)
+        target_stock = np.ceil(
+            pair_base * RNG.integers(6, 12, size=n_pairs) + pair_min_display
+        ).astype(int)
         delivery_units = np.where(
             delivery_scheduled & ~delivery_delay,
             np.maximum(0, target_stock - opening_stock) + RNG.integers(0, 6, size=n_pairs),
@@ -1133,7 +1171,11 @@ def generate_facts(
         ).astype(int)
         delivery_units += pending_deliveries.pop(day_idx, np.zeros(n_pairs, dtype=int))
 
-        delayed_amount = np.where(delivery_delay, np.maximum(1, np.ceil(pair_base * RNG.uniform(1, 3, n_pairs))).astype(int), 0)
+        delayed_amount = np.where(
+            delivery_delay,
+            np.maximum(1, np.ceil(pair_base * RNG.uniform(1, 3, n_pairs))).astype(int),
+            0,
+        )
         for delay_day in [1, 2, 3]:
             arriving = np.where(
                 delivery_delay & (RNG.integers(1, 4, size=n_pairs) == delay_day),
@@ -1143,16 +1185,25 @@ def generate_facts(
             pending_deliveries[day_idx + delay_day] += arriving
 
         promo_day = promo_lookup.get(current_date, {})
-        promo_key_values = [promo_day.get((sid, skuid)) for sid, skuid in zip(pair_store_ids, pair_sku_ids)]
+        promo_key_values = [
+            promo_day.get((sid, skuid))
+            for sid, skuid in zip(pair_store_ids, pair_sku_ids)
+        ]
         promo_flag = np.array([x is not None for x in promo_key_values], dtype=bool)
         discount = np.array([x["discount_pct"] if x else 0 for x in promo_key_values], dtype=float)
-        promo_type = np.array([x["promo_type"] if x else "None" for x in promo_key_values], dtype=object)
-        display_flag = np.array([x["display_support_flag"] if x else False for x in promo_key_values], dtype=bool)
-        email_flag = np.array([x["email_or_app_support_flag"] if x else False for x in promo_key_values], dtype=bool)
-        leaflet_flag = np.array([x["leaflet_support_flag"] if x else False for x in promo_key_values], dtype=bool)
-        vendor_funded = np.array([x["vendor_funded_pct"] if x else 0 for x in promo_key_values], dtype=float)
-        promo_event_cost = np.array([x["promotion_cost_gbp"] if x else 0 for x in promo_key_values], dtype=float)
-        promo_duration = np.array([x["duration_days"] if x else 1 for x in promo_key_values], dtype=float)
+        def _promo_field(key: str, default, dtype):
+            """Pull one promotion attribute across the pair axis, defaulting off-promo rows."""
+            return np.array(
+                [x[key] if x else default for x in promo_key_values], dtype=dtype
+            )
+
+        promo_type = _promo_field("promo_type", "None", object)
+        display_flag = _promo_field("display_support_flag", False, bool)
+        email_flag = _promo_field("email_or_app_support_flag", False, bool)
+        leaflet_flag = _promo_field("leaflet_support_flag", False, bool)
+        vendor_funded = _promo_field("vendor_funded_pct", 0, float)
+        promo_event_cost = _promo_field("promotion_cost_gbp", 0, float)
+        promo_duration = _promo_field("duration_days", 1, float)
 
         available_before_sales = opening_stock + delivery_units
 
@@ -1227,7 +1278,11 @@ def generate_facts(
         lambda_demand *= np.where(closure_flag, 0.0, 1.0)
         lambda_demand = np.maximum(0.01, lambda_demand)
 
-        dispersion = np.where(pair_volatility == "High", 4.0, np.where(pair_volatility == "Medium", 8.0, 15.0))
+        dispersion = np.where(
+            pair_volatility == "High",
+            4.0,
+            np.where(pair_volatility == "Medium", 8.0, 15.0),
+        )
         gamma_rate = RNG.gamma(shape=dispersion, scale=lambda_demand / dispersion)
         potential_demand = RNG.poisson(gamma_rate).astype(int)
 
@@ -1391,14 +1446,23 @@ def generate_facts(
         metrics["revenue"] += float(revenue.sum())
         metrics["gross_profit"] += float(gross_profit.sum())
         metrics["promotion_distribution"].update(promo_type[promo_flag].tolist())
-        for category, category_revenue in daily_df.groupby(pair_categories)["sales_revenue_gbp"].sum().items():
+        revenue_by_category = daily_df.groupby(pair_categories)["sales_revenue_gbp"].sum()
+        for category, category_revenue in revenue_by_category.items():
             metrics["category_sales"][category] += float(category_revenue)
 
         if (day_idx + 1) % CHUNK_DAYS == 0 or day_idx == len(calendar_df) - 1:
             inv_chunk = pd.concat(inventory_chunks, ignore_index=True)
             daily_chunk = pd.concat(daily_chunks, ignore_index=True)
-            write_csv(inv_chunk, "fact_inventory_delivery.csv", mode="a" if inventory_path.exists() else "w")
-            write_csv(daily_chunk, "fact_daily_store_sku.csv", mode="a" if daily_path.exists() else "w")
+            write_csv(
+                inv_chunk,
+                "fact_inventory_delivery.csv",
+                mode="a" if inventory_path.exists() else "w",
+            )
+            write_csv(
+                daily_chunk,
+                "fact_daily_store_sku.csv",
+                mode="a" if daily_path.exists() else "w",
+            )
             inventory_chunks.clear()
             daily_chunks.clear()
             LOGGER.info(
@@ -1443,7 +1507,9 @@ def create_data_dictionary(table_columns: Dict[str, List[str]]) -> pd.DataFrame:
         "store_id": "Unique Northstar store identifier.",
         "sku_id": "Unique stock keeping unit identifier.",
         "units_sold": "Observed units sold after inventory constraints.",
-        "potential_demand_units": "Simulated latent demand before stock constraints; validation only.",
+        "potential_demand_units": (
+            "Simulated latent demand before stock constraints; validation only."
+        ),
         "promo_flag": "Whether an observed promotion was active on the date.",
         "stockout_flag": "Whether demand exceeded saleable available stock.",
         "gross_profit_gbp": "Revenue less cost of goods sold and retailer-funded promotion cost.",
@@ -1474,12 +1540,16 @@ def create_data_dictionary(table_columns: Dict[str, List[str]]) -> pd.DataFrame:
                     "table_name": table_name,
                     "column_name": column,
                     "data_type": "Synthetic CSV field; infer with pandas",
-                    "description": descriptions.get(column, f"Synthetic {column.replace('_', ' ')} field."),
+                    "description": descriptions.get(
+                        column, f"Synthetic {column.replace('_', ' ')} field."
+                    ),
                     "grain": grain,
                     "whether_safe_for_model_training": safe,
                     "notes": (
-                        "Do not use simulated ground truth or post-outcome fields as model features."
-                        if column in unsafe or table_name == "ground_truth_simulation_parameters.csv"
+                        "Do not use simulated ground truth or post-outcome fields "
+                        "as model features."
+                        if column in unsafe
+                        or table_name == "ground_truth_simulation_parameters.csv"
                         else ""
                     ),
                 }
@@ -1496,7 +1566,9 @@ def create_readme(
     return f"""# PromoPulse: Causal Promotion, Demand and Inventory Optimisation
 
 ## Fictional business scenario
-Northstar Retail Group is a fictional UK mid-market grocery and convenience retailer operating City Convenience, High Street, Suburban Supermarket and Retail Park Superstore locations across England, Scotland and Wales.
+Northstar Retail Group is a fictional UK mid-market grocery and convenience retailer
+operating City Convenience, High Street, Suburban Supermarket and Retail Park Superstore
+locations across England, Scotland and Wales.
 
 ## Data model
 - `dim_store.csv`: store master data.
@@ -1513,7 +1585,8 @@ Relationships:
 - Daily facts link to `dim_store` through `store_id`.
 - Daily facts link to `dim_product` through `sku_id`.
 - Daily facts link to `dim_calendar` through `date`.
-- Promotion events can be joined to the daily fact table using store, SKU and the promotion-date range.
+- Promotion events can be joined to the daily fact table using store, SKU and the
+  promotion-date range.
 
 ## Entity counts and coverage
 - Stores: {len(stores):,}
@@ -1523,35 +1596,65 @@ Relationships:
 - Date range: {calendar_df["date"].min()} to {calendar_df["date"].max()}
 
 ## Synthetic demand logic
-Latent demand is generated through a noisy multiplicative process combining product base demand, store demand factor, weekday effect, seasonality, holiday and event effects, weather, price response, promotion uplift, marketing support, autocorrelation and stochastic variation. Demand is generated using a Gamma-Poisson mixture to create over-dispersion similar to retail demand.
+Latent demand is generated through a noisy multiplicative process combining product base
+demand, store demand factor, weekday effect, seasonality, holiday and event effects,
+weather, price response, promotion uplift, marketing support, autocorrelation and
+stochastic variation. Demand is generated using a Gamma-Poisson mixture to create
+over-dispersion similar to retail demand.
 
 ## Promotion-selection bias
-Promotions are intentionally not random. Products with stronger margin, seasonal relevance, own-label status and weakening demand momentum are more likely to receive promotions. That momentum is a real declining trend applied to latent demand, so the decline is visible in observed sales history and can legitimately be adjusted for by a propensity model. Higher-footfall stores receive more promotion events. Promotions cluster around Christmas, Easter, heatwaves, bank holidays and payday windows.
+Promotions are intentionally not random. Products with stronger margin, seasonal
+relevance, own-label status and weakening demand momentum are more likely to receive
+promotions. That momentum is a real declining trend applied to latent demand, so the
+decline is visible in observed sales history and can legitimately be adjusted for by a
+propensity model. Higher-footfall stores receive more promotion events. Promotions
+cluster around Christmas, Easter, heatwaves, bank holidays and payday windows.
 
 ## Staggered campaign rollout
-Roughly {CAMPAIGN_SHARE:.0%} of promotion events belong to multi-store campaigns identified by `campaign_id`. Stores join a campaign by `rollout_cohort` (assigned on footfall rank), entering after the wave offset recorded in `campaign_wave_days`. This produces genuine staggered adoption for difference-in-differences. The remaining events are store-local tactical promotions. SKUs that are never promoted anywhere form a never-treated control pool.
+Roughly {CAMPAIGN_SHARE:.0%} of promotion events belong to multi-store campaigns
+identified by `campaign_id`. Stores join a campaign by `rollout_cohort` (assigned on
+footfall rank), entering after the wave offset recorded in `campaign_wave_days`. This
+produces genuine staggered adoption for difference-in-differences. The remaining events
+are store-local tactical promotions. SKUs that are never promoted anywhere form a
+never-treated control pool.
 
 ## Treatment-effect ground truth
-`true_promo_uplift_pct` is a **structural coefficient applied per 10 percentage points of discount**, and it compounds with the separate price-elasticity response. It is not an average treatment effect and must not be compared directly against a DiD or PSM estimate. Use `true_realised_att_pct`, which is the exact simulated effect on latent demand averaged over each SKU's treated rows. Note that observed sales are stockout-censored, so an estimate recovered from `units_sold` will sit below the latent ATT.
+`true_promo_uplift_pct` is a **structural coefficient applied per 10 percentage points of
+discount**, and it compounds with the separate price-elasticity response. It is not an
+average treatment effect and must not be compared directly against a DiD or PSM estimate.
+Use `true_realised_att_pct`, which is the exact simulated effect on latent demand averaged
+over each SKU's treated rows. Note that observed sales are stockout-censored, so an
+estimate recovered from `units_sold` will sit below the latent ATT.
 
 ## Stockout censoring
-`potential_demand_units` represents latent uncensored demand. `units_sold` is constrained by available stock after deliveries, damage and waste. Therefore stockouts censor observed sales and create `lost_sales_estimate_units`. Inventory reconciliation is:
-`closing_stock = max(0, opening_stock + delivery_units - units_sold - damaged_units - expired_or_wasted_units)`.
+`potential_demand_units` represents latent uncensored demand. `units_sold` is constrained
+by available stock after deliveries, damage and waste. Therefore stockouts censor observed
+sales and create `lost_sales_estimate_units`. Inventory reconciliation is:
+`closing_stock = max(0, opening_stock + delivery_units - units_sold - damaged_units
+- expired_or_wasted_units)`.
 
 ## Data-quality checks completed
-The generator checks unique dimension keys, fact key construction, foreign-key validity, non-negative quantities, price and cost validity, discount bounds, inventory reconciliation, stock constraints, gross-profit reconciliation, never-treated pool integrity, headers and blank keys. Full results are written to `reports/data_quality_report.md`. Each check is verified by mutation testing in `tests/` — a corrupted value must make the corresponding check fail.
+The generator checks unique dimension keys, fact key construction, foreign-key validity,
+non-negative quantities, price and cost validity, discount bounds, inventory
+reconciliation, stock constraints, gross-profit reconciliation, never-treated pool
+integrity, headers and blank keys. Full results are written to
+`reports/data_quality_report.md`. Each check is verified by mutation testing in `tests/` —
+a corrupted value must make the corresponding check fail.
 
 ## Important modelling warning
-Do not use `potential_demand_units`, `lost_sales_estimate_units`, anomaly labels or `ground_truth_simulation_parameters.csv` as predictive or causal-model features. `ground_truth_simulation_parameters.csv` exists only to assess whether a model recovered the known simulated truth after modelling.
+Do not use `potential_demand_units`, `lost_sales_estimate_units`, anomaly labels or
+`ground_truth_simulation_parameters.csv` as predictive or causal-model features.
+`ground_truth_simulation_parameters.csv` exists only to assess whether a model recovered
+the known simulated truth after modelling.
 
 ## Suggested analysis tasks
-a. Regression analysis of price elasticity  
-b. Difference-in-differences study of promotion effect  
-c. Propensity-score-weighted promotion-effect study  
-d. Time-series demand forecasting  
-e. Stockout prediction  
-f. Profit-maximising promotion simulation  
-g. Replenishment recommendation  
+- Regression analysis of price elasticity
+- Difference-in-differences study of promotion effect
+- Propensity-score-weighted promotion-effect study
+- Time-series demand forecasting
+- Stockout prediction
+- Profit-maximising promotion simulation
+- Replenishment recommendation
 """
 
 
@@ -1676,7 +1779,11 @@ def validate_data(
     record("No blank or invalid daily foreign keys", bad_fk == 0, f"{bad_fk} violations")
     record("No negative daily quantities or prices", bad_neg == 0, f"{bad_neg} violations")
     record("Daily discount within 0-30%", bad_discount == 0, f"{bad_discount} violations")
-    record("Promoted price never exceeds regular price", bad_promo_price == 0, f"{bad_promo_price} violations")
+    record(
+        "Promoted price never exceeds regular price",
+        bad_promo_price == 0,
+        f"{bad_promo_price} violations",
+    )
     record("Units sold never exceed available stock", bad_stock == 0, f"{bad_stock} violations")
     record(
         "Gross profit reconciles to revenue - COGS - promo cost",
@@ -1734,8 +1841,16 @@ def validate_data(
         f"{recon_violations} violations, max difference {worst_recon_diff} units",
     )
     record("No duplicate inventory fact keys", not dup_inv)
-    record("Daily row count matches simulation", daily_keys == metrics["rows"], f"{daily_keys:,} rows")
-    record("Inventory row count matches simulation", inv_keys == metrics["rows"], f"{inv_keys:,} rows")
+    record(
+        "Daily row count matches simulation",
+        daily_keys == metrics["rows"],
+        f"{daily_keys:,} rows",
+    )
+    record(
+        "Inventory row count matches simulation",
+        inv_keys == metrics["rows"],
+        f"{inv_keys:,} rows",
+    )
     record(
         "Ground truth is outside data/raw",
         not (OUTPUT_DIR / "ground_truth_simulation_parameters.csv").exists(),
@@ -1797,7 +1912,9 @@ def write_quality_report(results: List[Dict[str, Any]], metrics: Dict[str, Any])
     return path
 
 
-def print_summary(metrics: Dict[str, Any], promotions: pd.DataFrame, calendar_df: pd.DataFrame) -> None:
+def print_summary(
+    metrics: Dict[str, Any], promotions: pd.DataFrame, calendar_df: pd.DataFrame
+) -> None:
     stockout_rate = metrics["stockouts"] / max(metrics["rows"], 1)
     promo_rate = metrics["promo_rows"] / max(metrics["rows"], 1)
 

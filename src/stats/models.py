@@ -280,7 +280,13 @@ def elasticity_by_group(
     rows = []
     for group, term in zip(groups, interaction_terms):
         stats = fit.row(term)
-        rows.append({group_column: group, "n_rows": int((work[group_column] == group).sum()), **stats})
+        rows.append(
+            {
+                group_column: group,
+                "n_rows": int((work[group_column] == group).sum()),
+                **stats,
+            }
+        )
     return pd.DataFrame(rows)
 
 
@@ -347,7 +353,10 @@ def dose_response(frame: pd.DataFrame, ground_truth: pd.DataFrame) -> pd.DataFra
     rows = []
     for level, term in zip(DISCOUNT_LEVELS, terms):
         stats = fit.row(term)
-        true_value = work.loc[promoted & (work["discount_pct"] == level), "true_effect"].mean() - reference
+        true_value = (
+            work.loc[promoted & (work["discount_pct"] == level), "true_effect"].mean()
+            - reference
+        )
         rows.append({
             "discount_pct": level,
             "n_rows": int((work["discount_pct"] == level).sum()),
@@ -365,7 +374,9 @@ def support_channel_effects(fit: FitResult, ground_truth: pd.DataFrame) -> pd.Da
     """Compare the estimated non-price promotional channels against the truth."""
     truths = {
         "display_support_flag": np.log1p(ground_truth["true_display_uplift_pct"].mean() / 100),
-        "email_or_app_support_flag": np.log1p(ground_truth["true_email_app_uplift_pct"].mean() / 100),
+        "email_or_app_support_flag": np.log1p(
+            ground_truth["true_email_app_uplift_pct"].mean() / 100
+        ),
         # The generator applies a flat 7% leaflet uplift, not a per-SKU parameter.
         "leaflet_support_flag": float(np.log1p(0.07)),
     }
@@ -409,11 +420,15 @@ def dose_response_by_group(
     rows = []
     for group in groups:
         in_group = work[group_column] == group
-        reference = work.loc[promoted & in_group & (work["discount_pct"] == 0), "true_effect"].mean()
+        reference = work.loc[
+            promoted & in_group & (work["discount_pct"] == 0), "true_effect"
+        ].mean()
         for level, term in zip(DISCOUNT_LEVELS, terms):
             stats = fit.row(f"{term}_x_{_slug(str(group))}")
             true_value = (
-                work.loc[promoted & in_group & (work["discount_pct"] == level), "true_effect"].mean()
+                work.loc[
+                    promoted & in_group & (work["discount_pct"] == level), "true_effect"
+                ].mean()
                 - reference
             )
             rows.append({
@@ -445,7 +460,9 @@ def spillover_diagnostic(frame: pd.DataFrame, max_others: int = 4) -> pd.DataFra
     Estimated on untreated rows only, with pair and date fixed effects absorbed,
     so the result is not confounded by promotions clustering on high-demand days.
     """
-    work = frame[["date", "store_id", "sku_id", "category", "promo_flag", "log_units", "pair_id"]].copy()
+    work = frame[[
+        "date", "store_id", "sku_id", "category", "promo_flag", "log_units", "pair_id",
+    ]].copy()
     category_promos = work.groupby(["date", "store_id", "category"])["promo_flag"].transform("sum")
     work["others_on_promo"] = (category_promos - work["promo_flag"]).clip(upper=max_others)
 
@@ -590,7 +607,9 @@ def vif_table(frame: pd.DataFrame, regressors: Sequence[str]) -> pd.DataFrame:
     return pd.DataFrame(rows).sort_values("vif", ascending=False).reset_index(drop=True)
 
 
-def residual_diagnostics(frame: pd.DataFrame, outcome: str, regressors: Sequence[str]) -> Dict[str, object]:
+def residual_diagnostics(
+    frame: pd.DataFrame, outcome: str, regressors: Sequence[str]
+) -> Dict[str, object]:
     """Fitted values and residuals from the within model, for plotting and tests."""
     columns = [outcome, *regressors]
     demeaned = two_way_within(frame, columns)

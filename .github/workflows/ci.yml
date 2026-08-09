@@ -1,0 +1,59 @@
+name: CI
+
+# Regenerates the dataset before testing rather than testing against committed
+# fixtures. Most of the suite is skipped without data/, so a run that skipped
+# generation would report green while exercising about a fifth of the tests —
+# and it would not check the claim the README makes, that the same seed
+# reproduces the same dataset from a clean checkout.
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Install Python and dependencies
+        run: uv sync --locked
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Generate the dataset
+        # ~35s in dev mode. config.yaml keeps full_mode false; the full-scale
+        # dataset is ~30M rows and has no place in CI.
+        run: uv run python src/generation/generate_retail_dataset.py
+
+      - name: Build the star schema
+        run: uv run python src/features/star_schema.py
+
+      - name: Test
+        # Rossmann is not redistributed, so tests/test_validation.py skips its
+        # data-dependent cases here. That is handled by their skip markers.
+        run: uv run pytest tests/ -q
+
+      - name: Confirm regeneration is deterministic
+        # The README claims the same seed produces byte-identical output. This
+        # regenerates over the top and fails if any checksum moved.
+        run: |
+          md5sum data/raw/*.csv data/ground_truth/*.csv | awk '{print $1}' > before.txt
+          uv run python src/generation/generate_retail_dataset.py
+          md5sum data/raw/*.csv data/ground_truth/*.csv | awk '{print $1}' > after.txt
+          diff before.txt after.txt || {
+            echo "::error::Regeneration is not deterministic — checksums moved."
+            exit 1
+          }

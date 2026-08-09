@@ -265,11 +265,18 @@ def run_holdout(
     rows.append({"model": "Seasonal naive", **evaluate(y_holdout, naive)})
 
     ridge = fit_ridge(X_train, y_train, categorical)
-    rows.append({"model": "Ridge", **evaluate(y_holdout, np.clip(ridge.predict(X_holdout), 0, None))})
+    rows.append(
+        {"model": "Ridge", **evaluate(y_holdout, np.clip(ridge.predict(X_holdout), 0, None))}
+    )
 
     booster = GradientBooster(categorical=categorical).fit(X_train, y_train)
     predictions = booster.predict(X_holdout)
-    rows.append({"model": f"Gradient boosting ({booster.backend})", **evaluate(y_holdout, predictions)})
+    rows.append(
+        {
+            "model": f"Gradient boosting ({booster.backend})",
+            **evaluate(y_holdout, predictions),
+        }
+    )
 
     return pd.DataFrame(rows), booster, X_holdout, predictions
 

@@ -149,17 +149,23 @@ are true, and only quoting the first would be dishonest.
 
 ## Reproducing it
 
+**To look at the data without regenerating anything**, `data/samples/` is committed: complete
+dimensions plus a fact slice covering the full two years, ~2 MB. `data/raw/` is 620 MB and
+gitignored.
+
 ```bash
-uv sync                                                    # Python >= 3.14
+uv sync                                                    # Python >= 3.14, versions pinned by uv.lock
 uv run python src/generation/generate_retail_dataset.py    # ~35s, deterministic
 uv run python src/features/star_schema.py                  # DuckDB + parquet
-uv run pytest tests/ -q                                    # 164 tests
+uv run pytest tests/ -q                                    # 196 tests
+uv run ruff check .                                        # lint
 ```
 
 Each phase report regenerates from its own entry point — `src/stats/phase3_report.py`,
 `src/causal/phase4_report.py`, and so on. Generation is driven entirely by `config/config.yaml`;
-the same seed produces byte-identical output. `full_mode: false` is the development default and
-keeps the dataset at 2.19M rows rather than ~30M.
+the same seed produces byte-identical output, which CI asserts by regenerating twice and
+comparing checksums. `full_mode: false` is the development default and keeps the dataset at
+2.19M rows rather than ~30M.
 
 Phase 7 additionally needs the Kaggle Rossmann `train.csv` and `store.csv` in `data/external/`.
 They are not redistributed here, and those tests skip cleanly without them.
@@ -175,3 +181,7 @@ They are not redistributed here, and those tests skip cleanly without them.
 - **The Power BI semantic model is generated, not hand-written** (`src/powerbi/tmdl.py`), so the
   schema cannot drift from the data it describes. The report's 66 visuals *are* hand-authored,
   and the generator will not overwrite them.
+
+---
+
+Licensed under the [MIT License](LICENSE).

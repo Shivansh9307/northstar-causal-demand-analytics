@@ -201,8 +201,12 @@ def figure_stockout(curve: pd.DataFrame, sweep: pd.DataFrame, deciles: pd.DataFr
     # gains curve shows the same fact in the form a planner actually uses it:
     # "target the riskiest X% of rows, catch Y% of stockouts".
     ordered_deciles = deciles.sort_values("decile", ascending=False)
-    captured = np.concatenate([[0.0], ordered_deciles["share_of_all_stockouts"].cumsum().to_numpy()])
-    targeted = np.concatenate([[0.0], (ordered_deciles["rows"].cumsum() / ordered_deciles["rows"].sum()).to_numpy()])
+    captured = np.concatenate(
+        [[0.0], ordered_deciles["share_of_all_stockouts"].cumsum().to_numpy()]
+    )
+    targeted = np.concatenate(
+        [[0.0], (ordered_deciles["rows"].cumsum() / ordered_deciles["rows"].sum()).to_numpy()]
+    )
     axes[2].plot(targeted * 100, captured * 100, color=BLUE, marker="o", markersize=5,
                  markeredgecolor=SURFACE, markeredgewidth=1)
     axes[2].plot([0, 100], [0, 100], color=MUTED, linewidth=1.5, linestyle="--")
@@ -254,7 +258,9 @@ def build_report() -> Path:
 
     LOGGER.info("Error by segment")
     by_promo = forecast.error_by_segment(holdout_frame, predictions, "promo_flag")
-    by_volatility = forecast.error_by_segment(holdout_frame, predictions, "demand_volatility_segment")
+    by_volatility = forecast.error_by_segment(
+        holdout_frame, predictions, "demand_volatility_segment"
+    )
     by_category = forecast.error_by_segment(holdout_frame, predictions, "category")
 
     LOGGER.info("Feature importance")
@@ -311,7 +317,9 @@ def build_report() -> Path:
     fig_importance = figure_importance(importance, importance_method, figures)
     fig_stockout = figure_stockout(curve, sweep, deciles, figures)
 
-    naive_wape = float(holdout_metrics.loc[holdout_metrics["model"] == "Seasonal naive", "wape"].iloc[0])
+    naive_wape = float(
+        holdout_metrics.loc[holdout_metrics["model"] == "Seasonal naive", "wape"].iloc[0]
+    )
     model_row = holdout_metrics.iloc[-1]
     improvement = (naive_wape - model_row["wape"]) / naive_wape
 

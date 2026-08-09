@@ -14,14 +14,12 @@ import sys
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
 import pytest
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT_ROOT / "src"))
 
 from causal import did, estimands, psm  # noqa: E402
-from stats import models  # noqa: E402
 from utils import config  # noqa: E402
 
 pytestmark = pytest.mark.skipif(

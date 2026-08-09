@@ -219,7 +219,11 @@ def standardised_differences(
             "smd_after": float(after),
             "balanced_after": bool(abs(after) < 0.1),
         })
-    return pd.DataFrame(rows).sort_values("smd_before", key=abs, ascending=False).reset_index(drop=True)
+    return (
+        pd.DataFrame(rows)
+        .sort_values("smd_before", key=abs, ascending=False)
+        .reset_index(drop=True)
+    )
 
 
 def overlap_summary(frame: pd.DataFrame, propensity: pd.Series) -> Dict[str, float]:
@@ -232,5 +236,7 @@ def overlap_summary(frame: pd.DataFrame, propensity: pd.Series) -> Dict[str, flo
         "control_max": float(propensity[~treated].max()),
         "treated_median": float(propensity[treated].median()),
         "control_median": float(propensity[~treated].median()),
-        "share_control_above_treated_min": float((propensity[~treated] > propensity[treated].min()).mean()),
+        "share_control_above_treated_min": float(
+            (propensity[~treated] > propensity[treated].min()).mean()
+        ),
     }

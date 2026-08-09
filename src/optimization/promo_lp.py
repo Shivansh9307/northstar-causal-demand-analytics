@@ -42,7 +42,7 @@ from __future__ import annotations
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Sequence
+from typing import Dict, List, Optional
 
 import numpy as np
 import pandas as pd
@@ -83,7 +83,9 @@ def build_candidates(
     of magnitude, so the report sweeps it rather than fixing it.
     """
     records: List[Dict[str, object]] = []
-    category_lookup = category_baseline.set_index(["store_id", "category"])["baseline_units_per_day"]
+    category_lookup = category_baseline.set_index(
+        ["store_id", "category"]
+    )["baseline_units_per_day"]
 
     for pair in pairs.itertuples(index=False):
         segment_curve = effect_curve.get(pair.price_elasticity_segment)

@@ -17,7 +17,7 @@ from __future__ import annotations
 import logging
 import sys
 from pathlib import Path
-from typing import Dict, List
+from typing import List
 
 import matplotlib
 
@@ -384,12 +384,16 @@ def build_report() -> Path:
             FROM analytics_daily GROUP BY 1 ORDER BY promo_flag
             """
         ).df()
+        stockout_multiple = (
+            promo_stockout.loc[1, "stockout_rate"] / promo_stockout.loc[0, "stockout_rate"]
+        )
 
         itt = con.execute(
             """
             SELECT SUM(CASE WHEN promo_scheduled_flag THEN 1 ELSE 0 END) AS scheduled,
                    SUM(CASE WHEN promo_flag THEN 1 ELSE 0 END) AS realised,
-                   SUM(CASE WHEN promo_scheduled_flag AND NOT promo_flag THEN 1 ELSE 0 END) AS suppressed
+                   SUM(CASE WHEN promo_scheduled_flag AND NOT promo_flag THEN 1 ELSE 0 END)
+            AS suppressed
             FROM analytics_daily
             """
         ).df().iloc[0]
@@ -404,7 +408,8 @@ def build_report() -> Path:
             )
             SELECT
                 (SELECT AVG(CASE WHEN actual_unit_price_gbp < regular_unit_price_gbp * 0.999
-                                 THEN 1.0 ELSE 0.0 END) * 100 FROM analytics_daily) AS discounted_pct,
+                                 THEN 1.0 ELSE 0.0 END) * 100 FROM analytics_daily)
+         AS discounted_pct,
                 MEDIAN(price_points) AS median_price_points,
                 SUM(CASE WHEN price_points = 1 THEN 1 ELSE 0 END) AS single_price_skus
             FROM per_sku
@@ -419,7 +424,8 @@ def build_report() -> Path:
                        MAX(CASE WHEN promo_flag THEN 1 ELSE 0 END) AS ever_treated
                 FROM analytics_daily GROUP BY 1, 2
             )
-            SELECT CASE WHEN p.ever_treated = 1 THEN 'Ever promoted' ELSE 'Never promoted' END AS grp,
+            SELECT CASE WHEN p.ever_treated = 1 THEN 'Ever promoted'
+                    ELSE 'Never promoted' END AS grp,
                    COUNT(DISTINCT (a.store_id, a.sku_id)) AS pairs,
                    AVG(a.units_sold) AS mean_units,
                    AVG(a.baseline_gross_margin_pct) AS mean_margin,
@@ -512,7 +518,9 @@ def build_report() -> Path:
             "",
             _fmt_table(
                 pd.DataFrame({
-                    "statistic": ["mean", "median", "std dev", "p05", "p95", "p99", "max", "zero-sales rows %"],
+                    "statistic": [
+            "mean", "median", "std dev", "p05", "p95", "p99", "max", "zero-sales rows %",
+        ],
                     "value": [
                         shape["mean"], shape["median"], shape["sd"], shape["p05"],
                         shape["p95"], shape["p99"], shape["max"], shape["zero_pct"],
@@ -580,7 +588,7 @@ def build_report() -> Path:
                 "{:.3f}",
             ),
             "",
-            f"Stockout risk is **{promo_stockout.loc[1, 'stockout_rate'] / promo_stockout.loc[0, 'stockout_rate']:.0f}x** "
+            f"Stockout risk is **{stockout_multiple:.0f}x** "
             "higher on promoted days, and the great majority of lost sales occur on them. This is "
             "the mechanism behind the central business question in PROJECT_ARCHITECTURE.md §2.",
             "",

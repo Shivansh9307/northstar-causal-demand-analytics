@@ -106,7 +106,9 @@ def test_never_treated_control_pool_exists(con):
 
 def test_feature_safe_columns_exclude_simulation_outputs(con):
     safe = set(star_schema.feature_safe_columns(con))
-    for column in ("potential_demand_units", "lost_sales_estimate_units", "anomaly_flag", "anomaly_type"):
+    for column in (
+        "potential_demand_units", "lost_sales_estimate_units", "anomaly_flag", "anomaly_type",
+    ):
         assert column not in safe
     for column in ("units_sold", "promo_flag", "discount_pct"):
         assert column in safe

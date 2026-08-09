@@ -90,7 +90,9 @@ def test_ground_truth_join_keys_are_not_blocked():
 
 
 def test_safe_feature_columns_filters_and_preserves_order():
-    columns = ["date", "potential_demand_units", "units_sold", "true_price_elasticity", "promo_flag"]
+    columns = [
+        "date", "potential_demand_units", "units_sold", "true_price_elasticity", "promo_flag",
+    ]
     assert leakage.safe_feature_columns(columns) == ["date", "units_sold", "promo_flag"]
 
 
