@@ -17,6 +17,38 @@ this document follows them rather than the other way round.
 
 ---
 
+## If you cloned this
+
+`DataFolder` is committed as a placeholder, not a working path. Power Query
+resolves relative paths against the Desktop process's working directory rather
+than the project file, so an absolute parameter is the predictable option — but
+an absolute path is by definition someone else's. Yours comes from:
+
+```bash
+uv run python src/powerbi/export.py    # if powerbi_data/ is not already there
+uv run python src/powerbi/tmdl.py      # prints the exact value to paste
+```
+
+The last thing `tmdl.py` prints is the string this model expects, already
+normalised with forward slashes and a trailing separator. Paste it into
+**Home → Transform data → Edit parameters → DataFolder**, then **Apply changes**
+and **Refresh**.
+
+To bake the path in instead of pasting it — useful when generating on one
+machine for another — pass it at generation time:
+
+```bash
+uv run python src/powerbi/tmdl.py \
+  --data-folder 'C:/Users/you/Desktop/northstar/powerbi_data/'
+```
+
+That writes the path into the model without changing where the CSVs are read
+from locally. Do not commit the result: a test rejects any `DataFolder` under a
+home directory, because the previous committed value was one person's Desktop
+layout published to a public repository.
+
+---
+
 ## Before you start
 
 1. **Do this before opening anything.** In **File → Options and settings →
@@ -33,21 +65,8 @@ this document follows them rather than the other way round.
 2. Open `Northstar.pbip`. It opens on **Executive Summary**, with all five pages
    built and populated.
 
-3. **Repoint the data folder.** `DataFolder` is generated with an absolute path,
-   so on any machine but the one that generated it, set it under
-   **Home → Transform data → Edit parameters** to your own
-   `.../powerbi_data/` — keep the trailing separator — then **Apply changes**
-   and **Refresh**.
-
-   To skip that step, generate for the target machine directly:
-
-   ```bash
-   uv run python src/powerbi/tmdl.py \
-     --data-folder 'C:/Users/you/Desktop/power-bi-northstar/powerbi_data/'
-   ```
-
-   Regenerate without the flag afterwards, so the repo isn't left holding
-   someone else's path.
+3. **Repoint the data folder.** See *If you cloned this* below — it is the one
+   value you must supply, and the model will not refresh until you do.
 
 4. On first open the model is unrefreshed, so expect banners about calculated
    objects needing a refresh and tables having no data. They clear once the

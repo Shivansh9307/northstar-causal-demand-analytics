@@ -1,4 +1,4 @@
-expression DataFolder = "C:/Users/Shivansh Chauhan/Desktop/power-bi-northstar/powerbi_data/" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+expression DataFolder = "C:/path/to/northstar-causal-demand-analytics/powerbi/powerbi_data/" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
 	lineageTag: data-folder-parameter
 
 	annotation PBI_NavigationStepName = Navigation

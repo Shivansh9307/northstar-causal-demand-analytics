@@ -343,6 +343,29 @@ def test_emitted_data_folder_is_normalised():
     assert literal.endswith("/") and not literal.endswith("//")
 
 
+def test_committed_data_folder_is_not_a_developer_home_path():
+    """
+    `build()` writes an absolute path for whichever machine generated the model,
+    which is correct for the generator and wrong for the repository. What got
+    committed was
+    `C:/Users/Shivansh Chauhan/Desktop/power-bi-northstar/powerbi_data/` — a
+    personal directory layout published to a public repo, and a value that
+    resolves for exactly one person.
+
+    A placeholder is not worse for a cloner: DataFolder is an Edit-parameters
+    value they must set on their own machine either way, and `tmdl.py` now
+    prints the exact string to paste in.
+    """
+    text = (DEFINITION / "expressions.tmdl").read_text(encoding="utf-8")
+    literal = re.search(r'expression DataFolder = "([^"]*)"', text).group(1)
+    lowered = literal.lower()
+    for marker in ("c:/users/", "/users/", "/home/", "\\users\\"):
+        assert marker not in lowered, (
+            f"committed DataFolder is a machine-specific home path: {literal!r}. "
+            "Use a placeholder; tmdl.py prints the real value on generation."
+        )
+
+
 def test_data_folder_is_an_editable_parameter():
     """
     Without the `meta [IsParameterQuery=...]` record this is a plain expression:

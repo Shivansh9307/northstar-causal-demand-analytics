@@ -669,4 +669,13 @@ if __name__ == "__main__":
     print(f"  measures: {result['measures']}")
     print(f"  data:     {result['data_folder']}")
     print(f"Report written to {result['report']}")
-    print(f"  pages:    {len(PAGES)} (scaffolded empty — see powerbi/PAGE_SPEC.md)")
+    print(f"  pages:    {len(PAGES)} (existing pages preserved — see powerbi/PAGE_SPEC.md)")
+
+    # The one value a cloner must supply by hand. Printing it in the exact form
+    # the parameter expects turns "edit the TMDL and hope" into copy-and-paste;
+    # the committed literal is a placeholder, so this is not optional for anyone
+    # who did not generate the model themselves.
+    print("\nBefore refreshing in Desktop, set the DataFolder parameter:")
+    print("  Home → Transform data → Edit parameters → DataFolder")
+    print(f"  {data_folder_literal(output_dir())}")
+    print("  (keep the trailing separator, then Apply changes and Refresh)")
