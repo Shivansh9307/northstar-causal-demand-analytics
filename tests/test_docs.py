@@ -140,6 +140,23 @@ def test_every_linked_report_and_image_exists():
             assert resolved.exists(), f"{document.name} links to a missing file: {target}"
 
 
+def test_every_screenshot_is_referenced():
+    """
+    The reverse of the check above, and the one that was missing.
+
+    `01_executive_summary.png` was committed and pushed while nothing linked to
+    it — a public repository carrying 400KB no reader would ever reach. Links
+    resolving says nothing about whether every committed asset is used.
+    """
+    prose = _text(README) + _text(CASE_STUDY)
+    orphans = [
+        path.name
+        for path in sorted((PROJECT_ROOT / "powerbi" / "screenshots").glob("*.png"))
+        if path.name not in prose
+    ]
+    assert not orphans, f"screenshots committed but referenced nowhere: {orphans}"
+
+
 def test_readme_stays_a_five_minute_read():
     """§8: 'tells the full business story in under a 5-minute read'."""
     words = len(re.findall(r"\S+", _text(README)))

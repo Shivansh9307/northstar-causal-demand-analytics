@@ -10,6 +10,11 @@ points.
 
 ## The business question
 
+![Executive Summary](powerbi/screenshots/01_executive_summary.png)
+
+Roughly a sixth of revenue is earned on promotion. The rest of this project asks how much of that
+was incremental.
+
 A promotion looks like it works: promoted SKU-days sell **127% more** than everything else. But
 that comparison quietly assumes three things that are not true.
 
