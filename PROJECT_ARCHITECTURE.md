@@ -157,17 +157,53 @@ Tests, basic CI (lint + test on push), pinned dependencies, `.gitignore` for lar
 
 ## 8. Definition of Done
 
-- [ ] All Phase 1 QA checks pass and are documented
-- [ ] Elasticity table produced with CIs, by segment
-- [ ] Naive vs DiD vs PSM promotion effect estimates all computed and compared against ground truth, with recovery error reported
-- [ ] Demand forecast model beats seasonal-naive baseline on time-based holdout, MAPE reported
-- [ ] Stockout classifier evaluated on precision/recall, not accuracy
-- [ ] Reorder point optimizer and promo budget LP both produce concrete, justified recommendations
-- [ ] Monte Carlo simulation produces a profit range, not a point estimate
-- [ ] Pipeline re-run successfully against Rossmann external data, results documented honestly
-- [ ] Power BI report built on PBIP/TMDL with at least the 4 pages listed in Phase 8
-- [ ] README tells the full business story in under a 5-minute read, ends with an explicit limitations section
-- [ ] No ground-truth or leakage columns present in any trained model's feature set (automated check passes)
+Each item names the artifact that satisfies it. Nothing is ticked that cannot be pointed at.
+
+- [x] All Phase 1 QA checks pass and are documented — `reports/data_quality_report.md`, regenerated
+      by the generator itself. Each check is mutation-tested in `tests/test_data_quality.py`, so a
+      check that cannot fail is itself a test failure.
+- [x] Elasticity table produced with CIs, by segment — `reports/phase3_regression.md` and
+      `powerbi_data/dose_response.csv` (18 segment × discount-depth cells, 6/6 CIs covering truth).
+      Read the qualifier with it: what is identified is the **dose-response curve**, not a
+      structural price elasticity. Price moves only through promotions here, so the two collinear
+      channels cannot be separated, and §7's naive −3.88 is not reported as an elasticity.
+- [x] Naive vs DiD vs PSM promotion effect estimates all computed and compared against ground
+      truth, with recovery error reported — `reports/phase4_causal.md` sections 4–6. Naive 0.819,
+      five DiD specifications (best 0.675), IPW 0.510, all scored against the 0.5935 log-point
+      target from `src/causal/estimands.py`. The propensity arm carries balance and common-support
+      diagnostics (`figures/12_covariate_balance.png`).
+- [x] Demand forecast model beats seasonal-naive baseline on time-based holdout, MAPE reported —
+      `reports/phase5_forecasting.md`, WAPE 0.583 → 0.367 on the Oct–Dec holdout, pinned by
+      `tests/test_ml.py::test_gradient_boosting_beats_the_seasonal_naive_baseline`. MAPE is in every results
+      table because this list asks for it; WAPE is the primary metric and §5 of that report
+      explains why counts this small make MAPE misleading.
+- [x] Stockout classifier evaluated on precision/recall, not accuracy — PR-AUC 0.331 against a
+      0.0066 base rate, `reports/phase5_forecasting.md` section 6. Accuracy appears in the table
+      only to show it is uninformative at this class balance.
+- [x] Reorder point optimizer and promo budget LP both produce concrete, justified recommendations
+      — `powerbi_data/service_levels.csv`, `reorder_policy.csv` (3,000 pairs) and `promo_plan.csv`
+      (10 promotions), with the derivation in `reports/phase6_optimization.md`.
+- [x] Monte Carlo simulation produces a profit range, not a point estimate —
+      `powerbi_data/promo_plan_uncertainty.csv` and `promo_plan_draws.csv` (4,000 draws). The plan
+      is worth £337; the median outcome is −£268 with a 74.2% chance of loss, and the README quotes
+      both.
+- [x] Pipeline re-run successfully against Rossmann external data, results documented honestly —
+      `reports/phase7_external_validity.md`. The honesty is the finding: forecasting transferred
+      (WAPE 0.313 → 0.089), the causal design did not, and §3.2's assumption that Rossmann lacks a
+      staggered rollout was wrong and is corrected rather than quietly dropped.
+- [x] Power BI report built on PBIP/TMDL with at least the 4 pages listed in Phase 8 — five pages,
+      66 visuals, opened and refreshed in Desktop 2.155. Parity for every measure in
+      `powerbi_data/dax_parity.csv`; the build and the four defects it exposed are in
+      `reports/phase8_powerbi.md`.
+- [x] README tells the full business story in under a 5-minute read, ends with an explicit
+      limitations section — both pinned, by `tests/test_docs.py::test_readme_stays_a_five_minute_read`
+      and `::test_readme_has_the_limitations_section`, which also requires each named limitation to
+      survive a rewrite.
+- [x] No ground-truth or leakage columns present in any trained model's feature set (automated
+      check passes) — `src/data_quality/leakage.py` raises rather than warns, and is wired into
+      every place a feature set is formed (`stats/models.py`, `ml/features.py`, `causal/psm.py`,
+      `validation/rossmann.py`, `features/star_schema.py`). `tests/test_leakage.py` covers renamed
+      leaks as well as named ones.
 
 ---
 

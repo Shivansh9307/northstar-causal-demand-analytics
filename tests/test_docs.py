@@ -29,6 +29,7 @@ from powerbi.export import output_dir  # noqa: E402
 DATA = output_dir()
 README = PROJECT_ROOT / "README.md"
 CASE_STUDY = PROJECT_ROOT / "reports" / "case_study.md"
+ARCHITECTURE = PROJECT_ROOT / "PROJECT_ARCHITECTURE.md"
 PAGE_SPEC = PROJECT_ROOT / "powerbi" / "PAGE_SPEC.md"
 PHASE8 = PROJECT_ROOT / "reports" / "phase8_powerbi.md"
 REPORT_PAGES = PROJECT_ROOT / "powerbi" / "Northstar.Report" / "definition" / "pages"
@@ -249,6 +250,38 @@ def test_documents_claim_the_page_and_visual_counts_that_exist(document):
     assert "five pages" in live or "all five" in live, (
         f"{document.name} no longer claims the five pages that exist"
     )
+
+
+def test_definition_of_done_points_at_things_that_exist():
+    """
+    §8 is ticked, and a tick is only worth the pointer beside it. Every item
+    names an artifact — a report, a CSV, a module, a test — and a pointer that
+    has rotted is worse than no pointer, because it reads as evidence.
+
+    Written after the first draft of the ticked list cited
+    `test_boosting_beats_the_seasonal_naive_baseline`, which does not exist; the
+    real name is `test_gradient_boosting_...`.
+    """
+    section = _text(ARCHITECTURE).split("## 8. Definition of Done", 1)[1].split("\n## ", 1)[0]
+
+    unticked = re.findall(r"^- \[ \] (.+)$", section, re.MULTILINE)
+    assert not unticked, f"unticked Definition of Done items: {unticked}"
+
+    for test_name in set(re.findall(r"::(\w+)", section)):
+        found = any(
+            f"def {test_name}(" in path.read_text(encoding="utf-8")
+            for path in (PROJECT_ROOT / "tests").glob("test_*.py")
+        )
+        assert found, f"§8 cites {test_name}, which no test file defines"
+
+    for path in set(re.findall(r"`([\w/]+\.(?:py|csv|md|png))`", section)):
+        candidates = [
+            PROJECT_ROOT / path,
+            PROJECT_ROOT / "src" / path,
+            DATA / Path(path).name,
+            PROJECT_ROOT / "reports" / "figures" / Path(path).name,
+        ]
+        assert any(c.exists() for c in candidates), f"§8 cites {path}, which does not exist"
 
 
 def test_measure_count_in_prose_matches_the_library():
