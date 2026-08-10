@@ -284,6 +284,50 @@ def test_definition_of_done_points_at_things_that_exist():
         assert any(c.exists() for c in candidates), f"§8 cites {path}, which does not exist"
 
 
+def test_the_spec_benchmarks_the_att_against_the_realised_column():
+    """
+    §6 Phase 4.4 told the reader to score the treatment effect against
+    `true_promo_uplift_pct` for the whole build. That column is a structural
+    coefficient applied per 10pp of discount, not an average of what the
+    simulation did, so the "recovery error" it produces compares two different
+    quantities and means nothing.
+
+    The code never made the mistake — `src/causal/estimands.py` builds the
+    target and `tests/test_causal.py::test_promo_uplift_column_is_not_the_att`
+    pins the two apart — but the governing spec instructed it, which is the
+    worst place for it to live. Anyone following the document rather than
+    reading the code would have reproduced it.
+    """
+    phase4 = (
+        _text(ARCHITECTURE)
+        .split("**Phase 4 —", 1)[1]
+        .split("**Phase 5 —", 1)[0]
+    )
+    assert "true_realised_att_pct" in phase4, "Phase 4 must name the ATT benchmark"
+
+    # The wrong column may still appear, but only as the warning. If it is named
+    # without the right one in the same paragraph, it reads as an instruction.
+    for paragraph in phase4.split("\n\n"):
+        if "true_promo_uplift_pct" in paragraph:
+            assert "true_realised_att_pct" in paragraph, (
+                "true_promo_uplift_pct is named without the column that supersedes it"
+            )
+
+
+@pytest.mark.skipif(
+    not (PROJECT_ROOT / "data" / "ground_truth").exists(),
+    reason="ground truth not generated",
+)
+def test_columns_the_spec_names_exist_in_the_ground_truth():
+    """A benchmark column named in the spec but absent from the file is worse than none."""
+    headers: set[str] = set()
+    for path in (PROJECT_ROOT / "data" / "ground_truth").glob("*.csv"):
+        headers.update(pd.read_csv(path, nrows=0).columns)
+
+    for column in ("true_realised_att_pct", "true_promo_uplift_pct"):
+        assert column in headers, f"§6 names {column}, which no ground-truth file carries"
+
+
 def test_measure_count_in_prose_matches_the_library():
     """
     Three documents quoted three different numbers, none of which was 45. A
